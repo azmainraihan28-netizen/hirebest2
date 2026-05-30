@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom'
 import Layout from './components/Layout'
+import ProtectedRoute from './components/ProtectedRoute'
 import Home from './pages/Home'
 import Pricing from './pages/Pricing'
 import Analytics from './pages/Analytics'
@@ -12,10 +13,15 @@ import VsWorkable from './pages/VsWorkable'
 import VsLever from './pages/VsLever'
 import Login from './pages/Login'
 import Signup from './pages/Signup'
+import AuthCallback from './pages/AuthCallback'
 import Privacy from './pages/Privacy'
 import Terms from './pages/Terms'
 import Refund from './pages/Refund'
 import NotFound from './pages/NotFound'
+import Dashboard from './pages/Dashboard'
+import Account from './pages/Account'
+import Admin from './pages/Admin'
+import Checkout from './pages/Checkout'
 
 export default function App() {
   return (
@@ -34,10 +40,15 @@ export default function App() {
         <Route path="/privacy-policy" element={<Privacy />} />
         <Route path="/terms-and-conditions" element={<Terms />} />
         <Route path="/refund-policy" element={<Refund />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+        <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
+        <Route path="/admin" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
         <Route path="*" element={<NotFound />} />
       </Route>
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
+      <Route path="/auth/callback" element={<AuthCallback />} />
     </Routes>
   )
 }
