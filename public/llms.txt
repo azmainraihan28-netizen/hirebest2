@@ -1,0 +1,15 @@
+# HireBest
+
+> AI-powered resume screener for hiring teams. Upload CVs, paste a job description, and get ranked candidates with reasoning, missing-skills analysis, and interview questions in seconds.
+
+## Pages
+
+- [Home](/): Product overview and how HireBest screens CVs with AI.
+- [Pricing](/pricing): Basic, Advanced, Custom Integrated, and Monthly Retainer plans.
+- [Contact](/contact): WhatsApp and email support.
+
+## Optional
+
+- [Privacy Policy](/privacy-policy): How we handle your data.
+- [Terms & Conditions](/terms-and-conditions): Terms governing use of HireBest.
+- [Refund Policy](/refund-policy): When and how refunds are issued.

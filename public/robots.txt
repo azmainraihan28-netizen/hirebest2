@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /login
+Disallow: /signup
+Disallow: /analytics
+Disallow: /api/
+
+Sitemap: https://hirebest.online/sitemap.xml
