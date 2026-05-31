@@ -9,6 +9,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import crypto from 'crypto'
 import { createClient } from '@supabase/supabase-js'
+import { notifyAdmin, fmt } from './_lib/notify'
 
 export const config = { api: { bodyParser: false } } // raw body needed for HMAC
 
@@ -87,6 +88,28 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       if (['active', 'on_trial'].includes(status)) {
         await supa.from('profiles').update({ plan }).eq('id', userId)
       }
+
+      // Notify admin only on initial creation, not every update
+      if (eventName === 'subscription_created') {
+        const userEmail = attrs.user_email ?? attrs.email ?? '—'
+        const price = priceLabel(plan)
+        await notifyAdmin({
+          subject: `[HireBest] New ${plan} subscription — ${price}${attrs.test_mode ? ' (TEST)' : ''}`,
+          text: [
+            `🎉 New paid subscription`,
+            '',
+            fmt.kv('Customer', `${attrs.user_name ?? userEmail} <${userEmail}>`),
+            fmt.kv('Plan', `${plan} (${price})`),
+            fmt.kv('Status', status),
+            fmt.kv('Renews at', attrs.renews_at ?? '—'),
+            fmt.kv('Card', attrs.card_brand ? `${attrs.card_brand} ••${attrs.card_last_four}` : '—'),
+            fmt.kv('Test mode', !!attrs.test_mode),
+            fmt.kv('LS subscription ID', dataId),
+            fmt.kv('User ID', userId),
+          ].join('\n'),
+          replyTo: userEmail !== '—' ? userEmail : undefined,
+        })
+      }
     }
 
     else if (eventName === 'subscription_cancelled' || eventName === 'subscription_paused') {
@@ -96,6 +119,30 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         ends_at: attrs.ends_at ?? null,
         updated_at: new Date().toISOString(),
       }).eq('ls_subscription_id', dataId)
+
+      await notifyAdmin({
+        subject: `[HireBest] Subscription ${eventName === 'subscription_paused' ? 'paused' : 'cancelled'} — ${attrs.user_email ?? '—'}`,
+        text: [
+          `⚠️ ${eventName === 'subscription_paused' ? 'Subscription paused' : 'Subscription cancelled'}`,
+          '',
+          fmt.kv('Customer', attrs.user_email ?? '—'),
+          fmt.kv('Ends at', attrs.ends_at ?? '—'),
+          fmt.kv('LS subscription ID', dataId),
+        ].join('\n'),
+      })
+    }
+
+    else if (eventName === 'subscription_payment_failed') {
+      await notifyAdmin({
+        subject: `[HireBest] ⚠️ Payment FAILED — ${attrs.user_email ?? '—'}`,
+        text: [
+          `❌ Subscription payment failed`,
+          '',
+          fmt.kv('Customer', attrs.user_email ?? '—'),
+          fmt.kv('LS subscription ID', dataId),
+          'Action: check Lemon Squeezy dashboard for retry status.',
+        ].join('\n'),
+      })
     }
 
     else if (eventName === 'subscription_expired') {
@@ -104,6 +151,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         updated_at: new Date().toISOString(),
       }).eq('ls_subscription_id', dataId)
       if (userId) await supa.from('profiles').update({ plan: 'free' }).eq('id', userId)
+      await notifyAdmin({
+        subject: `[HireBest] Subscription EXPIRED — downgraded to free`,
+        text: [
+          `🔚 Subscription expired and user downgraded to free.`,
+          '',
+          fmt.kv('LS subscription ID', dataId),
+          fmt.kv('User ID', userId ?? '—'),
+        ].join('\n'),
+      })
     }
 
     else if (eventName === 'order_created') {
@@ -113,6 +169,19 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       const plan = VARIANT_TO_PLAN[variantId]
       if (plan === 'lifetime' && userId) {
         await supa.from('profiles').update({ plan: 'lifetime' }).eq('id', userId)
+        await notifyAdmin({
+          subject: `[HireBest] 💎 Lifetime purchase — $1,500${attrs.test_mode ? ' (TEST)' : ''}`,
+          text: [
+            `💎 New lifetime customer (Custom Integrated)`,
+            '',
+            fmt.kv('Customer', attrs.user_email ?? '—'),
+            fmt.kv('Order total', `$${(attrs.total ?? 150000) / 100}`),
+            fmt.kv('Test mode', !!attrs.test_mode),
+            fmt.kv('Order ID', dataId),
+            'Action: schedule kickoff call within 24h.',
+          ].join('\n'),
+          replyTo: attrs.user_email,
+        })
       }
     }
 
@@ -141,6 +210,16 @@ function readRaw(req: VercelRequest): Promise<Buffer> {
     req.on('end', () => resolve(Buffer.concat(chunks)))
     req.on('error', reject)
   })
+}
+
+function priceLabel(plan: string): string {
+  switch (plan) {
+    case 'basic':    return '$400/yr'
+    case 'advanced': return '$900/yr'
+    case 'lifetime': return '$1,500 one-time'
+    case 'retainer': return '$200/mo'
+    default:         return plan
+  }
 }
 
 function timingSafeEqualHex(a: string, b: string): boolean {
