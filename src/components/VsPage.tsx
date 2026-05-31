@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Check, ArrowRight } from 'lucide-react'
 import { useSeo } from '../lib/seo'
+import Breadcrumbs from './Breadcrumbs'
 
 type Row = { f: string; us: string; them: string }
 type Props = {
@@ -17,7 +18,8 @@ export default function VsPage({ competitor, headline, intro, forUs, forCompetit
   useSeo({ title: headline, description: intro })
   return (
     <>
-      <section className="max-w-4xl mx-auto px-5 pt-16 pb-10 text-center">
+      <Breadcrumbs trail={[{ name: 'Compare', href: '/pricing' }, { name: `vs ${competitor}` }]} schemaId={`vs-${competitor.toLowerCase()}-bc`}/>
+      <section className="max-w-4xl mx-auto px-5 pt-10 pb-10 text-center">
         <span className="chip">Comparison</span>
         <h1 className="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight">{headline}</h1>
         <p className="mt-5 text-[var(--color-muted)]">{intro}</p>

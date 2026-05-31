@@ -1,7 +1,8 @@
 import { Link } from 'react-router-dom'
 import { Check, X } from 'lucide-react'
 import { useSeo } from '../lib/seo'
-import { useSchema, faqPage, breadcrumb } from '../lib/schema'
+import { useSchema, faqPage } from '../lib/schema'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 const pricingFaqs = [
   { q: 'Are these prices final?', a: 'Each tier shows a range. The exact quote depends on scope, integrations, and branding requirements.' },
@@ -38,13 +39,10 @@ export default function Pricing() {
     description: 'Transparent plans from a $400/year standalone screener to a $1,500 one-time custom ATS build. No per-seat tax, no procurement cycle.',
   })
   useSchema('pricing-faq', faqPage(pricingFaqs))
-  useSchema('pricing-breadcrumb', breadcrumb([
-    { name: 'Home', url: 'https://hirebest.online/' },
-    { name: 'Pricing', url: 'https://hirebest.online/pricing' },
-  ]))
   return (
     <>
-      <section className="max-w-6xl mx-auto px-5 pt-16 pb-10 text-center">
+      <Breadcrumbs trail={[{ name: 'Pricing' }]} schemaId="pricing-breadcrumb"/>
+      <section className="max-w-6xl mx-auto px-5 pt-10 pb-10 text-center">
         <span className="chip">Pricing</span>
         <h1 className="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight">From a quick screener to a<br/><span className="gradient-text">fully integrated ATS</span></h1>
         <p className="mt-4 text-[var(--color-muted)]">Pick a yearly plan, then optionally add a monthly retainer for ongoing support.</p>

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { BarChart3, TrendingUp, Clock, Users, ArrowRight } from 'lucide-react'
 import { useSeo } from '../lib/seo'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 export default function Analytics() {
   useSeo({
@@ -9,7 +10,8 @@ export default function Analytics() {
   })
   return (
     <>
-      <section className="max-w-5xl mx-auto px-5 pt-16 pb-10 text-center">
+      <Breadcrumbs trail={[{ name: 'Analytics' }]} schemaId="analytics-bc"/>
+      <section className="max-w-5xl mx-auto px-5 pt-10 pb-10 text-center">
         <span className="chip">Analytics</span>
         <h1 className="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight">Hiring analytics that<br/><span className="gradient-text">actually move the needle</span></h1>
         <p className="mt-4 text-[var(--color-muted)] max-w-2xl mx-auto">Track screenings over time, average fit ratio, and most common missing skills — so you know which roles are bottlenecking your pipeline.</p>

@@ -1,0 +1,15 @@
+{
+  "name": "HireBest — AI Resume Screener",
+  "short_name": "HireBest",
+  "description": "Score 100 CVs in 38 seconds. AI resume screening for hiring teams.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#060a1a",
+  "theme_color": "#2f7bff",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/favicon-256.png", "sizes": "256x256", "type": "image/png", "purpose": "any" },
+    { "src": "/apple-touch-icon.png", "sizes": "180x180", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

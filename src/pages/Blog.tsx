@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { posts } from '../lib/posts'
 import { useSeo } from '../lib/seo'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 export default function Blog() {
   useSeo({
@@ -9,7 +10,8 @@ export default function Blog() {
   })
   return (
     <>
-      <section className="max-w-4xl mx-auto px-5 pt-16 pb-10 text-center">
+      <Breadcrumbs trail={[{ name: 'Blog' }]} schemaId="blog-breadcrumb"/>
+      <section className="max-w-4xl mx-auto px-5 pt-10 pb-10 text-center">
         <span className="chip">Blog</span>
         <h1 className="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight">Notes on hiring,<br/><span className="gradient-text">screening, and the AI shift</span></h1>
         <p className="mt-4 text-[var(--color-muted)]">Stories, benchmarks, and opinions from the HireBest team.</p>

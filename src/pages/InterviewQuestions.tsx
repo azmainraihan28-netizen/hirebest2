@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Sparkles, MapPin, Briefcase, ArrowRight } from 'lucide-react'
 import { useSeo } from '../lib/seo'
+import Breadcrumbs from '../components/Breadcrumbs'
 
 export default function InterviewQuestions() {
   useSeo({
@@ -33,7 +34,8 @@ export default function InterviewQuestions() {
 
   return (
     <>
-      <section className="max-w-4xl mx-auto px-5 pt-16 pb-10 text-center">
+      <Breadcrumbs trail={[{ name: 'Free Tools' }, { name: 'Interview Question Generator' }]} schemaId="tools-iq-bc"/>
+      <section className="max-w-4xl mx-auto px-5 pt-10 pb-10 text-center">
         <span className="chip">Free Tool</span>
         <h1 className="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight">Free AI <span className="gradient-text">Interview Question Generator</span></h1>
         <p className="mt-4 text-[var(--color-muted)]">Paste a JD. Get 5 tailored interview questions with model answers. No signup.</p>
