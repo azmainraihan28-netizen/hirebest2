@@ -1,12 +1,13 @@
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { NavLink, useLocation } from 'react-router-dom'
 import { useEffect, useState } from 'react'
-import { Plus, BarChart3, History, LogOut } from 'lucide-react'
+import { Plus, BarChart3, History } from 'lucide-react'
 import Logo from '../Logo'
+import SidebarUserMenu from './SidebarUserMenu'
 import { useAuth } from '../../lib/auth'
 import { listScreenings, type Screening } from '../../lib/screenings'
 
 export default function DashboardSidebar() {
-  const { user, signOut } = useAuth()
+  const { user } = useAuth()
   const loc = useLocation()
   const [recent, setRecent] = useState<Screening[]>([])
 
@@ -14,9 +15,6 @@ export default function DashboardSidebar() {
     if (!user) return
     listScreenings().then(setRecent)
   }, [user, loc.pathname])
-
-  const email = user?.email ?? ''
-  const initial = email.slice(0, 1).toUpperCase()
 
   return (
     <aside className="sidebar w-60 shrink-0 hidden md:flex flex-col h-screen sticky top-0">
@@ -47,15 +45,7 @@ export default function DashboardSidebar() {
         </div>
       </div>
 
-      <div className="p-3 border-t border-[var(--color-border)] flex items-center gap-3">
-        <div className="w-8 h-8 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-white text-xs font-semibold">{initial}</div>
-        <div className="flex-1 min-w-0">
-          <div className="text-xs truncate text-[var(--color-fg)]">{email}</div>
-        </div>
-        <button onClick={signOut} className="text-[var(--color-muted)] hover:text-white" title="Sign out">
-          <LogOut size={16}/>
-        </button>
-      </div>
+      <SidebarUserMenu />
     </aside>
   )
 }

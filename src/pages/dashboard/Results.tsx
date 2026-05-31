@@ -4,6 +4,7 @@ import { Search, Download, Mail, Plus, GitCompare, FileText, CheckCircle2, Alert
 import DashboardTopBar from '../../components/dashboard/DashboardTopBar'
 import CandidateRow from '../../components/dashboard/CandidateRow'
 import InterviewQsModal from '../../components/dashboard/InterviewQsModal'
+import CompareModal from '../../components/dashboard/CompareModal'
 import { getScreening, listCandidates, countMyCandidates, type Candidate, type Screening } from '../../lib/screenings'
 
 type Tab = 'All' | 'Fit' | 'Maybe' | 'Skip'
@@ -20,6 +21,7 @@ export default function Results() {
   const [sort, setSort] = useState<Sort>('Score')
   const [sel, setSel] = useState<Set<string>>(new Set())
   const [openQs, setOpenQs] = useState<Candidate | null>(null)
+  const [compareOpen, setCompareOpen] = useState(false)
   const [used, setUsed] = useState(0)
 
   useEffect(() => {
@@ -110,7 +112,15 @@ export default function Results() {
               <option value="Name">Sort: Name</option>
               <option value="Date">Sort: Date</option>
             </select>
-            <button onClick={() => alert('Coming soon — Compare modal')} className="btn-ghost text-xs"><GitCompare size={12}/>Compare</button>
+            <button
+              onClick={() => {
+                if (sel.size < 2) return alert('Select at least 2 candidates to compare.')
+                if (sel.size > 4) return alert('Compare up to 4 candidates at a time.')
+                setCompareOpen(true)
+              }}
+              className="btn-ghost text-xs">
+              <GitCompare size={12}/>Compare{sel.size > 0 ? ` (${sel.size})` : ''}
+            </button>
             <button onClick={exportCsv} className="btn-ghost text-xs"><Download size={12}/>CSV</button>
             <button onClick={emailSelected} className="btn-ghost text-xs"><Mail size={12}/>Email</button>
             <button onClick={() => nav('/dashboard/new')} className="btn-primary text-xs"><Plus size={12}/>New</button>
@@ -128,6 +138,12 @@ export default function Results() {
       </div>
 
       {openQs && <InterviewQsModal candidate={openQs} jd={screening.jd} onClose={() => setOpenQs(null)}/>}
+      {compareOpen && (
+        <CompareModal
+          candidates={cands.filter(c => sel.has(c.id))}
+          onClose={() => setCompareOpen(false)}
+        />
+      )}
     </>
   )
 }
