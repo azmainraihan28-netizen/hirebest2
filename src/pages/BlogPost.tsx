@@ -21,7 +21,7 @@ export default function BlogPost() {
   if (!post) return <div className="max-w-3xl mx-auto px-5 py-20"><h1 className="text-3xl font-bold">Not found</h1><Link to="/blog" className="btn-ghost mt-4">← Back to blog</Link></div>
   return (
     <article className="max-w-3xl mx-auto px-5 py-16">
-      <Link to="/blog" className="text-sm text-[var(--color-muted)] flex items-center gap-1 hover:text-white"><ArrowLeft size={14}/>Back to blog</Link>
+      <Link to="/blog" className="text-sm text-[var(--color-muted)] flex items-center gap-1 hover:text-[var(--color-fg)]"><ArrowLeft size={14}/>Back to blog</Link>
       <div className="mt-6 flex items-center gap-3 text-xs text-[var(--color-muted)]">
         <span className="chip">{post.category}</span>
         <span>{post.date}</span><span>·</span><span>{post.readTime}</span>

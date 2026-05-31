@@ -67,7 +67,7 @@ export default function InterviewQuestions() {
             {out.map((q, i) => (
               <div key={i} className="card p-6">
                 <div className="text-xs text-[var(--color-primary-2)] uppercase tracking-wider">Question {i+1}</div>
-                <p className="mt-2 font-semibold text-white">{q.q}</p>
+                <p className="mt-2 font-semibold text-[var(--color-fg)]">{q.q}</p>
                 <p className="mt-3 text-sm text-[var(--color-muted)] leading-relaxed"><b className="text-[var(--color-primary-2)]">Ideal answer:</b> {q.a}</p>
               </div>
             ))}

@@ -98,7 +98,7 @@ function UserRow({ u, defaultLimit, onChange }: { u: ExtProfile; defaultLimit: n
   }
 
   const planBadge = plan === 'lifetime'
-    ? 'bg-[var(--color-primary)] text-white'
+    ? 'bg-[var(--color-primary)] text-[var(--color-fg)]'
     : 'bg-[color-mix(in_srgb,var(--color-fg)_6%,transparent)] text-[var(--color-muted)] border border-[var(--color-border)]'
   const effectiveLimit = u.screening_limit ?? defaultLimit
   const limitDisplay = plan === 'lifetime' ? '∞' : `${u.screenings_used}/${effectiveLimit}`

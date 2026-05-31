@@ -23,7 +23,7 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between text-sm border-b border-[var(--color-border)] last:border-0 pb-2 last:pb-0">
       <span className="text-[var(--color-muted)]">{label}</span>
-      <span className="text-white">{value}</span>
+      <span className="text-[var(--color-fg)]">{value}</span>
     </div>
   )
 }

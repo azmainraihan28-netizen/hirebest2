@@ -11,7 +11,7 @@ export default function Footer() {
             <p className="mt-3 text-sm text-[var(--color-muted)] max-w-sm">AI Resume Screener for Hiring Teams. Score 100 CVs in 38 seconds.</p>
           </div>
           <div>
-            <h4 className="text-white text-sm font-semibold mb-3">Product</h4>
+            <h4 className="text-[var(--color-fg)] text-sm font-semibold mb-3">Product</h4>
             <ul className="text-sm text-[var(--color-muted)] space-y-2">
               <li><a href="/#features">Features</a></li>
               <li><Link to="/pricing">Pricing</Link></li>
@@ -20,7 +20,7 @@ export default function Footer() {
             </ul>
           </div>
           <div>
-            <h4 className="text-white text-sm font-semibold mb-3">Compare</h4>
+            <h4 className="text-[var(--color-fg)] text-sm font-semibold mb-3">Compare</h4>
             <ul className="text-sm text-[var(--color-muted)] space-y-2">
               <li><Link to="/vs-greenhouse">vs Greenhouse</Link></li>
               <li><Link to="/vs-workable">vs Workable</Link></li>
@@ -38,7 +38,7 @@ export default function Footer() {
           </div>
         </div>
         <div className="mt-10 select-none">
-          <div className="text-[clamp(2.5rem,12vw,9rem)] font-extrabold tracking-tighter leading-none text-transparent" style={{ WebkitTextStroke: '1px rgba(92,155,255,0.18)' }}>
+          <div className="text-[clamp(2.5rem,12vw,9rem)] font-extrabold tracking-tighter leading-none text-transparent" style={{ WebkitTextStroke: '1px color-mix(in srgb, var(--color-primary-2) 25%, transparent)' }}>
             HIREBEST
           </div>
         </div>

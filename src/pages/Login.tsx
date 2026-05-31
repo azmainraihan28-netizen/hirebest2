@@ -26,14 +26,14 @@ export default function Login() {
 
   return (
     <div className="min-h-screen flex">
-      <div className="hidden md:flex flex-col justify-between w-1/2 p-10 bg-gradient-to-br from-[var(--color-bg-2)] to-[var(--color-bg)] relative">
+      <div className="surface-dark hidden md:flex flex-col justify-between w-1/2 p-10 relative">
         <div className="glow absolute inset-0 -z-10"/>
         <Logo size={32}/>
         <div>
-          <h2 className="text-4xl font-extrabold tracking-tight">Screen 100 CVs in the time it takes to read 3.</h2>
-          <p className="mt-4 text-[var(--color-muted)] max-w-md">AI-powered resume screening for modern HR teams. Fit, Maybe, Skip — at a glance.</p>
+          <h2 className="text-4xl font-extrabold tracking-tight text-white">Screen 100 CVs in the time it takes to read 3.</h2>
+          <p className="mt-4 text-[#8a93b8] max-w-md">AI-powered resume screening for modern HR teams. Fit, Maybe, Skip — at a glance.</p>
         </div>
-        <p className="text-xs text-[var(--color-muted)]">© HireBest</p>
+        <p className="text-xs text-[#8a93b8]">© HireBest</p>
       </div>
       <div className="flex-1 flex items-center justify-center p-6">
         <div className="w-full max-w-sm">

@@ -130,7 +130,7 @@ function Features() {
             <div className="w-10 h-10 rounded-lg bg-[rgba(59,130,246,0.15)] flex items-center justify-center mb-4">
               <f.icon size={20} className="text-[var(--color-primary-2)]"/>
             </div>
-            <h3 className="text-lg font-semibold text-white mb-2">{f.title}</h3>
+            <h3 className="text-lg font-semibold text-[var(--color-fg)] mb-2">{f.title}</h3>
             <p className="text-sm text-[var(--color-muted)] leading-relaxed">{f.desc}</p>
           </div>
         ))}
@@ -150,7 +150,7 @@ function HowItWorks() {
         {steps.map(s => (
           <div key={s.n} className="card p-7">
             <div className="text-5xl font-extrabold gradient-text mb-3">{s.n}</div>
-            <h3 className="text-lg font-semibold text-white mb-2">{s.title}</h3>
+            <h3 className="text-lg font-semibold text-[var(--color-fg)] mb-2">{s.title}</h3>
             <p className="text-sm text-[var(--color-muted)] leading-relaxed">{s.desc}</p>
           </div>
         ))}
@@ -219,17 +219,17 @@ function SavingsCalculator() {
         <div>
           <h3 className="text-xl font-semibold mb-5">💰 How much will you save vs {tool}?</h3>
           <label className="block mb-4">
-            <span className="text-sm text-[var(--color-muted)]">How many roles do you hire per year? <b className="text-white">{roles}</b></span>
+            <span className="text-sm text-[var(--color-muted)]">How many roles do you hire per year? <b className="text-[var(--color-fg)]">{roles}</b></span>
             <input type="range" min={5} max={200} value={roles} onChange={e => setRoles(+e.target.value)} className="w-full mt-2" />
           </label>
           <label className="block mb-4">
-            <span className="text-sm text-[var(--color-muted)]">Average CVs you screen per role? <b className="text-white">{cvs}</b></span>
+            <span className="text-sm text-[var(--color-muted)]">Average CVs you screen per role? <b className="text-[var(--color-fg)]">{cvs}</b></span>
             <input type="range" min={20} max={500} value={cvs} onChange={e => setCvs(+e.target.value)} className="w-full mt-2" />
           </label>
           <div className="text-sm text-[var(--color-muted)] mb-2">Currently using</div>
           <div className="flex flex-wrap gap-2">
             {['Greenhouse','Workable','Lever','None'].map(t => (
-              <button key={t} onClick={() => setTool(t)} className={`px-3 py-1.5 rounded-md text-sm border ${tool === t ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-white' : 'border-[var(--color-border)] text-[var(--color-muted)]'}`}>{t}</button>
+              <button key={t} onClick={() => setTool(t)} className={`px-3 py-1.5 rounded-md text-sm border ${tool === t ? 'bg-[var(--color-primary)] border-[var(--color-primary)] text-[var(--color-fg)]' : 'border-[var(--color-border)] text-[var(--color-muted)]'}`}>{t}</button>
             ))}
           </div>
         </div>
@@ -238,10 +238,10 @@ function SavingsCalculator() {
           <div className="text-5xl font-extrabold gradient-text mt-2">${saved.toLocaleString()}</div>
           <div className="text-xs text-[var(--color-muted)] mt-2">${competitorCost[tool].toLocaleString()}/yr {tool} − $900/yr HireBest Advanced</div>
           <div className="grid grid-cols-2 gap-4 mt-6">
-            <div><div className="text-2xl font-bold text-white">{hours}h</div><div className="text-xs text-[var(--color-muted)]">Hours saved</div></div>
-            <div><div className="text-2xl font-bold text-white">{(roles*cvs).toLocaleString()}</div><div className="text-xs text-[var(--color-muted)]">Total CVs/yr</div></div>
+            <div><div className="text-2xl font-bold text-[var(--color-fg)]">{hours}h</div><div className="text-xs text-[var(--color-muted)]">Hours saved</div></div>
+            <div><div className="text-2xl font-bold text-[var(--color-fg)]">{(roles*cvs).toLocaleString()}</div><div className="text-xs text-[var(--color-muted)]">Total CVs/yr</div></div>
           </div>
-          <p className="text-sm mt-5 text-[var(--color-muted)]">We recommend the <b className="text-white">Advanced</b> plan.</p>
+          <p className="text-sm mt-5 text-[var(--color-muted)]">We recommend the <b className="text-[var(--color-fg)]">Advanced</b> plan.</p>
           <Link to="/pricing" className="btn-primary mt-4 w-full justify-center">Get Advanced</Link>
           <p className="text-[10px] text-[var(--color-muted)] mt-3 text-center">Estimates based on industry benchmarks. No data collected.</p>
         </div>
@@ -256,7 +256,7 @@ function PricingTiers() {
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
         {tiers.map(t => (
           <div key={t.name} className={`card p-6 relative ${t.popular ? 'border-[var(--color-primary)]' : ''}`}>
-            {t.popular && <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] px-3 py-1 rounded-full bg-[var(--color-primary)] text-white uppercase tracking-wider">Most popular</span>}
+            {t.popular && <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] px-3 py-1 rounded-full bg-[var(--color-primary)] text-[var(--color-fg)] uppercase tracking-wider">Most popular</span>}
             <h3 className="text-lg font-bold">{t.name}</h3>
             <p className="text-xs text-[var(--color-muted)] mt-1">{t.subtitle}</p>
             <div className="mt-5 flex items-baseline gap-1">
@@ -293,7 +293,7 @@ function PricingFAQ() {
       <div className="grid md:grid-cols-2 gap-4">
         {items.map(it => (
           <div key={it.q} className="card p-5">
-            <div className="font-medium text-white">{it.q}</div>
+            <div className="font-medium text-[var(--color-fg)]">{it.q}</div>
             <div className="text-sm text-[var(--color-muted)] mt-2 leading-relaxed">{it.a}</div>
           </div>
         ))}
@@ -326,7 +326,7 @@ function BlogStrip() {
         {articles.map(a => (
           <Link key={a.slug} to={`/blog/${a.slug}`} className="card p-6 hover:border-[var(--color-primary)] transition">
             <div className="text-xs text-[var(--color-muted)]">{a.read}</div>
-            <h4 className="mt-2 font-semibold text-white">{a.title}</h4>
+            <h4 className="mt-2 font-semibold text-[var(--color-fg)]">{a.title}</h4>
             <div className="mt-4 text-sm text-[var(--color-primary-2)] flex items-center gap-1">Read <ArrowRight size={14}/></div>
           </Link>
         ))}

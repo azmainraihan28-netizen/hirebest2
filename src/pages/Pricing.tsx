@@ -54,7 +54,7 @@ export default function Pricing() {
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-5">
           {tiers.map(t => (
             <div key={t.name} className={`card p-6 relative ${t.popular ? 'border-[var(--color-primary)]' : ''}`}>
-              {t.popular && <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] px-3 py-1 rounded-full bg-[var(--color-primary)] text-white uppercase tracking-wider">Most popular</span>}
+              {t.popular && <span className="absolute -top-3 left-1/2 -translate-x-1/2 text-[10px] px-3 py-1 rounded-full bg-[var(--color-primary)] text-[var(--color-fg)] uppercase tracking-wider">Most popular</span>}
               <h3 className="text-lg font-bold">{t.name}</h3>
               <p className="text-xs text-[var(--color-muted)] mt-1">{t.subtitle}</p>
               <div className="mt-5 flex items-baseline gap-1">
@@ -110,7 +110,7 @@ export default function Pricing() {
             { q: 'Need something custom?', a: 'Reach out — we tailor scope, integrations, and timelines for larger teams.' },
           ].map(it => (
             <div key={it.q} className="card p-5">
-              <div className="font-medium text-white">{it.q}</div>
+              <div className="font-medium text-[var(--color-fg)]">{it.q}</div>
               <div className="text-sm text-[var(--color-muted)] mt-2 leading-relaxed">{it.a}</div>
             </div>
           ))}

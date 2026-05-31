@@ -59,7 +59,7 @@ export default function VsPage({ competitor, headline, intro, forUs, forCompetit
               {rows.map(r => (
                 <tr key={r.f} className="border-b border-[var(--color-border)] last:border-0">
                   <td className="p-4 text-[var(--color-muted)]">{r.f}</td>
-                  <td className="p-4 text-white">{r.us}</td>
+                  <td className="p-4 text-[var(--color-fg)]">{r.us}</td>
                   <td className="p-4 text-[var(--color-muted)]">{r.them}</td>
                 </tr>
               ))}

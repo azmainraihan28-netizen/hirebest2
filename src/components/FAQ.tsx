@@ -12,7 +12,7 @@ export default function FAQ({ items, title = 'Frequently asked questions' }: { i
         {items.map((it, i) => (
           <div key={i} className="card overflow-hidden">
             <button onClick={() => setOpen(open === i ? null : i)} className="w-full flex items-center justify-between p-5 text-left">
-              <span className="font-medium text-white">{it.q}</span>
+              <span className="font-medium text-[var(--color-fg)]">{it.q}</span>
               <ChevronDown className={`transition ${open === i ? 'rotate-180' : ''}`} size={18} />
             </button>
             {open === i && <div className="px-5 pb-5 text-[var(--color-muted)] text-sm leading-relaxed">{it.a}</div>}

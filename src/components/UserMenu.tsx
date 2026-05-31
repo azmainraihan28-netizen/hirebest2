@@ -14,7 +14,7 @@ export default function UserMenu() {
 
   return (
     <div className="relative">
-      <button onClick={() => setOpen(!open)} className="w-9 h-9 rounded-full bg-[var(--color-primary)] text-white font-semibold text-sm flex items-center justify-center">
+      <button onClick={() => setOpen(!open)} className="w-9 h-9 rounded-full bg-[var(--color-primary)] text-[var(--color-fg)] font-semibold text-sm flex items-center justify-center">
         {initial}
       </button>
       {open && (

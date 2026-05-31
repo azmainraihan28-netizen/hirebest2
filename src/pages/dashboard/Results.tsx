@@ -109,7 +109,7 @@ export default function Results() {
           <div className="flex flex-wrap items-center gap-3">
             <div className="flex gap-1 bg-[color-mix(in_srgb,var(--color-fg)_4%,transparent)] rounded-md p-1">
               {(['All','Fit','Maybe','Skip'] as Tab[]).map(t => (
-                <button key={t} onClick={() => setTab(t)} className={`text-xs px-3 py-1.5 rounded ${tab === t ? 'bg-[var(--color-primary)] text-white' : 'text-[var(--color-muted)] hover:text-[var(--color-fg)]'}`}>
+                <button key={t} onClick={() => setTab(t)} className={`text-xs px-3 py-1.5 rounded ${tab === t ? 'bg-[var(--color-primary)] text-[var(--color-fg)]' : 'text-[var(--color-muted)] hover:text-[var(--color-fg)]'}`}>
                   {t} ({counts[t]})
                 </button>
               ))}

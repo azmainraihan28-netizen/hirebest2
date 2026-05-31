@@ -45,7 +45,7 @@ export default function Analytics() {
             { title: 'Time-to-shortlist', desc: 'Track the median hours between JD posting and first shortlist — the metric most ATSes refuse to surface.' },
           ].map(c => (
             <div key={c.title} className="card p-7">
-              <h3 className="text-lg font-semibold text-white">{c.title}</h3>
+              <h3 className="text-lg font-semibold text-[var(--color-fg)]">{c.title}</h3>
               <p className="text-sm text-[var(--color-muted)] mt-2 leading-relaxed">{c.desc}</p>
               <div className="mt-5 h-32 bg-[rgba(47,123,255,0.06)] rounded-lg border border-[var(--color-border)] flex items-end gap-1 p-3">
                 {[40, 65, 50, 80, 60, 95, 70, 88, 75].map((h, i) => (

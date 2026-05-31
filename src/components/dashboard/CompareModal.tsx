@@ -28,7 +28,7 @@ export default function CompareModal({ candidates, onClose }: { candidates: Cand
               return (
                 <div key={c.id} className={`card p-5 relative ${isWinner ? 'border-[var(--color-primary)]' : ''}`}>
                   {isWinner && (
-                    <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] px-2.5 py-0.5 rounded-full bg-[var(--color-primary)] text-white uppercase tracking-wider flex items-center gap-1">
+                    <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 text-[10px] px-2.5 py-0.5 rounded-full bg-[var(--color-primary)] text-[var(--color-fg)] uppercase tracking-wider flex items-center gap-1">
                       <Crown size={10}/>Top score
                     </span>
                   )}

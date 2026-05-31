@@ -25,7 +25,7 @@ export default function Blog() {
                 <span>·</span>
                 <span>{p.readTime}</span>
               </div>
-              <h2 className="mt-4 text-xl font-bold text-white">{p.title}</h2>
+              <h2 className="mt-4 text-xl font-bold text-[var(--color-fg)]">{p.title}</h2>
               <p className="mt-3 text-sm text-[var(--color-muted)] leading-relaxed">{p.excerpt}</p>
               <div className="mt-5 text-sm text-[var(--color-primary-2)]">Read →</div>
             </Link>
