@@ -3,6 +3,7 @@ import { ArrowRight, Sparkles, Layers, BarChart3, Mail, Lock, FileStack, Check, 
 import FAQ from '../components/FAQ'
 import { useState } from 'react'
 import { useSeo } from '../lib/seo'
+import { useSchema, organization, softwareApplication, faqPage } from '../lib/schema'
 
 const features = [
   { icon: Sparkles, title: 'AI scoring you can trust', desc: 'Each candidate gets a 0–100 match score with written reasoning citing the JD.' },
@@ -54,6 +55,9 @@ export default function Home() {
     title: 'HireBest — AI Resume Screener · Score 100 CVs in 38 Seconds',
     description: 'AI resume screener for hiring teams. Score 100 CVs in 38 seconds with JD-cited reasoning, missing-skill detection, and auto-generated interview questions.',
   })
+  useSchema('home-org', organization())
+  useSchema('home-app', softwareApplication())
+  useSchema('home-faq', faqPage(faqs))
   return (
     <>
       <Hero />

@@ -20,5 +20,8 @@ export type Profile = {
   email: string
   full_name: string | null
   role: 'user' | 'admin'
+  plan: 'free' | 'basic' | 'advanced' | 'lifetime' | 'retainer'
+  screening_limit: number | null
+  active: boolean
   created_at: string
 }

@@ -2,6 +2,7 @@ import { Link, useParams } from 'react-router-dom'
 import { getPost } from '../lib/posts'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useSeo } from '../lib/seo'
+import { useSchema, article, breadcrumb } from '../lib/schema'
 
 export default function BlogPost() {
   const { slug } = useParams()
@@ -11,6 +12,12 @@ export default function BlogPost() {
     description: post?.excerpt ?? 'HireBest blog',
     canonical: post ? `https://hirebest.online/blog/${post.slug}` : undefined,
   })
+  useSchema('post-article', post ? article({ title: post.title, description: post.excerpt, slug: post.slug, date: post.date, author: post.author }) : null)
+  useSchema('post-breadcrumb', post ? breadcrumb([
+    { name: 'Home', url: 'https://hirebest.online/' },
+    { name: 'Blog', url: 'https://hirebest.online/blog' },
+    { name: post.title, url: `https://hirebest.online/blog/${post.slug}` },
+  ]) : null)
   if (!post) return <div className="max-w-3xl mx-auto px-5 py-20"><h1 className="text-3xl font-bold">Not found</h1><Link to="/blog" className="btn-ghost mt-4">← Back to blog</Link></div>
   return (
     <article className="max-w-3xl mx-auto px-5 py-16">

@@ -1,6 +1,14 @@
 import { Link } from 'react-router-dom'
 import { Check, X } from 'lucide-react'
 import { useSeo } from '../lib/seo'
+import { useSchema, faqPage, breadcrumb } from '../lib/schema'
+
+const pricingFaqs = [
+  { q: 'Are these prices final?', a: 'Each tier shows a range. The exact quote depends on scope, integrations, and branding requirements.' },
+  { q: 'Can I upgrade later?', a: 'Yes. Start with Basic or Advanced and upgrade to Custom Integrated whenever you\'re ready.' },
+  { q: 'Do you offer ongoing support?', a: 'Yes — the Monthly Retainer covers maintenance, new features, and priority support after launch.' },
+  { q: 'Need something custom?', a: 'Reach out — we tailor scope, integrations, and timelines for larger teams.' },
+]
 
 const tiers = [
   { name: 'Basic', subtitle: 'Lean, self-hosted screener', price: '$400', per: '/ year', billing: 'Billed yearly — standalone HTML build', cta: 'Get Basic', features: ['HTML app with PDF upload', 'Smart AI scoring', 'CSV export of results', 'Runs locally on the client\'s laptop'] },
@@ -29,6 +37,11 @@ export default function Pricing() {
     title: 'Pricing — From $400/yr to fully integrated ATS',
     description: 'Transparent plans from a $400/year standalone screener to a $1,500 one-time custom ATS build. No per-seat tax, no procurement cycle.',
   })
+  useSchema('pricing-faq', faqPage(pricingFaqs))
+  useSchema('pricing-breadcrumb', breadcrumb([
+    { name: 'Home', url: 'https://hirebest.online/' },
+    { name: 'Pricing', url: 'https://hirebest.online/pricing' },
+  ]))
   return (
     <>
       <section className="max-w-6xl mx-auto px-5 pt-16 pb-10 text-center">
