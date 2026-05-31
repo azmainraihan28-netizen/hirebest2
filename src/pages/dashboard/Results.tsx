@@ -5,6 +5,7 @@ import DashboardTopBar from '../../components/dashboard/DashboardTopBar'
 import CandidateRow from '../../components/dashboard/CandidateRow'
 import InterviewQsModal from '../../components/dashboard/InterviewQsModal'
 import CompareModal from '../../components/dashboard/CompareModal'
+import { SkeletonRow, SkeletonStats } from '../../components/Skeleton'
 import { getScreening, listCandidates, countMyCandidates, type Candidate, type Screening } from '../../lib/screenings'
 
 type Tab = 'All' | 'Fit' | 'Maybe' | 'Skip'
@@ -79,7 +80,17 @@ export default function Results() {
     window.location.href = `mailto:?bcc=${emails}&subject=Interview opportunity`
   }
 
-  if (loading) return <><DashboardTopBar title="Loading…"/><div className="p-10 text-[var(--color-muted)]">Loading screening…</div></>
+  if (loading) return (
+    <>
+      <DashboardTopBar title="Loading…"/>
+      <div className="p-6 max-w-7xl mx-auto space-y-5">
+        <SkeletonStats count={4}/>
+        <div className="card p-5 space-y-3">
+          <SkeletonRow/><SkeletonRow/><SkeletonRow/>
+        </div>
+      </div>
+    </>
+  )
   if (!screening) return <><DashboardTopBar title="Not found"/><div className="p-10 text-[var(--color-muted)]">Screening not found.</div></>
 
   return (

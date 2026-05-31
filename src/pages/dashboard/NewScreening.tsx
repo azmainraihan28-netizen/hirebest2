@@ -2,13 +2,17 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Sparkles, Upload, FileText, X, AlertCircle } from 'lucide-react'
 import DashboardTopBar from '../../components/dashboard/DashboardTopBar'
+import UpgradeModal from '../../components/UpgradeModal'
 import { parseFile, pAll, type ParsedCV } from '../../lib/parsers'
-import { createScreening, insertCandidate, countMyCandidates } from '../../lib/screenings'
+import { createScreening, insertCandidate } from '../../lib/screenings'
+import { loadQuota, type QuotaState } from '../../lib/quota'
+import { useAuth } from '../../lib/auth'
 
 const ACCEPT = '.pdf,.docx,.txt,.png,.jpg,.jpeg,.svg,.webp'
-const LIMIT = 50
+const HARD_BATCH_CAP = 50
 
 export default function NewScreening() {
+  const { profile } = useAuth()
   const nav = useNavigate()
   const [name, setName] = useState('')
   const [jd, setJd] = useState('')
@@ -17,16 +21,23 @@ export default function NewScreening() {
   const [busy, setBusy] = useState(false)
   const [progress, setProgress] = useState({ done: 0, total: 0, label: '' })
   const [err, setErr] = useState<string | null>(null)
-  const [used, setUsed] = useState(0)
+  const [quota, setQuota] = useState<QuotaState | null>(null)
+  const [upgradeReason, setUpgradeReason] = useState<'quota-exceeded' | 'quota-warning' | 'inactive' | null>(null)
   const fileInput = useRef<HTMLInputElement | null>(null)
 
-  useEffect(() => { countMyCandidates().then(setUsed) }, [])
+  useEffect(() => {
+    if (profile) loadQuota(profile).then(setQuota)
+  }, [profile])
+
+  // Block suspended accounts immediately
+  useEffect(() => {
+    if (profile && profile.active === false) setUpgradeReason('inactive')
+  }, [profile])
 
   const addFiles = (incoming: FileList | File[]) => {
     const arr = Array.from(incoming)
-    setFiles(f => [...f, ...arr].slice(0, LIMIT))
+    setFiles(f => [...f, ...arr].slice(0, HARD_BATCH_CAP))
   }
-
   const removeFile = (i: number) => setFiles(f => f.filter((_, idx) => idx !== i))
 
   const uploadJD = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,19 +51,24 @@ export default function NewScreening() {
   }
 
   useEffect(() => {
-    const handler = (e: KeyboardEvent) => {
-      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') analyze()
-    }
+    const handler = (e: KeyboardEvent) => { if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') analyze() }
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
   })
 
   const analyze = async () => {
     setErr(null)
+    if (profile?.active === false) return setUpgradeReason('inactive')
     if (!jd.trim()) return setErr('Add a job description.')
     if (files.length === 0) return setErr('Add at least one CV.')
-    const screeningName = name.trim() || `Screening ${new Date().toLocaleString()}`
 
+    // Quota check (defense in client; webhook + RLS already protect data)
+    if (quota && !quota.unlimited) {
+      if (quota.remaining === 0) return setUpgradeReason('quota-exceeded')
+      if (files.length > quota.remaining) return setUpgradeReason('quota-warning')
+    }
+
+    const screeningName = name.trim() || `Screening ${new Date().toLocaleString()}`
     setBusy(true)
     setProgress({ done: 0, total: files.length, label: 'Parsing files…' })
     try {
@@ -68,9 +84,7 @@ export default function NewScreening() {
       setProgress({ done: 0, total: files.length, label: 'Scoring with AI…' })
       let done = 0
       await pAll(parsed, 4, async (p) => {
-        const cv = p.kind === 'text'
-          ? { text: p.text }
-          : { imageBase64: p.imageBase64, mimeType: p.mimeType }
+        const cv = p.kind === 'text' ? { text: p.text } : { imageBase64: p.imageBase64, mimeType: p.mimeType }
         const res = await fetch('/api/score', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -104,14 +118,18 @@ export default function NewScreening() {
       setErr(e.message ?? 'Something went wrong')
     } finally {
       setBusy(false)
+      if (profile) loadQuota(profile).then(setQuota)
     }
   }
 
-  const remaining = Math.max(0, LIMIT - used)
+  const used = quota?.used ?? 0
+  const limit = quota?.unlimited ? Infinity : (quota?.limit ?? 50)
+  const remaining = quota?.unlimited ? Infinity : (quota?.remaining ?? 0)
+  const isUnlim = !!quota?.unlimited
 
   return (
     <>
-      <DashboardTopBar title="New Screening" used={used} limit={LIMIT} />
+      <DashboardTopBar title="New Screening" used={used} limit={isUnlim ? 0 : limit as number} unlimited={isUnlim}/>
       <div className="p-6 max-w-6xl mx-auto space-y-5">
 
         <div className="card p-5 flex flex-col md:flex-row md:items-center gap-5">
@@ -121,12 +139,20 @@ export default function NewScreening() {
           </div>
           <div className="md:w-64">
             <div className="flex justify-between text-xs text-[var(--color-muted)] mb-1">
-              <span>Screenings used</span><span>{used} / {LIMIT}</span>
+              <span>Screenings used</span>
+              {isUnlim ? <span className="text-[var(--color-primary-2)]">Unlimited</span> : <span>{used} / {limit as number}</span>}
             </div>
-            <div className="h-1.5 rounded-full bg-[color-mix(in_srgb,var(--color-fg)_8%,transparent)] overflow-hidden">
-              <div className="h-full bg-[var(--color-primary)]" style={{ width: `${Math.min(100, (used/LIMIT)*100)}%` }}/>
-            </div>
-            <div className="text-[10px] text-[var(--color-muted)] mt-1">{remaining} screenings left</div>
+            {!isUnlim && (
+              <>
+                <div className="h-1.5 rounded-full bg-[color-mix(in_srgb,var(--color-fg)_8%,transparent)] overflow-hidden">
+                  <div className="h-full transition-all" style={{
+                    width: `${Math.min(100, (used/(limit as number))*100)}%`,
+                    background: (used / (limit as number)) >= 0.9 ? '#ef4444' : (used / (limit as number)) >= 0.7 ? '#f59e0b' : 'var(--color-primary)',
+                  }}/>
+                </div>
+                <div className="text-[10px] text-[var(--color-muted)] mt-1">{remaining as number} screenings left</div>
+              </>
+            )}
           </div>
         </div>
 
@@ -153,9 +179,9 @@ export default function NewScreening() {
             <div className="flex items-start justify-between mb-3">
               <div>
                 <h3 className="font-semibold">Candidate CVs</h3>
-                <p className="text-xs text-[var(--color-muted)]">Drop up to {LIMIT} PDF or DOCX files</p>
+                <p className="text-xs text-[var(--color-muted)]">Drop up to {HARD_BATCH_CAP} files per batch</p>
               </div>
-              <span className="text-xs text-[var(--color-muted)]">{files.length} / {LIMIT}</span>
+              <span className="text-xs text-[var(--color-muted)]">{files.length} / {HARD_BATCH_CAP}</span>
             </div>
 
             <div
@@ -212,6 +238,16 @@ export default function NewScreening() {
         </div>
 
       </div>
+
+      {upgradeReason && (
+        <UpgradeModal
+          reason={upgradeReason}
+          used={quota?.used}
+          limit={quota?.limit === Infinity ? 0 : (quota?.limit ?? 0)}
+          attemptedCount={files.length}
+          onClose={() => setUpgradeReason(null)}
+        />
+      )}
     </>
   )
 }

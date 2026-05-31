@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { BarChart3, TrendingUp, Users, Sparkles } from 'lucide-react'
 import DashboardTopBar from '../../components/dashboard/DashboardTopBar'
+import { SkeletonStats, Skeleton } from '../../components/Skeleton'
 import { listScreenings, listCandidates, type Candidate } from '../../lib/screenings'
 
 export default function DashAnalytics() {
@@ -18,7 +19,18 @@ export default function DashAnalytics() {
     })()
   }, [])
 
-  if (loading) return <><DashboardTopBar title="Analytics"/><div className="p-10 text-[var(--color-muted)]">Loading…</div></>
+  if (loading) return (
+    <>
+      <DashboardTopBar title="Analytics"/>
+      <div className="p-6 max-w-7xl mx-auto space-y-5">
+        <SkeletonStats count={4}/>
+        <div className="grid lg:grid-cols-2 gap-5">
+          <div className="card p-6"><Skeleton className="h-5 w-40 mb-5"/><div className="space-y-3">{[1,2,3,4,5].map(i => <Skeleton key={i} className="h-3 w-full"/>)}</div></div>
+          <div className="card p-6"><Skeleton className="h-5 w-40 mb-5"/><div className="space-y-3">{[1,2,3].map(i => <Skeleton key={i} className="h-3 w-full"/>)}</div></div>
+        </div>
+      </div>
+    </>
+  )
 
   const total = all.length
   const fit = all.filter(c => c.verdict === 'Fit').length
