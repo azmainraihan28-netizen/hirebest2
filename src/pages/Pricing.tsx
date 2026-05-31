@@ -11,10 +11,10 @@ const pricingFaqs = [
 ]
 
 const tiers = [
-  { name: 'Basic', subtitle: 'Lean, self-hosted screener', price: '$400', per: '/ year', billing: 'Billed yearly — standalone HTML build', cta: 'Get Basic', features: ['HTML app with PDF upload', 'Smart AI scoring', 'CSV export of results', 'Runs locally on the client\'s laptop'] },
-  { name: 'Advanced', popular: true, subtitle: 'Multi-user, branded workspace', price: '$900', per: '/ year', billing: 'Billed yearly — includes everything in Basic', cta: 'Get Advanced', features: ['Everything in Basic', 'Save multiple Job Descriptions', 'Screening history per JD', 'Login system (multi-user)', 'Custom company branding (logo, colors)', 'Bulk upload — 50+ PDFs at once'] },
-  { name: 'Custom Integrated', subtitle: 'Full ATS + database integration', price: '$1,500', per: ' one-time', billing: 'One-time payment — build time: 1–2 weeks', cta: 'Talk to us', features: ['Everything in Advanced', 'API integration', 'Role-based dashboard (Admin, Recruiter, Viewer)', 'Database storage (PostgreSQL or MongoDB)', 'Email notification when shortlist is ready', 'Custom workflow per client'] },
-  { name: 'Monthly Retainer', subtitle: 'Ongoing care for live deployments', price: '$200', per: '/ month', billing: 'Best for Advanced & Custom clients post-launch', cta: 'Start Retainer', features: ['Maintenance and bug fixes', '1–2 new feature additions per month', 'Priority Slack & email support', 'Quarterly client review calls'] },
+  { plan: 'basic',    name: 'Basic',              subtitle: 'Lean, self-hosted screener',     price: '$400',   per: '/ year',     billing: 'Billed yearly — standalone HTML build',     cta: 'Get Basic',     features: ['HTML app with PDF upload', 'Smart AI scoring', 'CSV export of results', 'Runs locally on the client\'s laptop'] },
+  { plan: 'advanced', name: 'Advanced', popular: true, subtitle: 'Multi-user, branded workspace', price: '$900', per: '/ year', billing: 'Billed yearly — includes everything in Basic', cta: 'Get Advanced', features: ['Everything in Basic', 'Save multiple Job Descriptions', 'Screening history per JD', 'Login system (multi-user)', 'Custom company branding (logo, colors)', 'Bulk upload — 50+ PDFs at once'] },
+  { plan: 'lifetime', name: 'Custom Integrated', subtitle: 'Full ATS + database integration', price: '$1,500', per: ' one-time', billing: 'One-time payment — build time: 1–2 weeks', cta: 'Get Custom', features: ['Everything in Advanced', 'API integration', 'Role-based dashboard (Admin, Recruiter, Viewer)', 'Database storage (PostgreSQL or MongoDB)', 'Email notification when shortlist is ready', 'Custom workflow per client'] },
+  { plan: 'retainer', name: 'Monthly Retainer',  subtitle: 'Ongoing care for live deployments', price: '$200', per: '/ month', billing: 'Best for Advanced & Custom clients post-launch', cta: 'Start Retainer', features: ['Maintenance and bug fixes', '1–2 new feature additions per month', 'Priority Slack & email support', 'Quarterly client review calls'] },
 ]
 
 const matrix = [
@@ -62,7 +62,7 @@ export default function Pricing() {
                 <span className="text-sm text-[var(--color-muted)]">{t.per}</span>
               </div>
               <p className="text-xs text-[var(--color-muted)] mt-2">{t.billing}</p>
-              <Link to="/contact" className={`mt-5 w-full justify-center ${t.popular ? 'btn-primary' : 'btn-ghost'}`}>{t.cta}</Link>
+              <Link to={`/checkout?plan=${t.plan}`} className={`mt-5 w-full justify-center ${t.popular ? 'btn-primary' : 'btn-ghost'}`}>{t.cta}</Link>
               <ul className="mt-5 space-y-2">
                 {t.features.map(f => (
                   <li key={f} className="text-xs text-[var(--color-muted)] flex gap-2"><Check size={14} className="text-[var(--color-primary)] mt-0.5 shrink-0"/>{f}</li>
