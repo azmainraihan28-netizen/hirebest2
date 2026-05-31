@@ -1,8 +1,13 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Sparkles, MapPin, Briefcase, ArrowRight } from 'lucide-react'
+import { useSeo } from '../lib/seo'
 
 export default function InterviewQuestions() {
+  useSeo({
+    title: 'Free AI Interview Question Generator',
+    description: 'Paste a JD. Get 5 tailored interview questions with model answers. Free, no signup, no usage limit.',
+  })
   const [jd, setJd] = useState('')
   const [loc, setLoc] = useState('')
   const [role, setRole] = useState('')

@@ -1,7 +1,12 @@
 import { Link } from 'react-router-dom'
 import { MessageCircle, Mail, ArrowRight } from 'lucide-react'
+import { useSeo } from '../lib/seo'
 
 export default function Contact() {
+  useSeo({
+    title: 'Contact HireBest — WhatsApp or email us',
+    description: 'Questions about plans, custom builds, or your existing order? Reach out — we usually reply within a few hours.',
+  })
   return (
     <section className="max-w-3xl mx-auto px-5 py-20 text-center">
       <span className="chip">Contact</span>

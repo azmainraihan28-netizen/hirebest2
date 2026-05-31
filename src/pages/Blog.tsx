@@ -1,7 +1,12 @@
 import { Link } from 'react-router-dom'
 import { posts } from '../lib/posts'
+import { useSeo } from '../lib/seo'
 
 export default function Blog() {
+  useSeo({
+    title: 'Blog — Hiring, screening, and the AI shift',
+    description: 'Stories, benchmarks, and opinions from the HireBest team on CV screening, ATS pricing, and AI in hiring.',
+  })
   return (
     <>
       <section className="max-w-4xl mx-auto px-5 pt-16 pb-10 text-center">

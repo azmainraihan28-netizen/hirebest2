@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
 import { Check, X } from 'lucide-react'
+import { useSeo } from '../lib/seo'
 
 const tiers = [
   { name: 'Basic', subtitle: 'Lean, self-hosted screener', price: '$400', per: '/ year', billing: 'Billed yearly — standalone HTML build', cta: 'Get Basic', features: ['HTML app with PDF upload', 'Smart AI scoring', 'CSV export of results', 'Runs locally on the client\'s laptop'] },
@@ -24,6 +25,10 @@ const matrix = [
 ]
 
 export default function Pricing() {
+  useSeo({
+    title: 'Pricing — From $400/yr to fully integrated ATS',
+    description: 'Transparent plans from a $400/year standalone screener to a $1,500 one-time custom ATS build. No per-seat tax, no procurement cycle.',
+  })
   return (
     <>
       <section className="max-w-6xl mx-auto px-5 pt-16 pb-10 text-center">

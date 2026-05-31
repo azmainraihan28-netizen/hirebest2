@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Sparkles, Layers, BarChart3, Mail, Lock, FileStack, Check, MessageCircle } from 'lucide-react'
 import FAQ from '../components/FAQ'
 import { useState } from 'react'
+import { useSeo } from '../lib/seo'
 
 const features = [
   { icon: Sparkles, title: 'AI scoring you can trust', desc: 'Each candidate gets a 0–100 match score with written reasoning citing the JD.' },
@@ -49,6 +50,10 @@ const articles = [
 const marqueeWords = ['38 SECONDS','100 CVS','AI POWERED','HIRE SMARTER','NO CREDIT CARD','BULK SCREENING']
 
 export default function Home() {
+  useSeo({
+    title: 'HireBest — AI Resume Screener · Score 100 CVs in 38 Seconds',
+    description: 'AI resume screener for hiring teams. Score 100 CVs in 38 seconds with JD-cited reasoning, missing-skill detection, and auto-generated interview questions.',
+  })
   return (
     <>
       <Hero />

@@ -2,7 +2,11 @@ User-agent: *
 Allow: /
 Disallow: /login
 Disallow: /signup
-Disallow: /analytics
+Disallow: /auth/
+Disallow: /dashboard
+Disallow: /account
+Disallow: /admin
+Disallow: /checkout
 Disallow: /api/
 
 Sitemap: https://hirebest.online/sitemap.xml

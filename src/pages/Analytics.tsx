@@ -1,7 +1,12 @@
 import { Link } from 'react-router-dom'
 import { BarChart3, TrendingUp, Clock, Users, ArrowRight } from 'lucide-react'
+import { useSeo } from '../lib/seo'
 
 export default function Analytics() {
+  useSeo({
+    title: 'Hiring Analytics — Track screenings, fit ratio, missing skills',
+    description: 'Track screening velocity, average fit ratio, and the most common missing skills across your hiring pipeline.',
+  })
   return (
     <>
       <section className="max-w-5xl mx-auto px-5 pt-16 pb-10 text-center">

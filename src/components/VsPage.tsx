@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
-import { Check, X, ArrowRight } from 'lucide-react'
+import { Check, ArrowRight } from 'lucide-react'
+import { useSeo } from '../lib/seo'
 
 type Row = { f: string; us: string; them: string }
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
 }
 
 export default function VsPage({ competitor, headline, intro, forUs, forCompetitor, rows, cta }: Props) {
+  useSeo({ title: headline, description: intro })
   return (
     <>
       <section className="max-w-4xl mx-auto px-5 pt-16 pb-10 text-center">
