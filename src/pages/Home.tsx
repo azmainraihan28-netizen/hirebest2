@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { ArrowRight, Sparkles, Layers, BarChart3, Mail, Lock, FileStack, Check, MessageCircle } from 'lucide-react'
 import FAQ from '../components/FAQ'
+import SaaSBrowserReviews from '../components/SaaSBrowserReviews'
 import { useState } from 'react'
 import { useSeo } from '../lib/seo'
 import { useSchema, organization, softwareApplication, faqPage } from '../lib/schema'
@@ -65,7 +66,7 @@ export default function Home() {
       <Features />
       <HowItWorks />
       <Stats />
-      <Testimonial />
+      <SaaSBrowserReviews />
       <SavingsCalculator />
       <PricingTiers />
       <PricingFAQ />
