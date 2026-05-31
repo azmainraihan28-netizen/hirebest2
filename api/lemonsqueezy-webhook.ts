@@ -9,7 +9,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import crypto from 'crypto'
 import { createClient } from '@supabase/supabase-js'
-import { notifyAdmin, fmt } from './_lib/notify'
+import { notifyAdmin, fmt } from './_lib/notify.js'
 
 export const config = { api: { bodyParser: false } } // raw body needed for HMAC
 

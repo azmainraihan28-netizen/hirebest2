@@ -8,7 +8,7 @@
 //   Headers:  { "x-signup-secret": <NOTIFY_WEBHOOK_SECRET value> }
 
 import type { VercelRequest, VercelResponse } from '@vercel/node'
-import { notifyAdmin, fmt } from './_lib/notify'
+import { notifyAdmin, fmt } from './_lib/notify.js'
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).end()
