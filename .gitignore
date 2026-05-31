@@ -33,6 +33,10 @@ dist-ssr
 # Lovable scratchpad
 .lovable/
 
+# Claude Code harness (local agent scratch)
+.agents/
+.claude/
+
 # Editor
 .vscode/*
 !.vscode/extensions.json
