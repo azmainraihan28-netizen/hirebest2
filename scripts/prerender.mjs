@@ -76,6 +76,12 @@ const routes = [
     type: 'article',
   },
   {
+    path: '/blog/hirebest-vs-greenhouse-2026',
+    title: 'HireBest vs Greenhouse (2026): Which is Right for Your Team? · HireBest',
+    description: 'A direct comparison on pricing, AI features, and setup time — and which type of team belongs on each platform.',
+    type: 'article',
+  },
+  {
     path: '/blog/greenhouse-pricing-2026',
     title: "Greenhouse Pricing in 2026: What's Really Going On · HireBest",
     description: 'Public benchmarks, leaked quotes, and procurement reports — what an annual Greenhouse contract actually costs SMEs in 2026.',
