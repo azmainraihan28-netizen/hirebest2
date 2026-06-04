@@ -215,3 +215,83 @@ a { color: inherit; text-decoration: none; }
 :root:not([data-theme="light"]) .verdict-fit { color: #4ade80; }
 :root:not([data-theme="light"]) .verdict-maybe { color: #fbbf24; }
 :root:not([data-theme="light"]) .verdict-skip { color: #f87171; }
+
+/* smooth anchor scroll */
+html { scroll-behavior: smooth; }
+
+/* ── Hero entrance (plays on page load, no scroll trigger) ─────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(28px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.hero-anim { animation: fadeUp 0.7s cubic-bezier(0.22,1,0.36,1) both; }
+.hero-d1   { animation-delay: 0s;    }
+.hero-d2   { animation-delay: 0.13s; }
+.hero-d3   { animation-delay: 0.26s; }
+.hero-d4   { animation-delay: 0.39s; }
+.hero-d5   { animation-delay: 0.52s; }
+
+/* ── Scroll-triggered fade-up ─────────────────────────────────────── */
+.fade-up {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.65s cubic-bezier(0.22,1,0.36,1),
+              transform 0.65s cubic-bezier(0.22,1,0.36,1);
+}
+.fade-up.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Card hover lift ─────────────────────────────────────────────── */
+.card {
+  transition: transform 0.28s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.28s ease,
+              border-color 0.2s ease;
+}
+.card:hover { transform: translateY(-2px); }
+:root:not([data-theme="light"]) .card:hover {
+  box-shadow: 0 10px 36px rgba(47,123,255,0.14);
+}
+:root[data-theme="light"] .card:hover {
+  box-shadow: 0 6px 24px rgba(13,17,48,0.08);
+}
+
+/* ── Feature icon bounce on card hover ───────────────────────────── */
+.card-icon {
+  transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+.card:hover .card-icon { transform: scale(1.15) rotate(-5deg); }
+
+/* ── Button lift on hover ────────────────────────────────────────── */
+.btn-primary {
+  transition: opacity 0.18s, transform 0.22s cubic-bezier(0.22,1,0.36,1), box-shadow 0.22s;
+}
+.btn-primary:hover {
+  opacity: 0.95;
+  transform: translateY(-1px);
+  box-shadow: 0 8px 28px rgba(59,130,246,0.55);
+}
+.btn-primary:disabled { transform: none; box-shadow: 0 4px 20px rgba(59,130,246,0.35); }
+
+.btn-ghost {
+  transition: background 0.18s, transform 0.22s cubic-bezier(0.22,1,0.36,1), border-color 0.18s;
+}
+.btn-ghost:hover { transform: translateY(-1px); }
+
+/* ── Mobile nav slide-down ───────────────────────────────────────── */
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.mobile-menu { animation: slideDown 0.22s cubic-bezier(0.22,1,0.36,1); }
+
+/* ── CTA glow pulse ──────────────────────────────────────────────── */
+@keyframes glowPulse {
+  0%, 100% { opacity: 0.18; }
+  50%       { opacity: 0.38; }
+}
+.glow-pulse { animation: glowPulse 4s ease-in-out infinite; }
+
+/* ── Marquee pause on hover ──────────────────────────────────────── */
+.marquee:hover .marquee-track { animation-play-state: paused; }
