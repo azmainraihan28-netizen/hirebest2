@@ -47,8 +47,8 @@ const routes = [
   },
   {
     path: '/vs-greenhouse',
-    title: 'HireBest vs Greenhouse: Which AI Resume Screener Wins in 2026? · HireBest',
-    description: 'Greenhouse costs around $7,000/year. HireBest starts at $400/year. Compare features, pricing, and what each is built for.',
+    title: 'HireBest vs Greenhouse (2026): Which is Right for Your Team? · HireBest',
+    description: 'A direct comparison of HireBest and Greenhouse on pricing, AI features, setup time, and which type of team belongs on each platform.',
     type: 'website',
   },
   {
