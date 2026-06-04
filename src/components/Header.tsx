@@ -55,7 +55,7 @@ export default function Header() {
         </div>
       </div>
       {open && (
-        <div className="lg:hidden border-t border-[var(--color-border)] px-5 py-4 flex flex-col gap-3">
+        <div className="mobile-menu lg:hidden border-t border-[var(--color-border)] px-5 py-4 flex flex-col gap-3">
           {links.map(l => (
             <a key={l.to} href={l.to} className="text-[var(--color-muted)] hover:text-[var(--color-fg)]" onClick={() => setOpen(false)}>{l.label}</a>
           ))}
