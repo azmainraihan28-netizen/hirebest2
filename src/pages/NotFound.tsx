@@ -1,6 +1,13 @@
 import { Link } from 'react-router-dom'
+import { useSeo } from '../lib/seo'
 
 export default function NotFound() {
+  useSeo({
+    title: 'Page Not Found · HireBest',
+    description: 'This page does not exist. Head back to HireBest to screen CVs with AI.',
+    canonical: 'https://hirebest.online/',
+    noindex: true,
+  })
   return (
     <section className="max-w-2xl mx-auto px-5 py-32 text-center">
       <div className="text-7xl font-extrabold gradient-text">404</div>
