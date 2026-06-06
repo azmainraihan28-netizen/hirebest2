@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react'
 import { useSeo } from '../lib/seo'
 import { useSchema, organization, softwareApplication, faqPage, websiteSchema } from '../lib/schema'
 import { useInView } from '../lib/useInView'
+import TrustBar from '../components/TrustBar'
 
 const features = [
   { icon: Sparkles, title: 'AI scoring you can trust', desc: 'Each candidate gets a 0–100 match score with written reasoning citing the JD.' },
@@ -89,6 +90,7 @@ export default function Home() {
   return (
     <>
       <Hero />
+      <TrustBar />
       <Marquee />
       <Features />
       <HowItWorks />

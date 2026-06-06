@@ -59,9 +59,37 @@ export default function Analytics() {
         </div>
       </section>
 
+      <section className="max-w-4xl mx-auto px-5 py-16">
+        <h2 className="text-2xl md:text-3xl font-bold mb-8">Why hiring analytics matter</h2>
+        <div className="space-y-5 text-[var(--color-muted)] leading-relaxed">
+          <p>Most recruiting teams track time-to-hire. Very few track the step before it: time-to-shortlist — the gap between a JD going live and a recruiter handing over a ranked candidate list to the hiring manager. That gap is where most hiring slow-downs happen, and it is almost never measured.</p>
+          <p>HireBest analytics surface the metrics that actually explain pipeline velocity. If your fit ratio is consistently below 30%, the problem is sourcing — you are pulling from the wrong channels. If fit ratio is high but time-to-shortlist is long, the bottleneck is triage speed. If both are fine but roles keep stalling, the issue is downstream: interview scheduling, decision loops, or offer timelines.</p>
+          <p>The missing-skills heatmap is particularly useful for JD quality. When the same 3–4 skills appear as gaps across 80% of applicants for a role, there are two possible explanations: either the talent pool genuinely lacks those skills (a sourcing problem) or the JD is requiring skills that are unrealistic for the seniority level being offered (a JD problem). Knowing which it is changes what you do next.</p>
+        </div>
+      </section>
+
+      <section className="max-w-5xl mx-auto px-5 py-10">
+        <div className="grid md:grid-cols-3 gap-5">
+          {[
+            { q: 'Which plans include analytics?', a: 'Analytics ships with Advanced ($900/year) and Custom Integrated ($1,500 one-time) tiers. Basic plan includes screening only.' },
+            { q: 'Can multiple recruiters see the same dashboard?', a: 'Yes. Advanced plan includes full multi-user access. All team members see the same pipeline data — no per-seat limits.' },
+            { q: 'How far back does data go?', a: 'All screening history is stored and searchable. Metrics surface across any date range you choose.' },
+          ].map(item => (
+            <div key={item.q} className="card p-6">
+              <h3 className="font-semibold text-[var(--color-fg)] text-sm">{item.q}</h3>
+              <p className="mt-2 text-xs text-[var(--color-muted)] leading-relaxed">{item.a}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       <section className="max-w-4xl mx-auto px-5 py-16 text-center">
         <h2 className="text-3xl font-bold">Available on Advanced & Custom plans</h2>
         <p className="mt-3 text-[var(--color-muted)]">Analytics ships with multi-user workspaces — see <Link to="/pricing" className="text-[var(--color-primary-2)] underline">Pricing</Link> for details.</p>
+        <div className="mt-6 flex flex-wrap gap-3 justify-center">
+          <Link to="/pricing" className="btn-primary">See pricing <ArrowRight size={16}/></Link>
+          <Link to="/signup" className="btn-ghost">Start free</Link>
+        </div>
       </section>
     </>
   )
