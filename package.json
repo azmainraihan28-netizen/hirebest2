@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build && node scripts/snapshot.mjs",
-    "build:meta-only": "tsc -b && vite build && node scripts/prerender.mjs",
+    "build": "tsc -b && vite build && node scripts/prerender.mjs",
+    "build:snapshot": "tsc -b && vite build && node scripts/snapshot.mjs",
     "preview": "vite preview"
   },
   "dependencies": {
