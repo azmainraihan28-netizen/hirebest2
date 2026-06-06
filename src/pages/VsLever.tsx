@@ -1,5 +1,20 @@
 import VsPage from '../components/VsPage'
 
+const faqs = [
+  {
+    q: 'Is HireBest a replacement for Lever?',
+    a: 'HireBest and Lever solve different problems. Lever is a full talent CRM covering sourcing, candidate nurturing, pipeline management, and offer workflows. HireBest is an AI resume screener: upload a JD and CVs, get back a ranked shortlist with JD-cited scores in 38 seconds. Teams with large candidate volumes often use both.',
+  },
+  {
+    q: 'Why is HireBest so much cheaper than Lever?',
+    a: 'Lever is priced for enterprise talent operations teams — the $5,000–$25,000+/year range reflects per-seat licensing, dedicated CSM, and compliance documentation. HireBest is a flat-rate screener. No per-seat tax, no implementation project, no sales cycle. Advanced plan is $900/year regardless of team size.',
+  },
+  {
+    q: 'How long does HireBest take to set up vs Lever?',
+    a: 'HireBest is same-day: buy, deploy, start screening. Lever implementations typically run 4–12 weeks with IT involvement, data migration, and training. If your bottleneck is speed-to-shortlist rather than enterprise workflow, that 4–12 week gap matters.',
+  },
+]
+
 export default function VsLever() {
   return (
     <VsPage
@@ -16,6 +31,7 @@ export default function VsLever() {
         { f: 'Best for', us: 'Fast screening at any scale', them: 'Enterprise talent ops' },
       ]}
       cta="Run both for one hiring cycle and compare shortlist quality before you renew. HireBest from $400/year."
+      faqs={faqs}
     />
   )
 }

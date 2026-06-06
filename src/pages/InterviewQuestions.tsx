@@ -2,13 +2,26 @@ import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Sparkles, MapPin, Briefcase, ArrowRight } from 'lucide-react'
 import { useSeo } from '../lib/seo'
+import { useSchema, howTo } from '../lib/schema'
 import Breadcrumbs from '../components/Breadcrumbs'
+
+const howToSchema = howTo({
+  name: 'How to Generate AI Interview Questions',
+  description: 'Generate 5 tailored interview questions with model answers by pasting a job description into HireBest free tool.',
+  steps: [
+    { name: 'Paste the job description', text: 'Copy the full job description and paste it into the JD field. Up to 8,000 characters supported.' },
+    { name: 'Enter location and role details', text: 'Add the hiring location (required) and optional role title or seniority level to tailor the questions.' },
+    { name: 'Generate questions', text: 'Click "Generate 5 Questions". The AI produces 5 interview questions tailored to the JD within seconds.' },
+    { name: 'Review questions and ideal answers', text: 'Each question comes with a model ideal answer describing what strong candidates should cover.' },
+  ],
+})
 
 export default function InterviewQuestions() {
   useSeo({
     title: 'Free AI Interview Question Generator',
     description: 'Paste a JD. Get 5 tailored interview questions with model answers. Free, no signup, no usage limit.',
   })
+  useSchema('tools-iq-howto', howToSchema)
   const [jd, setJd] = useState('')
   const [loc, setLoc] = useState('')
   const [role, setRole] = useState('')

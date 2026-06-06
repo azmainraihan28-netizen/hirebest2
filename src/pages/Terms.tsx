@@ -1,6 +1,13 @@
 import LegalPage from '../components/LegalPage'
+import { useSeo } from '../lib/seo'
 
 export default function Terms() {
+  useSeo({
+    title: 'Terms & Conditions · HireBest',
+    description: 'Terms governing use of HireBest. AI outputs are decision-support, not final hiring decisions; human review is required.',
+    canonical: 'https://hirebest.online/terms-and-conditions',
+    noindex: true,
+  })
   return (
     <LegalPage title="Terms & Conditions" updated="Last updated: May 9, 2026">
       <h2>Service overview</h2>

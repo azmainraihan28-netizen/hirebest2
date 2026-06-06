@@ -1,5 +1,20 @@
 import VsPage from '../components/VsPage'
 
+const faqs = [
+  {
+    q: 'How does HireBest differ from Workable for resume screening?',
+    a: 'HireBest is purpose-built for AI resume screening — every CV gets a 0–100 score with JD-cited reasoning explaining why. Workable is a full ATS with semantic matching bolted on; the AI reasoning depth is limited. If your bottleneck is reading 100 CVs fast, HireBest solves it directly.',
+  },
+  {
+    q: 'Is HireBest cheaper than Workable?',
+    a: 'Yes. Workable starts at $299/month (~$3,588/year) with per-job posting limits on lower tiers. HireBest Advanced is $900/year flat with unlimited screenings. The Custom Integrated tier ($1,500 one-time) has no annual renewal at all.',
+  },
+  {
+    q: 'Does HireBest replace Workable entirely?',
+    a: 'No — and we say so honestly. Workable handles job posting, careers pages, candidate pipelines, and scheduling. HireBest handles one thing: getting from a pile of CVs to a ranked shortlist in seconds. Many teams use both: Workable for pipeline management, HireBest for triage.',
+  },
+]
+
 export default function VsWorkable() {
   return (
     <VsPage
@@ -16,6 +31,7 @@ export default function VsWorkable() {
         { f: 'Setup time', us: '1–14 days', them: '1–7 days' },
       ]}
       cta="Skip the monthly meter. Start screening with HireBest today."
+      faqs={faqs}
     />
   )
 }

@@ -89,3 +89,32 @@ export const breadcrumb = (trail: { name: string; url: string }[]) => ({
     item: t.url,
   })),
 })
+
+export const websiteSchema = () => ({
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'HireBest',
+  url: 'https://hirebest.online',
+  description: 'AI resume screener that scores 100 CVs in 38 seconds with JD-cited reasoning.',
+  potentialAction: {
+    '@type': 'SearchAction',
+    target: {
+      '@type': 'EntryPoint',
+      urlTemplate: 'https://hirebest.online/tools/interview-questions?q={search_term_string}',
+    },
+    'query-input': 'required name=search_term_string',
+  },
+})
+
+export const howTo = (p: { name: string; description: string; steps: { name: string; text: string }[] }) => ({
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: p.name,
+  description: p.description,
+  step: p.steps.map((s, i) => ({
+    '@type': 'HowToStep',
+    position: i + 1,
+    name: s.name,
+    text: s.text,
+  })),
+})

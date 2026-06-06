@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 import { Check, ArrowRight } from 'lucide-react'
 import { useSeo } from '../lib/seo'
+import { useSchema, faqPage } from '../lib/schema'
 import Breadcrumbs from './Breadcrumbs'
 
 type Row = { f: string; us: string; them: string }
@@ -12,10 +13,12 @@ type Props = {
   forCompetitor: string[]
   rows: Row[]
   cta: string
+  faqs?: { q: string; a: string }[]
 }
 
-export default function VsPage({ competitor, headline, intro, forUs, forCompetitor, rows, cta }: Props) {
+export default function VsPage({ competitor, headline, intro, forUs, forCompetitor, rows, cta, faqs }: Props) {
   useSeo({ title: headline, description: intro })
+  useSchema(`vs-${competitor.toLowerCase()}-faq`, faqs && faqs.length > 0 ? faqPage(faqs) : null)
   return (
     <>
       <Breadcrumbs trail={[{ name: 'Compare', href: '/pricing' }, { name: `vs ${competitor}` }]} schemaId={`vs-${competitor.toLowerCase()}-bc`}/>

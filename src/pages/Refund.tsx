@@ -1,6 +1,13 @@
 import LegalPage from '../components/LegalPage'
+import { useSeo } from '../lib/seo'
 
 export default function Refund() {
+  useSeo({
+    title: 'Refund Policy · HireBest',
+    description: '7-day full refund on one-time plans; monthly retainer cancellable anytime. Submit requests to contact@hirebest.online.',
+    canonical: 'https://hirebest.online/refund-policy',
+    noindex: true,
+  })
   return (
     <LegalPage title="Refund Policy" updated="Last updated: May 9, 2026">
       <h2>One-time plans</h2>

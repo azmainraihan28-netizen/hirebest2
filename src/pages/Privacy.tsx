@@ -1,6 +1,13 @@
 import LegalPage from '../components/LegalPage'
+import { useSeo } from '../lib/seo'
 
 export default function Privacy() {
+  useSeo({
+    title: 'Privacy Policy · HireBest',
+    description: 'How HireBest handles your data: account info, uploaded CVs, AI processors, encryption, and your GDPR/CCPA rights.',
+    canonical: 'https://hirebest.online/privacy-policy',
+    noindex: true,
+  })
   return (
     <LegalPage title="Privacy Policy" updated="Last updated: May 9, 2026">
       <h2>What we collect</h2>

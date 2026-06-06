@@ -4,7 +4,7 @@ import FAQ from '../components/FAQ'
 import SaaSBrowserReviews from '../components/SaaSBrowserReviews'
 import { useState, useEffect } from 'react'
 import { useSeo } from '../lib/seo'
-import { useSchema, organization, softwareApplication, faqPage } from '../lib/schema'
+import { useSchema, organization, softwareApplication, faqPage, websiteSchema } from '../lib/schema'
 import { useInView } from '../lib/useInView'
 
 const features = [
@@ -85,6 +85,7 @@ export default function Home() {
   useSchema('home-org', organization())
   useSchema('home-app', softwareApplication())
   useSchema('home-faq', faqPage(faqs))
+  useSchema('home-website', websiteSchema())
   return (
     <>
       <Hero />
