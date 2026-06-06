@@ -19,6 +19,7 @@ const VsLever           = lazy(() => import('./pages/VsLever'))
 const Privacy           = lazy(() => import('./pages/Privacy'))
 const Terms             = lazy(() => import('./pages/Terms'))
 const Refund            = lazy(() => import('./pages/Refund'))
+const About             = lazy(() => import('./pages/About'))
 const Checkout          = lazy(() => import('./pages/Checkout'))
 const Account           = lazy(() => import('./pages/Account'))
 const Admin             = lazy(() => import('./pages/Admin'))
@@ -54,6 +55,7 @@ export default function App() {
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/contact" element={<Contact />} />
+          <Route path="/about" element={<About />} />
           <Route path="/tools/interview-questions" element={<InterviewQuestions />} />
           <Route path="/vs-greenhouse" element={<VsGreenhouse />} />
           <Route path="/vs-workable" element={<VsWorkable />} />

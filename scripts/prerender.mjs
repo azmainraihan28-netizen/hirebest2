@@ -4,6 +4,7 @@
  *
  * Reads dist/index.html and writes one HTML file per public marketing route
  * with route-specific <title>, meta description, OG, Twitter, canonical.
+ * Legal pages get noindex injected.
  * The React bundle still hydrates on load, so this is "meta-level prerender" —
  * it solves the audit issue of every route sharing identical homepage meta,
  * without refactoring routing.
@@ -21,6 +22,12 @@ const distDir = join(__dirname, '..', 'dist')
 const BASE = 'https://hirebest.online'
 
 const routes = [
+  {
+    path: '/about',
+    title: 'About HireBest — Founder Story, Mission, and Team',
+    description: 'HireBest was built by a founder who spent 4 hours screening 200 CVs for one role. Now 100 CVs take 38 seconds. Meet the team behind the AI resume screener.',
+    type: 'website',
+  },
   {
     path: '/pricing',
     title: 'Pricing — From $400/yr to fully integrated ATS · HireBest',
@@ -98,18 +105,21 @@ const routes = [
     title: 'Privacy Policy · HireBest',
     description: 'How HireBest handles your data: account info, uploaded CVs, AI processors, encryption, and your GDPR/CCPA rights.',
     type: 'website',
+    noindex: true,
   },
   {
     path: '/terms-and-conditions',
     title: 'Terms & Conditions · HireBest',
     description: 'Terms governing use of HireBest. AI outputs are decision-support, not final hiring decisions; human review is required.',
     type: 'website',
+    noindex: true,
   },
   {
     path: '/refund-policy',
     title: 'Refund Policy · HireBest',
     description: '7-day full refund on one-time plans; monthly retainer cancellable anytime. Submit requests to contact@hirebest.online.',
     type: 'website',
+    noindex: true,
   },
 ]
 
@@ -136,7 +146,7 @@ function replaceTag(html, regex, replacement) {
   return html.replace(regex, replacement)
 }
 
-function renderRouteHtml({ path, title, description, type }) {
+function renderRouteHtml({ path, title, description, type, noindex }) {
   const url = `${BASE}${path}`
   const desc = escapeAttr(description)
   const ttl = escapeAttr(title)
@@ -152,6 +162,15 @@ function renderRouteHtml({ path, title, description, type }) {
   html = replaceTag(html, /<meta\s+name="twitter:description"[^>]*>/, `<meta name="twitter:description" content="${desc}" />`)
   html = replaceTag(html, /<link\s+rel="canonical"[^>]*>/, `<link rel="canonical" href="${url}" />`)
 
+  // Inject noindex for legal/thin pages
+  if (noindex) {
+    html = replaceTag(
+      html,
+      /<meta\s+name="robots"[^>]*>/,
+      `<meta name="robots" content="noindex,nofollow" />`
+    )
+  }
+
   return html
 }
 
@@ -163,7 +182,8 @@ for (const route of routes) {
   mkdirSync(targetDir, { recursive: true })
   writeFileSync(join(targetDir, 'index.html'), html, 'utf-8')
   count++
-  console.log(`  ✓ ${route.path} → ${route.title.slice(0, 60)}…`)
+  const tag = route.noindex ? ' [noindex]' : ''
+  console.log(`  ✓ ${route.path}${tag} → ${route.title.slice(0, 55)}…`)
 }
 
 console.log(`\n✓ Prerendered ${count} routes with route-specific meta tags`)

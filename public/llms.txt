@@ -1,6 +1,6 @@
 # HireBest
 
-> AI-powered resume screener for hiring teams. Upload CVs, paste a job description, and get ranked candidates with reasoning, missing-skills analysis, and 5 tailored interview questions in seconds. Used by recruiters who need to triage 50+ applications per role.
+> AI-powered resume screener for hiring teams. Upload CVs, paste a job description, and get ranked candidates with reasoning, missing-skills analysis, and 5 tailored interview questions — in the time it takes to brew coffee. Used by recruiters who need to triage 50+ applications per role without a six-figure ATS contract.
 
 ## Key facts
 
@@ -11,32 +11,56 @@
 - Free tier: 50 screenings, no credit card required
 - Hosting: Vercel + Supabase + OpenAI gpt-4o-mini
 - Payments: Lemon Squeezy (cards, no PayPal required)
+- Founded: 2024
+- Founder: Azmain Raihan
+- Contact: contact@hirebest.online | WhatsApp +880 1324 419 060
+
+## How it works
+
+1. Paste a job description into HireBest
+2. Upload CVs (PDF, DOCX, PNG, SVG — bulk up to 50+ at once)
+3. HireBest extracts skills, experience, and matches each CV against the JD
+4. Every candidate gets a 0–100 match score with written JD-cited reasoning
+5. Missing skills, strengths, and tailored interview questions are generated automatically
+6. Export shortlist to CSV or send interview invites in one click
 
 ## Pages
 
 - [Home](https://hirebest.online/): Product overview, savings calculator vs Greenhouse, plan comparison, FAQ.
+- [About](https://hirebest.online/about): Founder story, mission, company timeline, values.
 - [Pricing](https://hirebest.online/pricing): 4 tiers with feature matrix and pricing FAQ.
 - [Analytics](https://hirebest.online/analytics): Hiring analytics features — screening velocity, fit ratio, missing-skill heatmap, time-to-shortlist.
 - [Contact](https://hirebest.online/contact): WhatsApp +880 1324 419 060 or contact@hirebest.online.
+- [Free Interview Question Generator](https://hirebest.online/tools/interview-questions): Paste a JD, get 5 tailored interview questions with ideal answers. No signup, no usage limit.
 
 ## Blog
 
-- [Why 'AI ATS' is the Wrong Way to Think About Hiring](https://hirebest.online/blog/ai-ats-wrong-way-to-think): Opinion piece arguing AI screening is a different product category from ATS.
-- [Greenhouse Pricing in 2026: What's Really Going On](https://hirebest.online/blog/greenhouse-pricing-2026): Industry analysis — Greenhouse Essential starts $5,000–$6,500/yr; per-seat pricing and renewal hikes break the math.
-- [How to Screen 100 CVs in 38 Seconds](https://hirebest.online/blog/screen-100-cvs-in-38-seconds): Tutorial explaining the parallel extraction + matching + output-generation pipeline.
+- [Why 'AI ATS' is the Wrong Way to Think About Hiring](https://hirebest.online/blog/ai-ats-wrong-way-to-think): Opinion piece arguing AI screening is a different product category from ATS. AI replaces the CV-reading task, not the ATS workflow.
+- [Greenhouse Pricing in 2026: What's Really Going On](https://hirebest.online/blog/greenhouse-pricing-2026): Industry analysis — Greenhouse Essential starts $5,000–$6,500/yr; per-seat pricing and 8–15% annual renewal hikes break the math for SMEs.
+- [How to Screen 100 CVs in 38 Seconds](https://hirebest.online/blog/screen-100-cvs-in-38-seconds): Tutorial explaining the parallel extraction + JD-matching + scored-output pipeline that makes bulk screening fast.
 
 ## Comparisons
 
-- [HireBest vs Greenhouse](https://hirebest.online/vs-greenhouse): $400/yr vs ~$7,000/yr; AI-first screening vs enterprise ATS workflows.
-- [HireBest vs Workable](https://hirebest.online/vs-workable): $400/yr vs $299/month; yearly billing vs monthly meter.
-- [HireBest vs Lever](https://hirebest.online/vs-lever): $400/yr vs $5,000–$25,000+/yr; AI-first vs CRM with bolted-on AI.
+- [HireBest vs Greenhouse](https://hirebest.online/vs-greenhouse): $400/yr vs ~$7,000/yr; AI-first screening vs enterprise ATS with 400 integrations. Choose HireBest for speed and price; choose Greenhouse for structured scorecards and compliance at 500+ employees.
+- [HireBest vs Workable](https://hirebest.online/vs-workable): $400/yr vs $299/month ($3,588/yr); yearly flat billing vs monthly meter with per-job limits.
+- [HireBest vs Lever](https://hirebest.online/vs-lever): $400/yr vs $5,000–$25,000+/yr; AI-first screening vs CRM with AI bolted on. Same-day setup vs 4–12 week implementation.
 
-## Free tools
+## Structured data (JSON-LD on live pages)
 
-- [AI Interview Question Generator](https://hirebest.online/tools/interview-questions): Paste a JD, get 5 tailored interview questions with ideal answers. No signup, no usage limit.
+- Organization schema on Home and About
+- SoftwareApplication schema on Home (applicationCategory: BusinessApplication)
+- WebSite schema with SearchAction on Home
+- FAQPage schema on Home, VsGreenhouse, VsWorkable, VsLever
+- HowTo schema on Interview Question Generator (4 steps)
+- BreadcrumbList schema on all pages with Breadcrumbs component
+- Article schema on all blog posts
+
+## Why HireBest vs traditional ATS AI
+
+Traditional ATS platforms (Greenhouse, Workable, Lever) rank candidates by keyword overlap — they tell you who wrote a good resume, not who can do the job. HireBest uses language model reasoning to match each CV against the actual requirements in your JD, outputs a 0–100 score with cited evidence, flags missing skills explicitly, and generates interview questions calibrated to the gaps found. The reasoning is auditable: recruiters can agree, override, or challenge each conclusion.
 
 ## Legal
 
-- [Privacy Policy](https://hirebest.online/privacy-policy): GDPR + CCPA compliant; CVs stay in user's workspace; not used for training.
-- [Terms & Conditions](https://hirebest.online/terms-and-conditions): AI outputs are decision-support, not final hiring decisions.
+- [Privacy Policy](https://hirebest.online/privacy-policy): GDPR + CCPA compliant; CVs stay in user's workspace; not used for model training.
+- [Terms & Conditions](https://hirebest.online/terms-and-conditions): AI outputs are decision-support, not final hiring decisions; human review is required.
 - [Refund Policy](https://hirebest.online/refund-policy): 7-day full refund on one-time plans; monthly retainer cancellable anytime.
