@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useSearchParams, Link } from 'react-router-dom'
-import { CreditCard, MessageCircle, Mail, Check, ArrowRight, AlertCircle } from 'lucide-react'
+import { Send, MessageCircle, Check, ArrowRight, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { useAuth } from '../lib/auth'
-import { startCheckout, type PlanKey } from '../lib/billing'
+import type { PlanKey } from '../lib/billing'
 
 const PLANS: Record<PlanKey, { name: string; price: string; period: string; features: string[]; type: 'sub' | 'one-time' }> = {
   basic:     { name: 'Basic',              price: '$400',   period: '/year',     type: 'sub',      features: ['HTML app with PDF upload', 'Smart AI scoring', 'CSV export', 'Runs locally'] },
@@ -22,31 +22,51 @@ export default function Checkout() {
   const [notes, setNotes] = useState('')
   const [busy, setBusy] = useState(false)
   const [err, setErr] = useState<string | null>(null)
+  const [done, setDone] = useState(false)
 
   const plan = PLANS[selected]
 
-  const payNow = async () => {
+  const submitInquiry = async () => {
     setErr(null); setBusy(true)
     try {
-      const url = await startCheckout(selected, { userId: user?.id, email, name })
-      window.location.href = url
+      const res = await fetch('/api/order-inquiry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: name.trim(), email: email.trim(), company: company.trim(), notes: notes.trim(), plan: plan.name, planPrice: `${plan.price}${plan.period}` }),
+      })
+      const json = await res.json()
+      if (!res.ok) throw new Error(json?.error ?? 'Submission failed')
+      setDone(true)
     } catch (e: any) {
-      setErr(e?.message ?? 'Failed to start checkout')
+      setErr(e?.message ?? 'Something went wrong. Please try again.')
+    } finally {
       setBusy(false)
     }
   }
 
-  const whatsappMsg = encodeURIComponent(
-    `Hi HireBest, I'd like to discuss the ${plan.name} plan (${plan.price}${plan.period}).\n\nName: ${name}\nEmail: ${email}\nCompany: ${company}\n\nNotes: ${notes || '—'}`
-  )
-  const waLink = `https://wa.me/8801324419060?text=${whatsappMsg}`
-  const mailLink = `mailto:contact@hirebest.online?subject=${encodeURIComponent(`Checkout: ${plan.name}`)}&body=${whatsappMsg}`
+  const waLink = `https://wa.me/8801324419060?text=${encodeURIComponent(`Hi HireBest, I'd like to discuss the ${plan.name} plan (${plan.price}${plan.period}).`)}`
+
+  if (done) {
+    return (
+      <section className="max-w-xl mx-auto px-5 py-24 text-center">
+        <CheckCircle2 size={56} className="mx-auto text-[var(--color-primary)]"/>
+        <h1 className="mt-6 text-3xl font-extrabold">Inquiry received!</h1>
+        <p className="mt-4 text-[var(--color-muted)] leading-relaxed">
+          Thank you, <strong>{name}</strong>. We've sent a confirmation to <strong>{email}</strong> and will get back to you within 24 hours.
+        </p>
+        <p className="mt-3 text-sm text-[var(--color-muted)]">
+          Questions? Email us at <a href="mailto:contact@hirebest.online" className="text-[var(--color-primary-2)]">contact@hirebest.online</a>
+        </p>
+        <Link to="/" className="btn-primary mt-8 inline-flex">Back to home</Link>
+      </section>
+    )
+  }
 
   return (
     <section className="max-w-5xl mx-auto px-5 py-16">
-      <span className="chip">Checkout</span>
+      <span className="chip">Get Started</span>
       <h1 className="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight">Start your <span className="gradient-text">{plan.name}</span> plan</h1>
-      <p className="mt-3 text-[var(--color-muted)]">Pay securely with card, or get in touch for a custom quote.</p>
+      <p className="mt-3 text-[var(--color-muted)]">Fill in your details and we'll get back to you within 24 hours.</p>
 
       <div className="grid lg:grid-cols-3 gap-5 mt-10">
         <div className="lg:col-span-2 space-y-5">
@@ -67,24 +87,23 @@ export default function Checkout() {
           <div className="card p-6">
             <h3 className="font-semibold mb-4">2. Your details</h3>
             <div className="grid sm:grid-cols-2 gap-3">
-              <input placeholder="Full name" value={name} onChange={e => setName(e.target.value)} className="field"/>
-              <input type="email" placeholder="Email" value={email} onChange={e => setEmail(e.target.value)} className="field"/>
+              <input placeholder="Full name *" value={name} onChange={e => setName(e.target.value)} className="field"/>
+              <input type="email" placeholder="Email *" value={email} onChange={e => setEmail(e.target.value)} className="field"/>
               <input placeholder="Company (optional)" value={company} onChange={e => setCompany(e.target.value)} className="field sm:col-span-2"/>
-              <textarea placeholder="Anything we should know? (optional)" value={notes} onChange={e => setNotes(e.target.value)} rows={2} className="field sm:col-span-2"/>
+              <textarea placeholder="Anything we should know? (optional)" value={notes} onChange={e => setNotes(e.target.value)} rows={3} className="field sm:col-span-2"/>
             </div>
-            {!user && (
-              <p className="text-xs text-[var(--color-muted)] mt-3">
-                Tip: <Link to="/login" className="text-[var(--color-primary-2)]">sign in</Link> first so we can link this purchase to your dashboard automatically.
-              </p>
-            )}
           </div>
 
           <div className="card p-6">
-            <h3 className="font-semibold mb-4">3. Pay</h3>
-            <button onClick={payNow} disabled={busy || !email.trim()} className="btn-primary w-full justify-center py-3 text-base">
-              <CreditCard size={16}/>{busy ? 'Opening secure checkout…' : `Pay ${plan.price}${plan.period} with card`}
+            <h3 className="font-semibold mb-4">3. Send inquiry</h3>
+            <button
+              onClick={submitInquiry}
+              disabled={busy || !name.trim() || !email.trim()}
+              className="btn-primary w-full justify-center py-3 text-base"
+            >
+              <Send size={16}/>{busy ? 'Sending…' : `Send inquiry for ${plan.name}`}
             </button>
-            <p className="text-[10px] text-[var(--color-muted)] mt-3 text-center">Secure checkout by Lemon Squeezy · Visa, Mastercard, Amex · 30-day refund</p>
+            <p className="text-[10px] text-[var(--color-muted)] mt-3 text-center">We'll confirm by email and get back to you within 24 hours.</p>
 
             {err && (
               <div className="mt-4 text-sm text-red-300 flex items-start gap-2"><AlertCircle size={14} className="shrink-0 mt-0.5"/>{err}</div>
@@ -94,14 +113,9 @@ export default function Checkout() {
               <div className="flex-1 h-px bg-[var(--color-border)]"/>OR TALK TO US<div className="flex-1 h-px bg-[var(--color-border)]"/>
             </div>
 
-            <div className="grid sm:grid-cols-2 gap-3">
-              <a href={waLink} target="_blank" rel="noreferrer" className="btn-ghost justify-center">
-                <MessageCircle size={14}/> WhatsApp
-              </a>
-              <a href={mailLink} className="btn-ghost justify-center">
-                <Mail size={14}/> Email
-              </a>
-            </div>
+            <a href={waLink} target="_blank" rel="noreferrer" className="btn-ghost w-full justify-center">
+              <MessageCircle size={14}/> Chat on WhatsApp
+            </a>
           </div>
         </div>
 
