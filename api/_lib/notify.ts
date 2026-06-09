@@ -13,22 +13,19 @@ type Payload = {
   replyTo?: string
 }
 
-export async function notifyAdmin(p: Payload): Promise<{ ok: boolean; error?: string }> {
+async function resendSend(p: Payload & { to: string[]; from: string }): Promise<{ ok: boolean; error?: string }> {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) {
     console.warn('[notify] RESEND_API_KEY not set — skipping')
     return { ok: false, error: 'No API key' }
   }
-  const to = (process.env.NOTIFY_TO || 'contact@hirebest.online').split(',').map(s => s.trim()).filter(Boolean)
-  const from = process.env.NOTIFY_FROM || 'HireBest Alerts <alerts@hirebest.online>'
-
   try {
     const r = await fetch(API, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${apiKey}` },
       body: JSON.stringify({
-        from,
-        to,
+        from: p.from,
+        to: p.to,
         subject: p.subject,
         text: p.text,
         html: p.html ?? wrapHtml(p.text),
@@ -45,6 +42,17 @@ export async function notifyAdmin(p: Payload): Promise<{ ok: boolean; error?: st
     console.error('[notify] send failed', e)
     return { ok: false, error: e?.message ?? 'send failed' }
   }
+}
+
+export async function notifyAdmin(p: Payload): Promise<{ ok: boolean; error?: string }> {
+  const to = (process.env.NOTIFY_TO || 'contact@hirebest.online').split(',').map(s => s.trim()).filter(Boolean)
+  const from = process.env.NOTIFY_FROM || 'HireBest Alerts <alerts@hirebest.online>'
+  return resendSend({ ...p, to, from })
+}
+
+export async function sendEmail(p: Payload & { to: string }): Promise<{ ok: boolean; error?: string }> {
+  const from = process.env.NOTIFY_FROM || 'HireBest <alerts@hirebest.online>'
+  return resendSend({ ...p, to: [p.to], from })
 }
 
 function wrapHtml(text: string): string {
