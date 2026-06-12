@@ -10,20 +10,37 @@ const relatedLinks: Record<string, { label: string; href: string; desc: string }
   'greenhouse-pricing-2026': [
     { label: 'HireBest vs Greenhouse — full comparison', href: '/vs-greenhouse', desc: 'Pricing, AI features, setup time, and who each tool is built for.' },
     { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'How Workable\'s $299/month stacks up against HireBest\'s flat yearly pricing.' },
+    { label: 'HireBest vs Lever', href: '/vs-lever', desc: 'Lever starts at $5,000–$25,000+/year. HireBest at $400.' },
+    { label: 'HireBest Pricing', href: '/pricing', desc: 'Transparent flat-rate plans — from $400/year to $1,500 one-time.' },
   ],
   'ai-ats-wrong-way-to-think': [
     { label: 'HireBest vs Greenhouse', href: '/vs-greenhouse', desc: 'AI-first screener vs full enterprise ATS — side-by-side.' },
+    { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'How Workable\'s $299/month stacks up against HireBest\'s flat yearly pricing.' },
     { label: 'HireBest vs Lever', href: '/vs-lever', desc: 'CRM with bolted-on AI vs purpose-built screening.' },
     { label: 'Free Interview Question Generator', href: '/tools/interview-questions', desc: 'Paste a JD, get 5 tailored questions with ideal answers.' },
   ],
   'screen-100-cvs-in-38-seconds': [
     { label: 'Pricing — start from $400/year', href: '/pricing', desc: 'Flat-rate plans, no per-seat tax, one-time option available.' },
     { label: 'Free Interview Question Generator', href: '/tools/interview-questions', desc: 'After the shortlist: generate interview questions from the same JD.' },
+    { label: 'HireBest vs Greenhouse', href: '/vs-greenhouse', desc: 'See how HireBest speed compares to Greenhouse\'s individual pipeline review.' },
+    { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'Workable vs HireBest on AI screening speed and pricing.' },
   ],
   'hirebest-vs-greenhouse-2026': [
-    { label: 'Full feature comparison', href: '/vs-greenhouse', desc: 'Deep-dive: pricing breakdown, AI scoring, contract terms.' },
+    { label: 'HireBest vs Greenhouse — deep dive', href: '/vs-greenhouse', desc: 'Full pricing breakdown, AI scoring, and contract terms.' },
+    { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'Another popular ATS compared on price and AI features.' },
+    { label: 'HireBest vs Lever', href: '/vs-lever', desc: 'Lever\'s CRM-first approach vs HireBest\'s screening focus.' },
     { label: 'Greenhouse Pricing in 2026', href: '/blog/greenhouse-pricing-2026', desc: 'What an annual Greenhouse contract actually costs SMEs.' },
   ],
+}
+
+function renderInline(text: string, key: string | number) {
+  const parts = text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g)
+  return parts.map((part, j) => {
+    if (part.startsWith('**')) return <strong key={`${key}-${j}`}>{part.slice(2, -2)}</strong>
+    const m = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/)
+    if (m) return <Link key={`${key}-${j}`} to={m[2]} className="text-[var(--color-primary-2)] underline underline-offset-2 hover:opacity-80">{m[1]}</Link>
+    return part
+  })
 }
 
 export default function BlogPost() {
@@ -62,9 +79,8 @@ export default function BlogPost() {
         {post.body.map((para, i) => {
           if (para.startsWith('## ')) return <h2 key={i}>{para.slice(3)}</h2>
           if (para.startsWith('### ')) return <h3 key={i}>{para.slice(4)}</h3>
-          if (para.startsWith('> ')) return <blockquote key={i}>{para.slice(2)}</blockquote>
-          const parts = para.split(/(\*\*[^*]+\*\*)/g)
-          return <p key={i}>{parts.map((p, j) => p.startsWith('**') ? <strong key={j}>{p.slice(2, -2)}</strong> : p)}</p>
+          if (para.startsWith('> ')) return <blockquote key={i}>{renderInline(para.slice(2), i)}</blockquote>
+          return <p key={i}>{renderInline(para, i)}</p>
         })}
       </div>
 
