@@ -73,6 +73,20 @@ export default function VsPage({ competitor, headline, intro, forUs, forCompetit
         </div>
       </section>
 
+      {faqs && faqs.length > 0 && (
+        <section className="max-w-3xl mx-auto px-5 py-10">
+          <h2 className="text-2xl font-bold mb-6">Frequently asked questions</h2>
+          <div className="space-y-4">
+            {faqs.map((faq, i) => (
+              <div key={i} className="card p-6">
+                <h3 className="font-semibold text-[var(--color-fg)]">{faq.q}</h3>
+                <p className="mt-2 text-sm text-[var(--color-muted)] leading-relaxed">{faq.a}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
       <section className="max-w-3xl mx-auto px-5 py-16 text-center">
         <div className="card p-10">
           <h3 className="text-2xl md:text-3xl font-bold">{cta.split('.')[0]}.</h3>
