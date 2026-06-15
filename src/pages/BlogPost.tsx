@@ -7,6 +7,13 @@ import Breadcrumbs from '../components/Breadcrumbs'
 
 // Per-slug related links: contextual internal links shown after article
 const relatedLinks: Record<string, { label: string; href: string; desc: string }[]> = {
+  'workable-pricing-2026': [
+    { label: 'HireBest vs Workable — full comparison', href: '/vs-workable', desc: 'Pricing, AI features, setup time, and who each tool is built for.' },
+    { label: 'HireBest vs Greenhouse', href: '/vs-greenhouse', desc: 'How Greenhouse\'s $5,000–$14,000/year stacks up against HireBest\'s tiered pricing.' },
+    { label: 'HireBest vs Lever', href: '/vs-lever', desc: 'Lever starts at $5,000–$25,000+/year. HireBest at $400/year.' },
+    { label: 'Greenhouse Pricing in 2026', href: '/blog/greenhouse-pricing-2026', desc: 'The companion post on what Greenhouse really costs.' },
+    { label: 'HireBest Pricing', href: '/pricing', desc: 'Transparent SaaS pricing — $400–$1,500/year with no demos.' },
+  ],
   'greenhouse-pricing-2026': [
     { label: 'HireBest vs Greenhouse — full comparison', href: '/vs-greenhouse', desc: 'Pricing, AI features, setup time, and who each tool is built for.' },
     { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'How Workable\'s $299/month stacks up against HireBest\'s flat yearly pricing.' },
@@ -68,6 +75,11 @@ export default function BlogPost() {
       </div>
       <h1 className="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight">{post.title}</h1>
       <p className="mt-4 text-lg text-[var(--color-muted)]">{post.excerpt}</p>
+      {post.coverImage && (
+        <div className="mt-7 overflow-hidden rounded-2xl border border-[var(--color-border)]">
+          <img src={post.coverImage} alt={post.title} className="w-full h-auto block" loading="eager"/>
+        </div>
+      )}
       <div className="mt-5 flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-2)] flex items-center justify-center text-xs font-bold text-white">AR</div>
         <div>

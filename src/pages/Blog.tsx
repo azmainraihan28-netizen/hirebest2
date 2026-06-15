@@ -21,6 +21,11 @@ export default function Blog() {
         <div className="grid md:grid-cols-2 gap-5">
           {posts.map(p => (
             <Link key={p.slug} to={`/blog/${p.slug}`} className="card p-7 hover:border-[var(--color-primary)] transition">
+              {p.coverImage && (
+                <div className="mb-5 -mx-7 -mt-7 overflow-hidden rounded-t-[inherit] border-b border-[var(--color-border)]">
+                  <img src={p.coverImage} alt={p.title} className="w-full h-auto block" loading="lazy"/>
+                </div>
+              )}
               <div className="flex items-center gap-3 text-xs text-[var(--color-muted)]">
                 <span className="chip">{p.category}</span>
                 <span>{p.date}</span>
