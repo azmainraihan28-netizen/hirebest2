@@ -5,6 +5,7 @@ import Logo from './Logo'
 import UserMenu from './UserMenu'
 import { useAuth } from '../lib/auth'
 import { useTheme } from '../lib/theme'
+import { SlideTabs, type SlideTab } from './ui/slide-tabs'
 
 const links = [
   { to: '/#features', label: 'Features' },
@@ -16,6 +17,14 @@ const links = [
   { to: '/contact', label: 'Contact' },
 ]
 
+const slideTabs: SlideTab[] = [
+  { label: 'Home', to: '/' },
+  { label: 'Pricing', to: '/pricing' },
+  { label: 'Tools', to: '/tools/interview-questions' },
+  { label: 'Blog', to: '/blog' },
+  { label: 'Contact', to: '/contact' },
+]
+
 export default function Header() {
   const [open, setOpen] = useState(false)
   const { user } = useAuth()
@@ -24,10 +33,8 @@ export default function Header() {
     <header className="site-header sticky top-0 z-40 backdrop-blur">
       <div className="max-w-6xl mx-auto px-5 py-3 flex items-center justify-between">
         <Logo />
-        <nav className="hidden lg:flex items-center gap-6 text-sm text-[var(--color-muted)]">
-          {links.map(l => (
-            <a key={l.to} href={l.to} className="hover:text-[var(--color-fg)] transition">{l.label}</a>
-          ))}
+        <nav className="hidden lg:flex items-center">
+          <SlideTabs tabs={slideTabs} />
         </nav>
         <div className="hidden lg:flex items-center gap-2">
           <button onClick={toggle} className="w-9 h-9 rounded-full hover:bg-[color-mix(in_srgb,var(--color-fg)_5%,transparent)] flex items-center justify-center text-[var(--color-muted)]" title="Toggle theme">
