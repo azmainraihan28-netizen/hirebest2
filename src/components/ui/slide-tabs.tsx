@@ -17,6 +17,7 @@ const defaultTabs: SlideTab[] = [
 export const SlideTabs: React.FC<{ tabs?: SlideTab[] }> = ({ tabs = defaultTabs }) => {
   const [position, setPosition] = useState<Position>({ left: 0, width: 0, opacity: 0 })
   const [selected, setSelected] = useState(0)
+  const [hovered, setHovered] = useState<number | null>(null)
   const tabsRef = useRef<Array<HTMLLIElement | null>>([])
   const location = useLocation()
 
@@ -36,22 +37,19 @@ export const SlideTabs: React.FC<{ tabs?: SlideTab[] }> = ({ tabs = defaultTabs 
     }
   }, [selected])
 
+  const activeIndex = hovered ?? selected
+
   return (
     <ul
       onMouseLeave={() => {
+        setHovered(null)
         const selectedTab = tabsRef.current[selected]
         if (selectedTab) {
           const { width } = selectedTab.getBoundingClientRect()
           setPosition({ left: selectedTab.offsetLeft, width, opacity: 1 })
         }
       }}
-      className="relative mx-auto flex w-fit rounded-full border p-1"
-      style={{
-        borderColor: '#1c2547',
-        background: 'rgba(15, 23, 51, 0.7)',
-        backdropFilter: 'blur(8px)',
-        WebkitBackdropFilter: 'blur(8px)',
-      }}
+      className="slide-tabs relative mx-auto flex w-fit rounded-full border p-1"
     >
       {tabs.map((tab, i) => (
         <Tab
@@ -59,6 +57,8 @@ export const SlideTabs: React.FC<{ tabs?: SlideTab[] }> = ({ tabs = defaultTabs 
           ref={(el) => { tabsRef.current[i] = el }}
           setPosition={setPosition}
           to={tab.to}
+          isActive={i === activeIndex}
+          onHover={() => setHovered(i)}
           onClick={() => setSelected(i)}
         >
           {tab.label}
@@ -74,27 +74,29 @@ type TabProps = {
   children: React.ReactNode
   setPosition: React.Dispatch<React.SetStateAction<Position>>
   to: string
+  isActive: boolean
+  onHover: () => void
   onClick: () => void
 }
 
 const Tab = React.forwardRef<HTMLLIElement, TabProps>(
-  ({ children, setPosition, to, onClick }, ref) => {
+  ({ children, setPosition, to, isActive, onHover, onClick }, ref) => {
     return (
       <li
         ref={ref}
         onClick={onClick}
         onMouseEnter={() => {
+          onHover()
           const node = (ref as React.RefObject<HTMLLIElement>)?.current
           if (!node) return
           const { width } = node.getBoundingClientRect()
           setPosition({ left: node.offsetLeft, width, opacity: 1 })
         }}
-        className="relative z-10 block cursor-pointer text-xs font-medium uppercase tracking-wide"
-        style={{ color: '#e6eaff' }}
+        className={`slide-tab relative z-10 block cursor-pointer text-xs font-medium uppercase tracking-wide transition-colors ${isActive ? 'slide-tab-active' : ''}`}
       >
         <NavLink
           to={to}
-          className="block px-3 py-1.5 md:px-5 md:py-2 md:text-[13px]"
+          className="block px-4 py-1.5 md:px-6 md:py-2 md:text-[13px] text-center min-w-[72px] md:min-w-[88px]"
         >
           {children}
         </NavLink>
@@ -108,11 +110,7 @@ const Cursor: React.FC<{ position: Position }> = ({ position }) => {
   return (
     <motion.li
       animate={{ ...position }}
-      className="absolute z-0 h-7 rounded-full md:h-9"
-      style={{
-        background: 'linear-gradient(135deg, #2f7bff, #3b82f6)',
-        boxShadow: '0 4px 16px rgba(47, 123, 255, 0.4)',
-      }}
+      className="slide-tabs-cursor absolute z-0 h-7 rounded-full md:h-9"
     />
   )
 }
