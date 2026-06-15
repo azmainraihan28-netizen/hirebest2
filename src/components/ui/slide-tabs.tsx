@@ -45,7 +45,13 @@ export const SlideTabs: React.FC<{ tabs?: SlideTab[] }> = ({ tabs = defaultTabs 
           setPosition({ left: selectedTab.offsetLeft, width, opacity: 1 })
         }
       }}
-      className="relative mx-auto flex w-fit rounded-full border-2 border-black bg-white p-1 dark:border-white dark:bg-neutral-800"
+      className="relative mx-auto flex w-fit rounded-full border p-1"
+      style={{
+        borderColor: '#1c2547',
+        background: 'rgba(15, 23, 51, 0.7)',
+        backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
+      }}
     >
       {tabs.map((tab, i) => (
         <Tab
@@ -83,11 +89,12 @@ const Tab = React.forwardRef<HTMLLIElement, TabProps>(
           const { width } = node.getBoundingClientRect()
           setPosition({ left: node.offsetLeft, width, opacity: 1 })
         }}
-        className="relative z-10 block cursor-pointer text-xs uppercase text-white mix-blend-difference"
+        className="relative z-10 block cursor-pointer text-xs font-medium uppercase tracking-wide"
+        style={{ color: '#e6eaff' }}
       >
         <NavLink
           to={to}
-          className="block px-3 py-1.5 md:px-5 md:py-2.5 md:text-sm"
+          className="block px-3 py-1.5 md:px-5 md:py-2 md:text-[13px]"
         >
           {children}
         </NavLink>
@@ -101,7 +108,11 @@ const Cursor: React.FC<{ position: Position }> = ({ position }) => {
   return (
     <motion.li
       animate={{ ...position }}
-      className="absolute z-0 h-7 rounded-full bg-black dark:bg-white md:h-10"
+      className="absolute z-0 h-7 rounded-full md:h-9"
+      style={{
+        background: 'linear-gradient(135deg, #2f7bff, #3b82f6)',
+        boxShadow: '0 4px 16px rgba(47, 123, 255, 0.4)',
+      }}
     />
   )
 }
