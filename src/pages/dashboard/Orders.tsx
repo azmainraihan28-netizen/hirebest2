@@ -6,10 +6,10 @@ import { listMySubscriptions, type Subscription } from '../../lib/billing'
 import { useAuth } from '../../lib/auth'
 
 const PLAN_LABEL: Record<string, string> = {
-  basic: 'Basic',
-  advanced: 'Advanced',
-  lifetime: 'Custom Integrated (Lifetime)',
-  retainer: 'Monthly Retainer',
+  basic: 'Starter',
+  advanced: 'Growth',
+  lifetime: 'Team',
+  retainer: 'Enterprise',
 }
 
 const STATUS_TONE: Record<string, string> = {
@@ -41,7 +41,7 @@ export default function Orders() {
 
   const active = subs.find(s => ['active', 'on_trial', 'cancelled'].includes(s.status))
   const planLabel = profile?.plan === 'lifetime'
-    ? 'Custom Integrated (Lifetime)'
+    ? 'Team'
     : active ? PLAN_LABEL[active.plan_name] ?? 'Free' : 'Free'
 
   return (
@@ -114,7 +114,7 @@ export default function Orders() {
         <div className="card p-6 text-center">
           <Package size={22} className="mx-auto text-[var(--color-primary-2)]"/>
           <h3 className="mt-3 font-semibold">Need a custom quote or invoice?</h3>
-          <p className="mt-1 text-xs text-[var(--color-muted)]">For Custom Integrated builds or enterprise terms.</p>
+          <p className="mt-1 text-xs text-[var(--color-muted)]">For Enterprise terms, custom ATS integrations, or volume pricing.</p>
           <a href="https://wa.me/8801324419060" target="_blank" rel="noreferrer" className="btn-ghost mt-4 text-xs"><MessageCircle size={12}/>Talk to us</a>
         </div>
       </div>

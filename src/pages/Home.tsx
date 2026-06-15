@@ -34,15 +34,15 @@ const faqs = [
   { q: 'How fast does HireBest score CVs?', a: '100 CVs in 38 seconds on average.' },
   { q: 'How accurate is HireBest\'s AI scoring?', a: '94% agreement with senior recruiters in internal testing.' },
   { q: 'What file formats does HireBest support?', a: 'PDF, DOCX, PNG, and SVG with OCR for image-based CVs.' },
-  { q: 'Does HireBest integrate with my ATS?', a: 'The Custom Integrated tier connects to LinkedIn Recruiter or Workday APIs.' },
+  { q: 'Does HireBest integrate with my ATS?', a: 'The Team plan ($199/mo) includes API access and the Enterprise plan adds custom ATS integration (Greenhouse, Lever, Workday).' },
   { q: 'Is HireBest GDPR compliant?', a: 'Yes — your CVs stay in your workspace with auth and row-level security by default.' },
 ]
 
 const tiers = [
-  { plan: 'basic',    name: 'Basic', subtitle: 'Lean, self-hosted screener', price: '$400', per: '/ year', billing: 'Billed yearly — standalone HTML build', cta: 'Get Basic', features: ['HTML app with PDF upload', 'Smart AI scoring', 'CSV export of results', 'Runs locally on the client\'s laptop'], best: 'Independent recruiters, small consultancies, freelance HR pros' },
-  { plan: 'advanced', name: 'Advanced', subtitle: 'Multi-user, branded workspace', price: '$900', per: '/ year', billing: 'Billed yearly — includes everything in Basic', cta: 'Get Advanced', features: ['Everything in Basic', 'Save multiple Job Descriptions', 'Screening history per JD', 'Login system (multi-user)', 'Custom company branding (logo, colors)', 'Bulk upload — 50+ PDFs at once'], popular: true },
-  { plan: 'lifetime', name: 'Custom Integrated', subtitle: 'Full ATS + database integration', price: '$1,500', per: ' one-time', billing: 'One-time payment — build time: 1–2 weeks', cta: 'Get Custom', features: ['Everything in Advanced', 'API integration', 'Role-based dashboard (Admin, Recruiter, Viewer)', 'Database storage (PostgreSQL or MongoDB)', 'Email notification when shortlist is ready', 'Custom workflow per client'] },
-  { plan: 'retainer', name: 'Monthly Retainer', subtitle: 'Ongoing care for live deployments', price: '$200', per: '/ month', billing: 'Best for Advanced & Custom clients post-launch', cta: 'Start Retainer', features: ['Maintenance and bug fixes', '1–2 new feature additions per month', 'Priority Slack & email support', 'Quarterly client review calls'] },
+  { plan: 'basic',    name: 'Starter',    subtitle: 'Solo recruiters & consultants',     price: '$49',  per: '/ month', billing: '14-day free trial. Annual: $420/yr (save 29%)', cta: 'Start free trial',           features: ['3 active job slots', '150 CVs / month', '1 user', 'AI scoring with JD-cited reasoning', 'Interview question generation', 'CSV export'], best: 'Freelance recruiters, solo HR people, consultants' },
+  { plan: 'advanced', name: 'Growth',     subtitle: 'Small HR teams & startups',         price: '$99',  per: '/ month', billing: '14-day free trial. Annual: $840/yr (save 29%)', cta: 'Start 14-day free trial',     features: ['10 active job slots', '500 CVs / month', '3 users', 'Everything in Starter', 'Bulk upload (100+ PDFs)', 'Custom branding', 'Side-by-side compare', 'Priority email support'], popular: true },
+  { plan: 'lifetime', name: 'Team',       subtitle: 'HR departments & agencies',         price: '$199', per: '/ month', billing: '14-day free trial. Annual: $1,680/yr (save 30%)', cta: 'Start free trial',          features: ['Unlimited job slots', '2,000 CVs / month', '10 users', 'Everything in Growth', 'Analytics dashboard', 'API access', 'Role-based permissions', 'Priority Slack support'] },
+  { plan: 'retainer', name: 'Enterprise', subtitle: '500+ companies & enterprise HR',    price: 'Custom', per: '',      billing: 'Volume-based custom quote',                       cta: 'Talk to sales',             features: ['Unlimited CVs / users', 'Everything in Team', 'Custom ATS integration', 'SSO (Single Sign-On)', 'SLA guarantee', 'Dedicated CSM', 'On-premise option', 'Quarterly business reviews'] },
 ]
 
 const articles = [
@@ -228,7 +228,7 @@ function SavingsCalculator() {
   const [tool, setTool] = useState('Greenhouse')
   const { ref, inView } = useInView()
   const competitorCost: Record<string, number> = { Greenhouse: 7000, Workable: 3588, Lever: 12000, None: 0 }
-  const ourCost = 900
+  const ourCost = 840
   const saved = Math.max(0, competitorCost[tool] - ourCost)
   const hours = Math.round((roles * cvs * 3.5) / 60)
   return (
@@ -238,10 +238,10 @@ function SavingsCalculator() {
           <span className="chip">Pricing</span>
         </div>
         <h2 className={`text-3xl md:text-4xl font-bold text-center mb-2 fade-up${inView ? ' in-view' : ''}`} style={{ transitionDelay: inView ? '0.1s' : '0s' }}>
-          From a quick screener to a<br/><span className="gradient-text">fully integrated ATS</span>
+          Simple pricing.<br/><span className="gradient-text">No per-seat tax.</span>
         </h2>
         <p className={`text-center text-[var(--color-muted)] mb-10 fade-up${inView ? ' in-view' : ''}`} style={{ transitionDelay: inView ? '0.2s' : '0s' }}>
-          Pick a yearly plan, then optionally add a monthly retainer for ongoing support.
+          14-day free trial — no credit card required. Save ~29% with annual billing.
         </p>
         <div className={`card p-7 grid md:grid-cols-2 gap-8 fade-up${inView ? ' in-view' : ''}`} style={{ transitionDelay: inView ? '0.3s' : '0s' }}>
           <div>
@@ -264,13 +264,13 @@ function SavingsCalculator() {
           <div className="bg-[rgba(47,123,255,0.06)] border border-[rgba(47,123,255,0.25)] rounded-xl p-6">
             <div className="text-xs uppercase tracking-wider text-[var(--color-muted)]">Saved per year vs {tool}</div>
             <div className="text-5xl font-extrabold gradient-text mt-2">${saved.toLocaleString()}</div>
-            <div className="text-xs text-[var(--color-muted)] mt-2">${competitorCost[tool].toLocaleString()}/yr {tool} − $900/yr HireBest Advanced</div>
+            <div className="text-xs text-[var(--color-muted)] mt-2">${competitorCost[tool].toLocaleString()}/yr {tool} − $840/yr HireBest Growth (annual)</div>
             <div className="grid grid-cols-2 gap-4 mt-6">
               <div><div className="text-2xl font-bold text-[var(--color-fg)]">{hours}h</div><div className="text-xs text-[var(--color-muted)]">Hours saved</div></div>
               <div><div className="text-2xl font-bold text-[var(--color-fg)]">{(roles*cvs).toLocaleString()}</div><div className="text-xs text-[var(--color-muted)]">Total CVs/yr</div></div>
             </div>
-            <p className="text-sm mt-5 text-[var(--color-muted)]">We recommend the <b className="text-[var(--color-fg)]">Advanced</b> plan.</p>
-            <Link to="/pricing" className="btn-primary mt-4 w-full justify-center">Get Advanced</Link>
+            <p className="text-sm mt-5 text-[var(--color-muted)]">We recommend the <b className="text-[var(--color-fg)]">Growth</b> plan.</p>
+            <Link to="/pricing" className="btn-primary mt-4 w-full justify-center">Start free trial</Link>
             <p className="text-[10px] text-[var(--color-muted)] mt-3 text-center">Estimates based on industry benchmarks. No data collected.</p>
           </div>
         </div>
@@ -295,7 +295,7 @@ function PricingTiers() {
               <span className="text-sm text-[var(--color-muted)]">{t.per}</span>
             </div>
             <p className="text-xs text-[var(--color-muted)] mt-2">{t.billing}</p>
-            <Link to={`/checkout?plan=${t.plan}`} className={`mt-5 w-full justify-center ${t.popular ? 'btn-primary' : 'btn-ghost'}`}>{t.cta}</Link>
+            <Link to={t.plan === 'retainer' ? '/contact' : `/checkout?plan=${t.plan}`} className={`mt-5 w-full justify-center ${t.popular ? 'btn-primary' : 'btn-ghost'}`}>{t.cta}</Link>
             {t.best && <p className="text-[11px] uppercase tracking-wider text-[var(--color-muted)] mt-4">Best for</p>}
             {t.best && <p className="text-xs text-[var(--color-muted)] mt-1">{t.best}</p>}
             <ul className="mt-5 space-y-2">
@@ -313,10 +313,10 @@ function PricingTiers() {
 
 function PricingFAQ() {
   const items = [
-    { q: 'Are these prices final?', a: 'Each tier shows a range. The exact quote depends on scope, integrations, and branding requirements.' },
-    { q: 'Can I upgrade later?', a: 'Yes. Start with Basic or Advanced and upgrade to Custom Integrated whenever you\'re ready.' },
-    { q: 'Do you offer ongoing support?', a: 'Yes — the Monthly Retainer covers maintenance, new features, and priority support after launch.' },
-    { q: 'Need something custom?', a: 'Reach out — we tailor scope, integrations, and timelines for larger teams.' },
+    { q: 'Is there a free trial?', a: 'Yes — 14 days free on the Growth plan. No credit card required to start.' },
+    { q: 'Can I switch between monthly and annual?', a: 'Yes. Upgrade to annual anytime and save ~29% compared to monthly billing.' },
+    { q: 'What if I exceed my CV limit?', a: 'We notify you before you hit the cap. Upgrade mid-cycle (prorated) — no surprise overage fees.' },
+    { q: 'Can I cancel anytime?', a: 'Yes — one-click cancel from your dashboard. Monthly plans end at cycle close; annual gets prorated refunds within 30 days.' },
   ]
   const { ref, inView } = useInView()
   const d = (i: number) => ({ transitionDelay: inView ? `${i * 0.09}s` : '0s' })

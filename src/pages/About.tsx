@@ -41,7 +41,7 @@ const timeline = [
   { year: '2024', event: 'Problem identified — a founder spending 4 hours screening 200 CVs for one backend role.' },
   { year: '2025 Q1', event: 'First working prototype: PDF parsing + GPT-4o scoring against a pasted JD.' },
   { year: '2025 Q3', event: 'Beta launch — 50 teams onboarded, median screening time 38 seconds confirmed.' },
-  { year: '2026', event: 'Advanced and Custom Integrated tiers launched; 10,000+ resumes processed weekly.' },
+  { year: '2026', event: 'SaaS pricing relaunch — Starter, Growth, Team, and Enterprise tiers with monthly billing and 14-day free trial; 10,000+ resumes processed weekly.' },
 ]
 
 export default function About() {

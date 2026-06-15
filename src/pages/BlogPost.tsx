@@ -9,18 +9,18 @@ import Breadcrumbs from '../components/Breadcrumbs'
 const relatedLinks: Record<string, { label: string; href: string; desc: string }[]> = {
   'greenhouse-pricing-2026': [
     { label: 'HireBest vs Greenhouse — full comparison', href: '/vs-greenhouse', desc: 'Pricing, AI features, setup time, and who each tool is built for.' },
-    { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'How Workable\'s $299/month stacks up against HireBest\'s flat yearly pricing.' },
-    { label: 'HireBest vs Lever', href: '/vs-lever', desc: 'Lever starts at $5,000–$25,000+/year. HireBest at $400.' },
-    { label: 'HireBest Pricing', href: '/pricing', desc: 'Transparent flat-rate plans — from $400/year to $1,500 one-time.' },
+    { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'How Workable\'s $299/month stacks up against HireBest\'s $49–199/month tiered pricing.' },
+    { label: 'HireBest vs Lever', href: '/vs-lever', desc: 'Lever starts at $5,000–$25,000+/year. HireBest at $49/month.' },
+    { label: 'HireBest Pricing', href: '/pricing', desc: 'Transparent SaaS pricing — $49–199/month with 14-day free trial.' },
   ],
   'ai-ats-wrong-way-to-think': [
     { label: 'HireBest vs Greenhouse', href: '/vs-greenhouse', desc: 'AI-first screener vs full enterprise ATS — side-by-side.' },
-    { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'How Workable\'s $299/month stacks up against HireBest\'s flat yearly pricing.' },
+    { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'How Workable\'s $299/month stacks up against HireBest\'s $49–199/month tiered pricing.' },
     { label: 'HireBest vs Lever', href: '/vs-lever', desc: 'CRM with bolted-on AI vs purpose-built screening.' },
     { label: 'Free Interview Question Generator', href: '/tools/interview-questions', desc: 'Paste a JD, get 5 tailored questions with ideal answers.' },
   ],
   'screen-100-cvs-in-38-seconds': [
-    { label: 'Pricing — start from $400/year', href: '/pricing', desc: 'Flat-rate plans, no per-seat tax, one-time option available.' },
+    { label: 'Pricing — start from $49/month', href: '/pricing', desc: 'SaaS pricing, no per-seat tax, 14-day free trial on every paid plan.' },
     { label: 'Free Interview Question Generator', href: '/tools/interview-questions', desc: 'After the shortlist: generate interview questions from the same JD.' },
     { label: 'HireBest vs Greenhouse', href: '/vs-greenhouse', desc: 'See how HireBest speed compares to Greenhouse\'s individual pipeline review.' },
     { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'Workable vs HireBest on AI screening speed and pricing.' },

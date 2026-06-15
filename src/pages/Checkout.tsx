@@ -5,10 +5,10 @@ import { useAuth } from '../lib/auth'
 import type { PlanKey } from '../lib/billing'
 
 const PLANS: Record<PlanKey, { name: string; price: string; period: string; features: string[]; type: 'sub' | 'one-time' }> = {
-  basic:     { name: 'Basic',              price: '$400',   period: '/year',     type: 'sub',      features: ['HTML app with PDF upload', 'Smart AI scoring', 'CSV export', 'Runs locally'] },
-  advanced:  { name: 'Advanced',           price: '$900',   period: '/year',     type: 'sub',      features: ['Everything in Basic', 'Save multiple JDs', 'Screening history', 'Multi-user login', 'Custom branding', 'Bulk 50+ PDFs'] },
-  lifetime:  { name: 'Custom Integrated',  price: '$1,500', period: ' one-time', type: 'one-time', features: ['Everything in Advanced', 'API integration', 'Role-based dashboard', 'DB storage', 'Email notifications', 'Custom workflow'] },
-  retainer:  { name: 'Monthly Retainer',   price: '$200',   period: '/month',    type: 'sub',      features: ['Maintenance & bug fixes', '1–2 new features/mo', 'Priority support', 'Quarterly reviews'] },
+  basic:     { name: 'Starter',    price: '$49',  period: '/month',         type: 'sub', features: ['3 active job slots', '150 CVs / month', '1 user', 'AI scoring with JD-cited reasoning', 'Interview question generation', 'CSV export'] },
+  advanced:  { name: 'Growth',     price: '$99',  period: '/month',         type: 'sub', features: ['10 active job slots', '500 CVs / month', '3 users', 'Bulk upload (100+ PDFs)', 'Custom branding', 'Side-by-side compare', 'Priority email support'] },
+  lifetime:  { name: 'Team',       price: '$199', period: '/month',         type: 'sub', features: ['Unlimited job slots', '2,000 CVs / month', '10 users', 'Analytics dashboard', 'API access', 'Role-based permissions', 'Priority Slack support'] },
+  retainer:  { name: 'Enterprise', price: 'Custom', period: '',             type: 'sub', features: ['Unlimited CVs / users', 'Custom ATS integration', 'SSO', 'SLA guarantee', 'Dedicated CSM', 'On-premise option'] },
 }
 
 export default function Checkout() {
