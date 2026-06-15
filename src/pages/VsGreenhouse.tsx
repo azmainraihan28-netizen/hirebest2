@@ -9,16 +9,16 @@ const DESC =
   'A direct comparison of HireBest and Greenhouse on pricing, AI features, setup time, and which type of team belongs on each platform.'
 
 const comparisonRows = [
-  { feature: 'Starting price',             hirebest: '$400 / year',                    greenhouse: '~$7,000 / year (Essential tier)' },
-  { feature: 'Pricing model',              hirebest: 'Flat annual or one-time',         greenhouse: 'Per-seat, annual contract' },
+  { feature: 'Starting price',             hirebest: '$49 / month',                     greenhouse: '~$7,000 / year (Essential tier)' },
+  { feature: 'Pricing model',              hirebest: 'Monthly or annual SaaS',          greenhouse: 'Per-seat, annual contract' },
+  { feature: 'Free trial',                 hirebest: '14 days, no credit card',         greenhouse: 'Sales-led demo only' },
   { feature: 'AI resume scoring',          hirebest: '0–100 with JD-cited reasoning',   greenhouse: 'Basic ranking / keyword match' },
-  { feature: 'Setup time',                 hirebest: '1–14 days',                       greenhouse: '30–90 days' },
+  { feature: 'Setup time',                 hirebest: 'Same day',                        greenhouse: '30–90 days' },
   { feature: 'Screen 100 CVs',             hirebest: '38 seconds',                      greenhouse: 'Manual review + basic filters' },
-  { feature: 'Contract required',          hirebest: 'No',                              greenhouse: 'Annual contract (standard)' },
+  { feature: 'Contract required',          hirebest: 'No (cancel anytime)',             greenhouse: 'Annual contract (standard)' },
   { feature: 'Renewal price hikes',        hirebest: 'None',                            greenhouse: '8–15% per year (PE-backed)' },
-  { feature: 'Lifetime / ownership option',hirebest: 'Yes — $1,500 one-time',           greenhouse: 'No' },
-  { feature: 'Multi-user access',          hirebest: 'Included from $900/yr',           greenhouse: 'Per-seat (~$300–$500/seat/yr)' },
-  { feature: 'Native integrations',        hirebest: 'LinkedIn, Workday APIs',          greenhouse: '400+ marketplace partners' },
+  { feature: 'Multi-user access',          hirebest: 'Up to 10 users on Team plan',     greenhouse: 'Per-seat (~$300–$500/seat/yr)' },
+  { feature: 'Native integrations',        hirebest: 'API access on Team plan ($199/mo)',greenhouse: '400+ marketplace partners' },
 ]
 
 const vsGhFaqs = [
@@ -28,7 +28,7 @@ const vsGhFaqs = [
   },
   {
     q: 'How does HireBest handle multi-user access without per-seat pricing?',
-    a: 'The Advanced plan ($900/year) includes a multi-user login system with no seat limits. Every recruiter and hiring manager on your team gets access under one flat annual fee. The Custom Integrated tier adds role-based dashboards (Admin, Recruiter, Viewer) for teams that need permission controls. Either way, adding a fifth user costs nothing extra.',
+    a: 'Each plan includes a fixed number of users at a flat rate — Starter ($49/mo) is for solo recruiters, Growth ($99/mo) covers 3 users, and Team ($199/mo) supports 10 users. Adding a sixth recruiter to the Growth plan costs nothing extra until you exceed the plan limit, at which point you upgrade tiers. The Team plan also adds role-based permissions (Admin, Recruiter, Viewer) for organisations that need controls.',
   },
   {
     q: 'What actually happens when Greenhouse renews my contract?',
@@ -159,10 +159,10 @@ export default function VsGreenhouse() {
             <p className="chip mb-4">HireBest — transparent, flat pricing</p>
             <div className="space-y-4">
               {[
-                { name: 'Basic', price: '$400 / year', desc: 'Standalone AI screener. PDF upload, smart scoring, CSV export. Runs locally — no cloud required.' },
-                { name: 'Advanced', price: '$900 / year', desc: 'Multi-user login, custom branding, bulk 50+ PDF uploads, screening history per JD. Most teams start here.' },
-                { name: 'Custom Integrated', price: '$1,500 one-time', desc: 'Full ATS + database. Role-based dashboard, API integration, email notifications. No annual renewal.' },
-                { name: 'Monthly Retainer', price: '$200 / month', desc: 'Ongoing maintenance, 1–2 new features per month, priority support. Add to any yearly plan.' },
+                { name: 'Starter', price: '$49 / month', desc: 'Solo recruiters and consultants. 3 active jobs, 150 CVs/mo, 1 user. AI scoring, interview questions, CSV export.' },
+                { name: 'Growth', price: '$99 / month', desc: 'Small HR teams and startups. 10 active jobs, 500 CVs/mo, 3 users. Bulk upload, custom branding, priority email support. Most teams start here.' },
+                { name: 'Team', price: '$199 / month', desc: 'HR departments and staffing agencies. Unlimited jobs, 2,000 CVs/mo, 10 users. Analytics, API access, role-based permissions.' },
+                { name: 'Enterprise', price: 'Custom', desc: '500+ companies. Unlimited everything, custom ATS integration, SSO, SLA, dedicated CSM, on-premise option.' },
               ].map(t => (
                 <div key={t.name} className="border-b border-[var(--color-border)] last:border-0 pb-4 last:pb-0">
                   <div className="flex items-baseline justify-between gap-2">
@@ -206,9 +206,9 @@ export default function VsGreenhouse() {
 
         <div className="mt-6 card p-5 border-[var(--color-primary)]/40">
           <p className="text-sm text-[var(--color-muted)] leading-relaxed text-center">
-            <strong className="text-[var(--color-fg)]">The math:</strong> HireBest Advanced at $900/year vs
-            Greenhouse Essential at ~$7,000/year = <strong className="text-[var(--color-primary-2)]">$6,100 saved annually</strong> — before
-            Greenhouse's renewal hikes compound. Over three years that gap typically widens to $20,000+.
+            <strong className="text-[var(--color-fg)]">The math:</strong> HireBest Growth at $840/year (billed annually) vs
+            Greenhouse Essential at ~$7,000/year = <strong className="text-[var(--color-primary-2)]">$6,160 saved annually</strong> — before
+            Greenhouse's renewal hikes compound. Over three years that gap typically widens to $22,000+.
           </p>
         </div>
       </section>
@@ -258,10 +258,10 @@ export default function VsGreenhouse() {
           negotiation. No sales call.
         </p>
         <p className="text-[var(--color-muted)] leading-relaxed mb-6">
-          The no-contract model matters more than most people admit. Greenhouse's standard terms lock you into
-          annual commitments with compounding renewal hikes. With HireBest, the Advanced plan is $900/year
-          flat — and if your hiring slows down, you do not owe anything beyond that. The Custom Integrated tier
-          goes further: a single $1,500 payment that you own outright, with no annual renewal ever.
+          The no-lock-in model matters more than most people admit. Greenhouse's standard terms lock you into
+          annual commitments with compounding renewal hikes. With HireBest, the Growth plan is $99/month flat
+          (or $840/year if you prefer annual billing) — and if your hiring slows down, you cancel from your
+          dashboard with one click. No retention call, no contract negotiation.
         </p>
         <p className="text-[var(--color-muted)] leading-relaxed">
           The honest trade-off: HireBest is a screening tool, not a full ATS. If you need offer management,
@@ -290,7 +290,7 @@ export default function VsGreenhouse() {
           <span className="chip">No contract needed</span>
           <h3 className="mt-4 text-2xl md:text-3xl font-bold">Try HireBest free — no contract needed.</h3>
           <p className="mt-3 text-[var(--color-muted)] leading-relaxed max-w-md mx-auto">
-            No sales call. No procurement cycle. No per-seat tax. Yearly plans from $400 — or start free
+            No sales call. No procurement cycle. No per-seat tax. Plans from $49/month — or start free
             and upgrade when you are ready.
           </p>
           <div className="mt-6 flex flex-wrap gap-3 justify-center">

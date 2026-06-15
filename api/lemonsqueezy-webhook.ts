@@ -163,16 +163,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
 
     else if (eventName === 'order_created') {
-      // One-time orders — for the Custom Integrated variant, grant lifetime
+      // One-time orders — grant the 'lifetime' entitlement (internal key) for Team-tier purchases
       const item = attrs?.first_order_item
       const variantId = String(item?.variant_id ?? '')
       const plan = VARIANT_TO_PLAN[variantId]
       if (plan === 'lifetime' && userId) {
         await supa.from('profiles').update({ plan: 'lifetime' }).eq('id', userId)
         await notifyAdmin({
-          subject: `[HireBest] 💎 Lifetime purchase — $1,500${attrs.test_mode ? ' (TEST)' : ''}`,
+          subject: `[HireBest] 💎 Team plan purchase${attrs.test_mode ? ' (TEST)' : ''}`,
           text: [
-            `💎 New lifetime customer (Custom Integrated)`,
+            `💎 New Team-plan customer`,
             '',
             fmt.kv('Customer', attrs.user_email ?? '—'),
             fmt.kv('Order total', `$${(attrs.total ?? 150000) / 100}`),
@@ -214,10 +214,10 @@ function readRaw(req: VercelRequest): Promise<Buffer> {
 
 function priceLabel(plan: string): string {
   switch (plan) {
-    case 'basic':    return '$400/yr'
-    case 'advanced': return '$900/yr'
-    case 'lifetime': return '$1,500 one-time'
-    case 'retainer': return '$200/mo'
+    case 'basic':    return 'Starter — $49/mo'
+    case 'advanced': return 'Growth — $99/mo'
+    case 'lifetime': return 'Team — $199/mo'
+    case 'retainer': return 'Enterprise — Custom'
     default:         return plan
   }
 }

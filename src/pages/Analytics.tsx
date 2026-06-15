@@ -71,8 +71,8 @@ export default function Analytics() {
       <section className="max-w-5xl mx-auto px-5 py-10">
         <div className="grid md:grid-cols-3 gap-5">
           {[
-            { q: 'Which plans include analytics?', a: 'Analytics ships with Advanced ($900/year) and Custom Integrated ($1,500 one-time) tiers. Basic plan includes screening only.' },
-            { q: 'Can multiple recruiters see the same dashboard?', a: 'Yes. Advanced plan includes full multi-user access. All team members see the same pipeline data — no per-seat limits.' },
+            { q: 'Which plans include analytics?', a: 'Analytics dashboard ships with Team ($199/mo) and Enterprise plans. Starter and Growth include screening + history but not the full analytics suite.' },
+            { q: 'Can multiple recruiters see the same dashboard?', a: 'Yes. Team plan includes 10 users, Enterprise is unlimited. All team members see the same pipeline data.' },
             { q: 'How far back does data go?', a: 'All screening history is stored and searchable. Metrics surface across any date range you choose.' },
           ].map(item => (
             <div key={item.q} className="card p-6">
@@ -84,8 +84,8 @@ export default function Analytics() {
       </section>
 
       <section className="max-w-4xl mx-auto px-5 py-16 text-center">
-        <h2 className="text-3xl font-bold">Available on Advanced & Custom plans</h2>
-        <p className="mt-3 text-[var(--color-muted)]">Analytics ships with multi-user workspaces — see <Link to="/pricing" className="text-[var(--color-primary-2)] underline">Pricing</Link> for details.</p>
+        <h2 className="text-3xl font-bold">Available on Team & Enterprise plans</h2>
+        <p className="mt-3 text-[var(--color-muted)]">Analytics ships with the Team plan ($199/mo) and above — see <Link to="/pricing" className="text-[var(--color-primary-2)] underline">Pricing</Link> for details.</p>
         <div className="mt-6 flex flex-wrap gap-3 justify-center">
           <Link to="/pricing" className="btn-primary">See pricing <ArrowRight size={16}/></Link>
           <Link to="/signup" className="btn-ghost">Start free</Link>

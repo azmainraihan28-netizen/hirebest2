@@ -7,7 +7,7 @@ const faqs = [
   },
   {
     q: 'Is HireBest cheaper than Workable?',
-    a: 'Yes. Workable starts at $299/month (~$3,588/year) with per-job posting limits on lower tiers. HireBest Advanced is $900/year flat with unlimited screenings. The Custom Integrated tier ($1,500 one-time) has no annual renewal at all.',
+    a: 'Yes. Workable starts at $299/month (~$3,588/year) with per-job posting limits on lower tiers. HireBest plans start at $49/month (Starter) with the popular Growth tier at $99/month ($840/year billed annually). No per-job-posting fees, no annual lock-in — cancel anytime.',
   },
   {
     q: 'Does HireBest replace Workable entirely?',
@@ -20,17 +20,17 @@ export default function VsWorkable() {
     <VsPage
       competitor="Workable"
       headline="HireBest vs Workable: Which AI Resume Screener Wins in 2026?"
-      intro="Workable runs around $299/month (~$3,588/year). HireBest starts at $400/year. Here's how the two products actually differ."
-      forCompetitor={["Mid-market HR teams valuing month-to-month flexibility", "UK/AU markets needing job-board syndication", "Teams wanting an all-in-one careers page + ATS"]}
-      forUs={["Teams whose actual blocker is a CV pile they can't read fast enough", "Smaller orgs (10–500) prioritizing AI depth over full ATS features", "Buyers who want a yearly price, not a monthly meter"]}
+      intro="Workable runs around $299/month (~$3,588/year). HireBest starts at $49/month — with a 14-day free trial and no per-job limits. Here's how the two products actually differ."
+      forCompetitor={["Mid-market HR teams wanting a full ATS + careers page", "UK/AU markets needing job-board syndication", "Teams that already use pipeline management daily"]}
+      forUs={["Teams whose actual blocker is a CV pile they can't read fast enough", "Smaller orgs (10–500) prioritizing AI depth over full ATS features", "Buyers who want transparent SaaS pricing without per-job-posting fees"]}
       rows={[
-        { f: 'Starting price', us: '$400/year', them: '$299/month (~$3,588/year)' },
+        { f: 'Starting price', us: '$49/month', them: '$299/month (~$3,588/year)' },
+        { f: 'Free trial', us: '14 days, no credit card', them: '15 days, credit card required after' },
         { f: 'AI scoring', us: '0–100 with JD-cited reasoning', them: 'Semantic match, limited reasoning' },
-        { f: 'Ownership option', us: 'Yes (Custom Integrated tier)', them: 'No' },
-        { f: 'Per-job limits', us: 'Unlimited across tiers', them: 'Yes on Starter tier' },
-        { f: 'Setup time', us: '1–14 days', them: '1–7 days' },
+        { f: 'Per-job limits', us: 'Unlimited active jobs on Team plan', them: 'Yes on lower tiers' },
+        { f: 'Setup time', us: 'Same day', them: '1–7 days' },
       ]}
-      cta="Skip the monthly meter. Start screening with HireBest today."
+      cta="Skip the per-job meter. Start your 14-day free trial today."
       faqs={faqs}
     />
   )

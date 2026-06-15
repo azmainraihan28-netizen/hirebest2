@@ -21,10 +21,10 @@ export default function DashboardTopBar({ title, used = 0, limit = 50, unlimited
   const pct = limit > 0 ? Math.min(100, (used / limit) * 100) : 0
   const danger = pct >= 90
   const warn = pct >= 70 && !danger
-  const planLabel = profile?.plan === 'lifetime' ? 'Lifetime'
-    : profile?.plan === 'advanced' ? 'Advanced'
-    : profile?.plan === 'basic' ? 'Basic'
-    : profile?.plan === 'retainer' ? 'Retainer'
+  const planLabel = profile?.plan === 'lifetime' ? 'Team'
+    : profile?.plan === 'advanced' ? 'Growth'
+    : profile?.plan === 'basic' ? 'Starter'
+    : profile?.plan === 'retainer' ? 'Enterprise'
     : 'Free'
 
   return (

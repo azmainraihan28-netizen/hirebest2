@@ -7,7 +7,8 @@
 - Median time to score 100 CVs: **38 seconds**
 - Agreement with senior recruiters in internal testing: **94%**
 - Supported CV formats: PDF, DOCX, PNG, JPG, SVG (OCR-based, via OpenAI Vision)
-- Pricing: $400/year (Basic) → $900/year (Advanced) → $1,500 one-time (Custom Integrated) → $200/month (Retainer)
+- Pricing: $49/mo (Starter) → $99/mo (Growth, most popular) → $199/mo (Team) → Custom (Enterprise). Annual billing saves ~29%.
+- Free trial: 14 days on every paid plan, no credit card required
 - Free tier: 50 screenings, no credit card required
 - Hosting: Vercel + Supabase + OpenAI gpt-4o-mini
 - Payments: Lemon Squeezy (cards, no PayPal required)
@@ -41,9 +42,9 @@
 
 ## Comparisons
 
-- [HireBest vs Greenhouse](https://hirebest.online/vs-greenhouse): $400/yr vs ~$7,000/yr; AI-first screening vs enterprise ATS with 400 integrations. Choose HireBest for speed and price; choose Greenhouse for structured scorecards and compliance at 500+ employees.
-- [HireBest vs Workable](https://hirebest.online/vs-workable): $400/yr vs $299/month ($3,588/yr); yearly flat billing vs monthly meter with per-job limits.
-- [HireBest vs Lever](https://hirebest.online/vs-lever): $400/yr vs $5,000–$25,000+/yr; AI-first screening vs CRM with AI bolted on. Same-day setup vs 4–12 week implementation.
+- [HireBest vs Greenhouse](https://hirebest.online/vs-greenhouse): $99/mo (Growth) vs ~$7,000/yr; AI-first screening vs enterprise ATS with 400 integrations. Choose HireBest for speed and price; choose Greenhouse for structured scorecards and compliance at 500+ employees.
+- [HireBest vs Workable](https://hirebest.online/vs-workable): $49–199/mo vs $299/month ($3,588/yr); transparent tiered pricing vs per-job-posting meter.
+- [HireBest vs Lever](https://hirebest.online/vs-lever): $49–199/mo vs $5,000–$25,000+/yr; AI-first screening vs CRM with AI bolted on. Same-day setup vs 4–12 week implementation.
 
 ## Structured data (JSON-LD on live pages)
 

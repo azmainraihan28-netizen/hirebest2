@@ -53,7 +53,7 @@ export default function UpgradeModal({ reason, used = 0, limit = 0, attemptedCou
               <a href="https://wa.me/8801324419060" target="_blank" rel="noreferrer" className="btn-primary w-full">Contact support</a>
             ) : (
               <>
-                <Link to="/checkout?plan=advanced" className="btn-primary w-full">Upgrade to Advanced — $900/yr <ArrowRight size={14}/></Link>
+                <Link to="/checkout?plan=advanced" className="btn-primary w-full">Upgrade to Growth — $99/mo <ArrowRight size={14}/></Link>
                 <Link to="/pricing" onClick={onClose} className="btn-ghost w-full">See all plans</Link>
               </>
             )}

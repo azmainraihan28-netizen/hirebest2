@@ -31,9 +31,9 @@ const routes = [
   },
   {
     path: '/pricing',
-    title: 'Pricing — From $400/yr to fully integrated ATS · HireBest',
-    description: "Transparent plans from a $400/year standalone screener to a $1,500 one-time custom ATS build. No per-seat tax, no procurement cycle.",
-    imageAlt: 'HireBest pricing — from $400/year Basic to $1,500 one-time Custom',
+    title: 'Pricing — From $49/mo. 14-day free trial. Cancel anytime · HireBest',
+    description: "Simple SaaS pricing for AI resume screening. Starter $49/mo, Growth $99/mo (most popular), Team $199/mo, or Enterprise custom. 14-day free trial — no credit card.",
+    imageAlt: 'HireBest pricing — Starter $49/mo, Growth $99/mo, Team $199/mo, Enterprise custom',
     type: 'website',
   },
   {
@@ -67,14 +67,14 @@ const routes = [
   {
     path: '/vs-workable',
     title: 'HireBest vs Workable: Which AI Resume Screener Wins in 2026? · HireBest',
-    description: 'Workable runs around $299/month. HireBest starts at $400/year. Compare features, pricing, and what each is built for.',
-    imageAlt: 'HireBest vs Workable — $400/year vs $299/month AI resume screener comparison',
+    description: 'Workable runs around $299/month. HireBest starts at $49/month with a 14-day free trial. Compare features, pricing, and what each is built for.',
+    imageAlt: 'HireBest vs Workable — $49/month vs $299/month AI resume screener comparison',
     type: 'website',
   },
   {
     path: '/vs-lever',
     title: 'HireBest vs Lever: Which AI Resume Screener Wins in 2026? · HireBest',
-    description: 'Lever lands between $5,000–$25,000+/year. HireBest starts at $400/year. Compare features, pricing, and what each is built for.',
+    description: 'Lever lands between $5,000–$25,000+/year. HireBest starts at $49/month with a 14-day free trial. Compare features, pricing, and what each is built for.',
     imageAlt: 'HireBest vs Lever — AI-first screening vs CRM with bolted-on AI',
     type: 'website',
   },
