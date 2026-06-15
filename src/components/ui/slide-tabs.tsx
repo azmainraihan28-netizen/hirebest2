@@ -47,9 +47,10 @@ export const SlideTabs: React.FC<{ tabs?: SlideTab[] }> = ({ tabs = defaultTabs 
       }}
       className="relative mx-auto flex w-fit rounded-full border p-1"
       style={{
-        borderColor: 'var(--color-border)',
-        background: 'color-mix(in srgb, var(--color-card) 70%, transparent)',
+        borderColor: '#1c2547',
+        background: 'rgba(15, 23, 51, 0.7)',
         backdropFilter: 'blur(8px)',
+        WebkitBackdropFilter: 'blur(8px)',
       }}
     >
       {tabs.map((tab, i) => (
@@ -89,7 +90,7 @@ const Tab = React.forwardRef<HTMLLIElement, TabProps>(
           setPosition({ left: node.offsetLeft, width, opacity: 1 })
         }}
         className="relative z-10 block cursor-pointer text-xs font-medium uppercase tracking-wide"
-        style={{ color: 'var(--color-fg)' }}
+        style={{ color: '#e6eaff' }}
       >
         <NavLink
           to={to}
@@ -109,8 +110,8 @@ const Cursor: React.FC<{ position: Position }> = ({ position }) => {
       animate={{ ...position }}
       className="absolute z-0 h-7 rounded-full md:h-9"
       style={{
-        background: 'linear-gradient(135deg, var(--color-primary), var(--color-accent))',
-        boxShadow: '0 4px 16px var(--color-glow)',
+        background: 'linear-gradient(135deg, #2f7bff, #3b82f6)',
+        boxShadow: '0 4px 16px rgba(47, 123, 255, 0.4)',
       }}
     />
   )
