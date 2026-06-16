@@ -7,6 +7,12 @@ import Breadcrumbs from '../components/Breadcrumbs'
 
 // Per-slug related links: contextual internal links shown after article
 const relatedLinks: Record<string, { label: string; href: string; desc: string }[]> = {
+  'software-engineer-interview-questions': [
+    { label: 'HireBest Free Interview Question Generator', href: '/tools/interview-questions', desc: 'Paste a JD, get role-specific questions tailored to the seniority and stack.' },
+    { label: 'How to Screen 100 CVs in 38 Seconds', href: '/blog/screen-100-cvs-in-38-seconds', desc: 'The screening step before the interview loop — compressed into a coffee break.' },
+    { label: 'Why "AI ATS" is the Wrong Way to Think About Hiring', href: '/blog/ai-ats-wrong-way-to-think', desc: 'The category label hides the real shift — what AI actually replaces in your hiring day.' },
+    { label: 'HireBest Pricing', href: '/pricing', desc: 'Transparent SaaS pricing — $400–$1,500/year with no demos.' },
+  ],
   'workable-pricing-2026': [
     { label: 'HireBest vs Workable — full comparison', href: '/vs-workable', desc: 'Pricing, AI features, setup time, and who each tool is built for.' },
     { label: 'HireBest vs Greenhouse', href: '/vs-greenhouse', desc: 'How Greenhouse\'s $5,000–$14,000/year stacks up against HireBest\'s tiered pricing.' },
