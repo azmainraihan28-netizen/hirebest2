@@ -51,7 +51,7 @@ function renderInline(text: string, key: string | number) {
   return parts.map((part, j) => {
     if (part.startsWith('**')) return <strong key={`${key}-${j}`}>{part.slice(2, -2)}</strong>
     const m = part.match(/^\[([^\]]+)\]\(([^)]+)\)$/)
-    if (m) return <Link key={`${key}-${j}`} to={m[2]} className="text-[var(--color-primary-2)] underline underline-offset-2 hover:opacity-80">{m[1]}</Link>
+    if (m) return <Link key={`${key}-${j}`} to={m[2]} className="text-blue-500 underline underline-offset-2 hover:text-blue-400">{m[1]}</Link>
     return part
   })
 }
