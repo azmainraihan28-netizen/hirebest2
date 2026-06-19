@@ -1,6 +1,7 @@
 import { Link, NavLink } from 'react-router-dom'
 import { useState } from 'react'
 import { Menu, X, Sun, Moon } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import Logo from './Logo'
 import UserMenu from './UserMenu'
 import { useAuth } from '../lib/auth'
@@ -47,8 +48,12 @@ export default function Header() {
             </>
           ) : (
             <>
-              <NavLink to="/login" className="btn-ghost">Log in</NavLink>
-              <NavLink to="/signup" className="btn-primary">Get started</NavLink>
+              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.96 }}>
+                <NavLink to="/login" className="btn-ghost">Log in</NavLink>
+              </motion.div>
+              <motion.div whileHover={{ scale: 1.04, y: -1 }} whileTap={{ scale: 0.96 }} transition={{ type: 'spring', stiffness: 360, damping: 22 }}>
+                <NavLink to="/signup" className="btn-primary">Get started</NavLink>
+              </motion.div>
             </>
           )}
         </div>
@@ -61,23 +66,47 @@ export default function Header() {
           </button>
         </div>
       </div>
-      {open && (
-        <div className="mobile-menu lg:hidden border-t border-[var(--color-border)] px-5 py-4 flex flex-col gap-3">
-          {links.map(l => (
-            <a key={l.to} href={l.to} className="text-[var(--color-muted)] hover:text-[var(--color-fg)]" onClick={() => setOpen(false)}>{l.label}</a>
-          ))}
-          <div className="flex gap-2 pt-2">
-            {user ? (
-              <Link to="/dashboard" className="btn-primary flex-1 justify-center">Dashboard</Link>
-            ) : (
-              <>
-                <Link to="/login" className="btn-ghost flex-1 justify-center">Log in</Link>
-                <Link to="/signup" className="btn-primary flex-1 justify-center">Get started</Link>
-              </>
-            )}
-          </div>
-        </div>
-      )}
+      <AnimatePresence initial={false}>
+        {open && (
+          <motion.div
+            key="mobile-menu"
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ height: { type: 'spring', stiffness: 240, damping: 28 }, opacity: { duration: 0.2 } }}
+            className="mobile-menu lg:hidden border-t border-[var(--color-border)] overflow-hidden"
+          >
+            <motion.div
+              initial="hidden"
+              animate="show"
+              variants={{ hidden: {}, show: { transition: { staggerChildren: 0.04 } } }}
+              className="px-5 py-4 flex flex-col gap-3"
+            >
+              {links.map(l => (
+                <motion.a
+                  key={l.to}
+                  href={l.to}
+                  variants={{ hidden: { opacity: 0, x: -12 }, show: { opacity: 1, x: 0 } }}
+                  className="text-[var(--color-muted)] hover:text-[var(--color-fg)]"
+                  onClick={() => setOpen(false)}
+                >
+                  {l.label}
+                </motion.a>
+              ))}
+              <motion.div variants={{ hidden: { opacity: 0, y: 6 }, show: { opacity: 1, y: 0 } }} className="flex gap-2 pt-2">
+                {user ? (
+                  <Link to="/dashboard" className="btn-primary flex-1 justify-center">Dashboard</Link>
+                ) : (
+                  <>
+                    <Link to="/login" className="btn-ghost flex-1 justify-center">Log in</Link>
+                    <Link to="/signup" className="btn-primary flex-1 justify-center">Get started</Link>
+                  </>
+                )}
+              </motion.div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   )
 }
