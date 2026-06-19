@@ -232,6 +232,21 @@ function Hero() {
           <span className="flex items-center gap-1"><Check size={14} className="text-[var(--color-primary)]"/>PDF, DOCX, PNG, SVG</span>
           <span className="flex items-center gap-1"><Check size={14} className="text-[var(--color-primary)]"/>Bulk batch screening</span>
         </motion.div>
+
+        <motion.div variants={fadeUp} className="mt-8 flex justify-center">
+          <a
+            href="https://www.producthunt.com/products/hirebest-online?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-hirebest-online"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              alt="Hirebest.online - Score 100 CVs in 38 Seconds | Product Hunt"
+              width={250}
+              height={54}
+              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1175830&theme=light&t=1781854290026"
+            />
+          </a>
+        </motion.div>
       </motion.div>
     </section>
   )
