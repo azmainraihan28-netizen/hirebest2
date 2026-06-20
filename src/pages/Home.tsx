@@ -233,7 +233,7 @@ function Hero() {
           <span className="flex items-center gap-1"><Check size={14} className="text-[var(--color-primary)]"/>Bulk batch screening</span>
         </motion.div>
 
-        <motion.div variants={fadeUp} className="mt-8 flex justify-center">
+        <motion.div variants={fadeUp} className="mt-8 flex flex-wrap items-center justify-center gap-4">
           <a
             href="https://www.producthunt.com/products/hirebest-online?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-hirebest-online"
             target="_blank"
@@ -244,6 +244,17 @@ function Hero() {
               width={250}
               height={54}
               src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1175830&theme=light&t=1781854290026"
+            />
+          </a>
+          <a
+            href="https://www.shipit.buzz/products/hirebest?ref=badge"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <img
+              src="https://www.shipit.buzz/api/products/hirebest/badge?theme=light"
+              alt="Featured on Shipit"
+              height={54}
             />
           </a>
         </motion.div>
