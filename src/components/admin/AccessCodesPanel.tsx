@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Plus, Copy, Trash2 } from 'lucide-react'
-import { listAccessCodes, createAccessCode, deleteAccessCode, type AccessCode } from '../../lib/admin'
+import { listAccessCodes, createAccessCode, deleteAccessCode, PLAN_LABELS, PLAN_OPTIONS, type AccessCode, type PlanKey } from '../../lib/admin'
 
 export default function AccessCodesPanel() {
   const [codes, setCodes] = useState<AccessCode[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
-  const [plan, setPlan] = useState<'free' | 'lifetime'>('lifetime')
+  const [plan, setPlan] = useState<PlanKey>('lifetime')
   const [bonus, setBonus] = useState('0')
   const [uses, setUses] = useState('1')
   const [exp, setExp] = useState('')
@@ -42,7 +42,7 @@ export default function AccessCodesPanel() {
       <div className="flex justify-between items-center">
         <div>
           <div className="font-semibold">Access Codes</div>
-          <div className="text-xs text-[var(--color-muted)] mt-1">Generate redeemable codes that grant Lifetime plan or bonus screenings.</div>
+          <div className="text-xs text-[var(--color-muted)] mt-1">Generate redeemable codes that grant a paid plan or bonus screenings.</div>
         </div>
         <button onClick={() => setShowForm(s => !s)} className="btn-primary text-xs"><Plus size={12}/>{showForm ? 'Cancel' : 'New code'}</button>
       </div>
@@ -51,9 +51,10 @@ export default function AccessCodesPanel() {
         <div className="card p-5 grid sm:grid-cols-4 gap-3">
           <label className="block">
             <span className="text-xs text-[var(--color-muted)]">Plan</span>
-            <select value={plan} onChange={e => setPlan(e.target.value as any)} className="field mt-1 text-sm">
-              <option value="lifetime">Lifetime</option>
-              <option value="free">Free + bonus</option>
+            <select value={plan} onChange={e => setPlan(e.target.value as PlanKey)} className="field mt-1 text-sm">
+              {PLAN_OPTIONS.map(p => (
+                <option key={p} value={p}>{p === 'free' ? 'Free + bonus' : PLAN_LABELS[p]}</option>
+              ))}
             </select>
           </label>
           <label className="block">
@@ -87,7 +88,7 @@ export default function AccessCodesPanel() {
             <div key={c.id} className="card p-4 flex flex-wrap items-center gap-3">
               <code className="text-sm font-mono font-semibold text-[var(--color-primary-2)]">{c.code}</code>
               <span className={`text-xs px-2 py-0.5 rounded ${tone}`}>{status}</span>
-              <span className="text-xs text-[var(--color-muted)]">{c.plan === 'lifetime' ? 'Lifetime' : `+${c.bonus_screenings} screenings`}</span>
+              <span className="text-xs text-[var(--color-muted)]">{c.plan === 'free' ? `+${c.bonus_screenings} screenings` : PLAN_LABELS[c.plan]}</span>
               <span className="text-xs text-[var(--color-muted)]">{c.uses_remaining}/{c.total_uses} uses left</span>
               {c.expires_at && <span className="text-xs text-[var(--color-muted)]">expires {new Date(c.expires_at).toLocaleDateString()}</span>}
               <div className="ml-auto flex gap-1">
