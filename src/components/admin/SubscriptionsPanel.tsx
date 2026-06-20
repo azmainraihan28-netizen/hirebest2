@@ -1,6 +1,17 @@
 import { useEffect, useMemo, useState } from 'react'
 import { Search, Save } from 'lucide-react'
-import { listProfilesWithUsage, getDefaultFreeLimit, setDefaultFreeLimit, updateProfileFields, type ExtProfile } from '../../lib/admin'
+import { listProfilesWithUsage, getDefaultFreeLimit, setDefaultFreeLimit, updateProfileFields, PLAN_LABELS, PLAN_OPTIONS, type ExtProfile, type PlanKey } from '../../lib/admin'
+
+const PAID_PLANS: PlanKey[] = ['basic', 'advanced', 'lifetime', 'retainer']
+const isUnlimited = (p: PlanKey) => PAID_PLANS.includes(p)
+
+const PLAN_TONE: Record<PlanKey, string> = {
+  free: 'bg-[color-mix(in_srgb,var(--color-fg)_6%,transparent)] text-[var(--color-muted)] border border-[var(--color-border)]',
+  basic: 'bg-sky-500/15 text-sky-300 border border-sky-500/30',
+  advanced: 'bg-[var(--color-primary)]/20 text-[var(--color-primary-2)] border border-[var(--color-primary)]/40',
+  lifetime: 'bg-[var(--color-primary)] text-[var(--color-fg)]',
+  retainer: 'bg-amber-500/20 text-amber-300 border border-amber-500/40',
+}
 
 export default function SubscriptionsPanel() {
   const [users, setUsers] = useState<ExtProfile[]>([])
@@ -97,18 +108,16 @@ function UserRow({ u, defaultLimit, onChange }: { u: ExtProfile; defaultLimit: n
     } finally { setBusy(false) }
   }
 
-  const planBadge = plan === 'lifetime'
-    ? 'bg-[var(--color-primary)] text-[var(--color-fg)]'
-    : 'bg-[color-mix(in_srgb,var(--color-fg)_6%,transparent)] text-[var(--color-muted)] border border-[var(--color-border)]'
+  const planBadge = PLAN_TONE[plan] ?? PLAN_TONE.free
   const effectiveLimit = u.screening_limit ?? defaultLimit
-  const limitDisplay = plan === 'lifetime' ? '∞' : `${u.screenings_used}/${effectiveLimit}`
+  const limitDisplay = isUnlimited(plan) ? '∞' : `${u.screenings_used}/${effectiveLimit}`
 
   return (
     <div className="card p-4 flex flex-col lg:flex-row lg:items-center gap-3">
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className="font-semibold text-[var(--color-fg)] truncate">{u.full_name || u.email.split('@')[0]}</span>
-          <span className={`text-[10px] px-2 py-0.5 rounded-md font-medium uppercase tracking-wider ${planBadge}`}>{plan === 'lifetime' ? 'Lifetime' : 'Free'}</span>
+          <span className={`text-[10px] px-2 py-0.5 rounded-md font-medium uppercase tracking-wider ${planBadge}`}>{PLAN_LABELS[plan]}</span>
         </div>
         <div className="text-xs text-[var(--color-muted)] mt-1 truncate">
           {u.email} · {limitDisplay === '∞' ? '0 screenings used' : `${limitDisplay} screenings used`}
@@ -118,9 +127,10 @@ function UserRow({ u, defaultLimit, onChange }: { u: ExtProfile; defaultLimit: n
       <div className="flex flex-wrap items-center gap-2">
         <input type="number" min={0} value={limit} onChange={e => setLimit(e.target.value)} className="field w-20 text-sm"/>
         <button onClick={save} disabled={busy || !dirty} className="btn-primary text-xs"><Save size={12}/>{busy ? '…' : 'Save'}</button>
-        <select value={plan} onChange={e => setPlan(e.target.value as any)} className="field w-28 text-sm">
-          <option value="free">Free</option>
-          <option value="lifetime">Lifetime</option>
+        <select value={plan} onChange={e => setPlan(e.target.value as PlanKey)} className="field w-32 text-sm">
+          {PLAN_OPTIONS.map(p => (
+            <option key={p} value={p}>{PLAN_LABELS[p]}</option>
+          ))}
         </select>
         <label className="flex items-center gap-2 cursor-pointer">
           <span className={`text-xs ${active ? 'text-green-400' : 'text-[var(--color-muted)]'}`}>{active ? 'Active' : 'Suspended'}</span>

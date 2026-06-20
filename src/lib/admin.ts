@@ -1,11 +1,23 @@
 import { supabase } from './supabase'
 
+export type PlanKey = 'free' | 'basic' | 'advanced' | 'lifetime' | 'retainer'
+
+export const PLAN_LABELS: Record<PlanKey, string> = {
+  free: 'Free',
+  basic: 'Starter',
+  advanced: 'Growth',
+  lifetime: 'Team',
+  retainer: 'Enterprise',
+}
+
+export const PLAN_OPTIONS: PlanKey[] = ['free', 'basic', 'advanced', 'lifetime', 'retainer']
+
 export type ExtProfile = {
   id: string
   email: string
   full_name: string | null
   role: 'user' | 'admin'
-  plan: 'free' | 'lifetime'
+  plan: PlanKey
   screening_limit: number | null
   active: boolean
   created_at: string
@@ -15,7 +27,7 @@ export type ExtProfile = {
 export type AccessCode = {
   id: string
   code: string
-  plan: 'free' | 'lifetime'
+  plan: PlanKey
   bonus_screenings: number
   uses_remaining: number
   total_uses: number
@@ -68,7 +80,7 @@ export async function listAccessCodes(): Promise<AccessCode[]> {
   return (data ?? []) as AccessCode[]
 }
 
-export async function createAccessCode(input: { plan: 'free' | 'lifetime'; bonus_screenings: number; uses: number; expires_at: string | null }) {
+export async function createAccessCode(input: { plan: PlanKey; bonus_screenings: number; uses: number; expires_at: string | null }) {
   const code = generateCode()
   const { data: { user } } = await supabase.auth.getUser()
   const { data, error } = await supabase.from('access_codes').insert({
