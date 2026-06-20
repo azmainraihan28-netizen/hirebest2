@@ -21,19 +21,31 @@ export default function Footer() {
             <button onClick={requestReview} className="mt-5 inline-flex items-center gap-2 text-sm text-[var(--color-primary-2)] hover:text-[var(--color-primary)] transition">
               <Star size={14}/>Leave a Review
             </button>
-            <a
-              href="https://www.producthunt.com/products/hirebest-online?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-hirebest-online"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-5 block"
-            >
-              <img
-                alt="Hirebest.online - Score 100 CVs in 38 Seconds | Product Hunt"
-                width={250}
-                height={54}
-                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1175830&theme=light&t=1781854290026"
-              />
-            </a>
+            <div className="mt-5 flex flex-wrap items-center gap-3">
+              <a
+                href="https://www.producthunt.com/products/hirebest-online?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-hirebest-online"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  alt="Hirebest.online - Score 100 CVs in 38 Seconds | Product Hunt"
+                  width={250}
+                  height={54}
+                  src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1175830&theme=light&t=1781854290026"
+                />
+              </a>
+              <a
+                href="https://www.shipit.buzz/products/hirebest?ref=badge"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <img
+                  src="https://www.shipit.buzz/api/products/hirebest/badge?theme=light"
+                  alt="Featured on Shipit"
+                  height={54}
+                />
+              </a>
+            </div>
           </div>
           <div>
             <h4 className="text-[var(--color-fg)] text-sm font-semibold mb-3">Product</h4>
