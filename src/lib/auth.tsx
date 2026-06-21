@@ -11,6 +11,7 @@ type AuthCtx = {
   signInWithEmail: (email: string, password: string) => Promise<{ error: string | null }>
   signUpWithEmail: (email: string, password: string, fullName?: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
+  refreshProfile: () => Promise<void>
 }
 
 const Ctx = createContext<AuthCtx | null>(null)
@@ -63,6 +64,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return { error: error?.message ?? null }
     },
     signOut: async () => { await supabase.auth.signOut() },
+    refreshProfile: async () => {
+      if (!session?.user) return
+      const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
+      setProfile((data as Profile | null) ?? null)
+    },
   }
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>
