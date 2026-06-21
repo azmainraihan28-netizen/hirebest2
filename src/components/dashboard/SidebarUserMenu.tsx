@@ -49,7 +49,11 @@ export default function SidebarUserMenu() {
       )}
 
       <button onClick={() => setOpen(o => !o)} className="w-full flex items-center gap-3 hover:bg-[color-mix(in_srgb,var(--color-fg)_5%,transparent)] rounded-md p-1 -m-1 transition">
-        <div className="w-8 h-8 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-[var(--color-fg)] text-xs font-semibold">{initial}</div>
+        <div className="w-8 h-8 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-[var(--color-fg)] text-xs font-semibold overflow-hidden">
+          {profile?.avatar_url
+            ? <img src={profile.avatar_url} alt="" className="w-full h-full object-cover"/>
+            : initial}
+        </div>
         <div className="flex-1 min-w-0 text-left">
           <div className="text-xs truncate text-[var(--color-fg)]">{email}</div>
           {isAdmin && <div className="text-[10px] text-[var(--color-primary-2)]">Admin</div>}

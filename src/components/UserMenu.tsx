@@ -14,8 +14,10 @@ export default function UserMenu() {
 
   return (
     <div className="relative">
-      <button onClick={() => setOpen(!open)} className="w-9 h-9 rounded-full bg-[var(--color-primary)] text-[var(--color-fg)] font-semibold text-sm flex items-center justify-center">
-        {initial}
+      <button onClick={() => setOpen(!open)} className="w-9 h-9 rounded-full bg-[var(--color-primary)] text-[var(--color-fg)] font-semibold text-sm flex items-center justify-center overflow-hidden">
+        {profile?.avatar_url
+          ? <img src={profile.avatar_url} alt="" className="w-full h-full object-cover"/>
+          : initial}
       </button>
       {open && (
         <>

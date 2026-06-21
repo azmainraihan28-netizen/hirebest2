@@ -23,5 +23,6 @@ export type Profile = {
   plan: 'free' | 'basic' | 'advanced' | 'lifetime' | 'retainer'
   screening_limit: number | null
   active: boolean
+  avatar_url: string | null
   created_at: string
 }
