@@ -7,6 +7,12 @@ import Breadcrumbs from '../components/Breadcrumbs'
 
 // Per-slug related links: contextual internal links shown after article
 const relatedLinks: Record<string, { label: string; href: string; desc: string }[]> = {
+  'marketing-manager-interview-questions': [
+    { label: '50 Software Engineer Interview Questions', href: '/blog/software-engineer-interview-questions', desc: 'The companion guide for engineering hires.' },
+    { label: 'HireBest Free Interview Question Generator', href: '/tools/interview-questions', desc: 'Paste a JD, get role-specific questions in 30 seconds.' },
+    { label: 'How to Screen 100 CVs in 38 Seconds', href: '/blog/screen-100-cvs-in-38-seconds', desc: 'The screening step before the interview loop — compressed into a coffee break.' },
+    { label: 'HireBest Pricing', href: '/pricing', desc: 'Transparent SaaS pricing — $400–$1,500/year with no demos.' },
+  ],
   'software-engineer-interview-questions': [
     { label: 'HireBest Free Interview Question Generator', href: '/tools/interview-questions', desc: 'Paste a JD, get role-specific questions tailored to the seniority and stack.' },
     { label: 'How to Screen 100 CVs in 38 Seconds', href: '/blog/screen-100-cvs-in-38-seconds', desc: 'The screening step before the interview loop — compressed into a coffee break.' },
