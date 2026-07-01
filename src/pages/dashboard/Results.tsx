@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
-import { Search, Download, Mail, Plus, GitCompare, FileText, CheckCircle2, AlertCircle, XCircle } from 'lucide-react'
+import { Search, Download, Mail, Plus, GitCompare, FileText, CheckCircle2, AlertCircle, XCircle, FileDown } from 'lucide-react'
 import DashboardTopBar from '../../components/dashboard/DashboardTopBar'
 import CandidateRow from '../../components/dashboard/CandidateRow'
 import InterviewQsModal from '../../components/dashboard/InterviewQsModal'
 import CompareModal from '../../components/dashboard/CompareModal'
 import { SkeletonRow, SkeletonStats } from '../../components/Skeleton'
 import { getScreening, listCandidates, countMyCandidates, type Candidate, type Screening } from '../../lib/screenings'
+import { pdf } from '@react-pdf/renderer'
+import { computeReportStats, ScreeningReportDocument } from '../../lib/reportPdf'
 
 type Tab = 'All' | 'Fit' | 'Maybe' | 'Skip'
 type Sort = 'Score' | 'Name' | 'Date'
@@ -26,6 +28,7 @@ export default function Results() {
   const [openQs, setOpenQs] = useState<Candidate | null>(null)
   const [compareOpen, setCompareOpen] = useState(false)
   const [used, setUsed] = useState(0)
+  const [reportBusy, setReportBusy] = useState(false)
 
   useEffect(() => {
     if (!id) return
@@ -69,6 +72,49 @@ export default function Results() {
 
   const handleStatusChange = (id: string, status: Candidate['status']) => {
     setCands(cs => cs.map(c => c.id === id ? { ...c, status, status_email_sent: true } : c))
+  }
+
+  const downloadPdfReport = async () => {
+    if (reportBusy || filtered.length === 0) return
+    setReportBusy(true)
+    try {
+      const stats = computeReportStats(filtered)
+      let aiSummary = ''
+      try {
+        const res = await fetch('/api/report-insights', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            screeningName: screening?.name,
+            total: stats.total,
+            fit: stats.fit,
+            maybe: stats.maybe,
+            skip: stats.skip,
+            avgScore: stats.avgScore,
+            topSkills: stats.topSkills,
+            topGaps: stats.topGaps,
+            scoreBuckets: stats.scoreBuckets,
+          }),
+        })
+        if (res.ok) aiSummary = (await res.json()).summary ?? ''
+      } catch { /* AI summary is best-effort; report still renders without it */ }
+
+      const blob = await pdf(
+        <ScreeningReportDocument
+          screeningName={screening?.name ?? 'Screening'}
+          generatedAt={new Date().toLocaleDateString()}
+          stats={stats}
+          aiSummary={aiSummary}
+          candidates={filtered}
+        />
+      ).toBlob()
+      const url = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = url; a.download = `${screening?.name ?? 'screening'}-report.pdf`
+      a.click(); URL.revokeObjectURL(url)
+    } finally {
+      setReportBusy(false)
+    }
   }
 
   const exportCsv = () => {
@@ -154,6 +200,7 @@ export default function Results() {
               <GitCompare size={12}/>Compare{sel.size > 0 ? ` (${sel.size})` : ''}
             </button>
             <button onClick={exportCsv} className="btn-ghost text-xs"><Download size={12}/>CSV</button>
+            <button onClick={downloadPdfReport} disabled={reportBusy} className="btn-ghost text-xs"><FileDown size={12}/>{reportBusy ? 'Building…' : 'PDF Report'}</button>
             <button onClick={emailSelected} className="btn-ghost text-xs"><Mail size={12}/>Email</button>
             <button onClick={() => nav('/dashboard/new')} className="btn-primary text-xs"><Plus size={12}/>New</button>
           </div>
