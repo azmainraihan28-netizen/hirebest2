@@ -1,19 +1,30 @@
-import { ChevronRight, Sparkles, Mail } from 'lucide-react'
+import { ChevronRight, Sparkles, Mail, UserCheck, UserX } from 'lucide-react'
 import { useState } from 'react'
 import ScoreGauge from './ScoreGauge'
 import VerdictPill from './VerdictPill'
-import type { Candidate } from '../../lib/screenings'
+import { setCandidateStatus, type Candidate } from '../../lib/screenings'
 
 type Props = {
   c: Candidate
   selected: boolean
   onSelect: (id: string, val: boolean) => void
   onOpenQs: (c: Candidate) => void
+  onStatusChange?: (id: string, status: Candidate['status']) => void
 }
 
-export default function CandidateRow({ c, selected, onSelect, onOpenQs }: Props) {
+export default function CandidateRow({ c, selected, onSelect, onOpenQs, onStatusChange }: Props) {
   const [open, setOpen] = useState(false)
+  const [statusBusy, setStatusBusy] = useState(false)
   const initial = (c.name ?? c.file_name ?? '?').slice(0, 1).toUpperCase()
+
+  const decide = async (status: 'shortlisted' | 'rejected') => {
+    if (statusBusy || c.status === status) return
+    setStatusBusy(true)
+    const result = await setCandidateStatus(c, status)
+    setStatusBusy(false)
+    if (!result.ok) { alert(result.error ?? 'Failed to update status'); return }
+    onStatusChange?.(c.id, status)
+  }
   return (
     <div className="rounded-xl border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-card)_85%,transparent)] overflow-hidden">
       <div className="flex items-center gap-3 p-4">
@@ -30,6 +41,14 @@ export default function CandidateRow({ c, selected, onSelect, onOpenQs }: Props)
         </div>
         <ScoreGauge score={c.score} />
         <VerdictPill verdict={c.verdict} />
+        {c.status === 'pending' && (
+          <>
+            <button disabled={statusBusy} onClick={() => decide('shortlisted')} className="btn-ghost text-xs whitespace-nowrap text-green-400"><UserCheck size={12}/>Shortlist</button>
+            <button disabled={statusBusy} onClick={() => decide('rejected')} className="btn-ghost text-xs whitespace-nowrap text-red-400"><UserX size={12}/>Reject</button>
+          </>
+        )}
+        {c.status === 'shortlisted' && <span className="text-xs text-green-400 flex items-center gap-1 whitespace-nowrap"><UserCheck size={12}/>Shortlisted</span>}
+        {c.status === 'rejected' && <span className="text-xs text-red-400 flex items-center gap-1 whitespace-nowrap"><UserX size={12}/>Rejected</span>}
         <button onClick={() => onOpenQs(c)} className="btn-ghost text-xs whitespace-nowrap"><Sparkles size={12}/>Interview Qs</button>
         <button onClick={() => setOpen(!open)} className="text-[var(--color-muted)] hover:text-[var(--color-fg)]">
           <ChevronRight size={18} className={`transition ${open ? 'rotate-90' : ''}`}/>

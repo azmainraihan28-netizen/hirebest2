@@ -4,6 +4,7 @@ import { Check, X } from 'lucide-react'
 import { useSeo } from '../lib/seo'
 import { useSchema, faqPage } from '../lib/schema'
 import Breadcrumbs from '../components/Breadcrumbs'
+import { formatPlanLimit } from '../lib/plans'
 
 const pricingFaqs = [
   { q: 'Is there a free trial?', a: 'Yes — 14 days free on the Growth plan. No credit card required to start. Cancel anytime during the trial without being charged.' },
@@ -37,7 +38,7 @@ const tiers: Tier[] = [
     cta: 'Start free trial',
     features: [
       '3 active job slots',
-      '150 CVs / month',
+      `${formatPlanLimit('basic')} CVs / month`,
       '1 user',
       'AI scoring with JD-cited reasoning',
       'Interview question generation',
@@ -55,7 +56,7 @@ const tiers: Tier[] = [
     cta: 'Start 14-day free trial',
     features: [
       '10 active job slots',
-      '500 CVs / month',
+      `${formatPlanLimit('advanced')} CVs / month`,
       '3 users',
       'Everything in Starter',
       'Bulk upload (100+ PDFs)',
@@ -76,7 +77,7 @@ const tiers: Tier[] = [
     cta: 'Start free trial',
     features: [
       'Unlimited active job slots',
-      '2,000 CVs / month',
+      `${formatPlanLimit('lifetime')} CVs / month`,
       '10 users',
       'Everything in Growth',
       'Analytics dashboard',
@@ -96,7 +97,7 @@ const tiers: Tier[] = [
     annual: null,
     cta: 'Talk to sales',
     features: [
-      'Unlimited CVs per month',
+      `${formatPlanLimit('retainer')} CVs per month`,
       'Unlimited users',
       'Everything in Team',
       'Custom ATS / database integration',
@@ -112,7 +113,7 @@ const tiers: Tier[] = [
 
 const matrix = [
   { f: 'Active job slots', v: ['3', '10', 'Unlimited', 'Unlimited'] },
-  { f: 'CVs per month', v: ['150', '500', '2,000', 'Unlimited'] },
+  { f: 'CVs per month', v: (['basic', 'advanced', 'lifetime', 'retainer'] as const).map(formatPlanLimit) },
   { f: 'Users', v: ['1', '3', '10', 'Unlimited'] },
   { f: 'AI scoring with JD-cited reasoning', v: [true, true, true, true] },
   { f: 'Interview question generation', v: [true, true, true, true] },
