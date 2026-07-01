@@ -99,15 +99,22 @@ export default function Results() {
         if (res.ok) aiSummary = (await res.json()).summary ?? ''
       } catch { /* AI summary is best-effort; report still renders without it */ }
 
-      const blob = await pdf(
-        <ScreeningReportDocument
-          screeningName={screening?.name ?? 'Screening'}
-          generatedAt={new Date().toLocaleDateString()}
-          stats={stats}
-          aiSummary={aiSummary}
-          candidates={filtered}
-        />
-      ).toBlob()
+      let blob: Blob
+      try {
+        blob = await pdf(
+          <ScreeningReportDocument
+            screeningName={screening?.name ?? 'Screening'}
+            generatedAt={new Date().toLocaleDateString()}
+            stats={stats}
+            aiSummary={aiSummary}
+            candidates={filtered}
+          />
+        ).toBlob()
+      } catch (e: any) {
+        console.error('PDF report generation failed', e)
+        alert(`Failed to build PDF report: ${e?.message ?? 'unknown error'}`)
+        return
+      }
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url; a.download = `${screening?.name ?? 'screening'}-report.pdf`

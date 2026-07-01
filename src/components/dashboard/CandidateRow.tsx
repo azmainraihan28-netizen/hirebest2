@@ -34,8 +34,15 @@ export default function CandidateRow({ c, selected, onSelect, onOpenQs, onStatus
     if (feedbackBusy || !c.email) return
     setFeedbackBusy(true)
     try {
-      const blob = await pdf(<CandidateFeedbackDocument candidate={c} />).toBlob()
-      const pdfBase64 = await blobToBase64(blob)
+      let pdfBase64: string
+      try {
+        const blob = await pdf(<CandidateFeedbackDocument candidate={c} />).toBlob()
+        pdfBase64 = await blobToBase64(blob)
+      } catch (e: any) {
+        console.error('Feedback PDF generation failed', e)
+        alert(`Failed to build feedback PDF: ${e?.message ?? 'unknown error'}`)
+        return
+      }
       const res = await fetch('/api/send-candidate-feedback', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
