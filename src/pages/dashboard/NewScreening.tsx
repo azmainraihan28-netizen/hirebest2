@@ -8,8 +8,20 @@ import { createScreening, insertCandidate } from '../../lib/screenings'
 import { loadQuota, type QuotaState } from '../../lib/quota'
 import { useAuth } from '../../lib/auth'
 
-const ACCEPT = '.pdf,.docx,.txt,.png,.jpg,.jpeg,.svg,.webp'
+const ACCEPT = '.pdf,.docx,.png,.jpg,.jpeg'
+const ACCEPT_MIME = new Set([
+  'application/pdf',
+  'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'image/png',
+  'image/jpeg',
+])
+const ACCEPT_EXT = /\.(pdf|docx|png|jpe?g)$/i
 const HARD_BATCH_CAP = 50
+
+function isAllowedResumeFile(file: File): boolean {
+  if (file.type && ACCEPT_MIME.has(file.type)) return true
+  return ACCEPT_EXT.test(file.name)
+}
 
 export default function NewScreening() {
   const { profile } = useAuth()
@@ -36,7 +48,14 @@ export default function NewScreening() {
 
   const addFiles = (incoming: FileList | File[]) => {
     const arr = Array.from(incoming)
-    setFiles(f => [...f, ...arr].slice(0, HARD_BATCH_CAP))
+    const allowed = arr.filter(isAllowedResumeFile)
+    const rejected = arr.filter(f => !isAllowedResumeFile(f))
+    if (rejected.length > 0) {
+      setErr(`Unsupported file type${rejected.length > 1 ? 's' : ''}: ${rejected.map(f => f.name).join(', ')}. Only PDF, DOCX, PNG, and JPG are allowed.`)
+    } else {
+      setErr(null)
+    }
+    if (allowed.length > 0) setFiles(f => [...f, ...allowed].slice(0, HARD_BATCH_CAP))
   }
   const removeFile = (i: number) => setFiles(f => f.filter((_, idx) => idx !== i))
 
@@ -193,7 +212,7 @@ export default function NewScreening() {
             >
               <Upload size={20} className="mx-auto text-[var(--color-muted)]"/>
               <div className="mt-3 text-sm font-medium">Drag CVs here or click to browse</div>
-              <div className="text-[11px] text-[var(--color-muted)] mt-1">PDF, DOCX, PNG, JPG, SVG · max 10MB each</div>
+              <div className="text-[11px] text-[var(--color-muted)] mt-1">PDF, DOCX, PNG, JPG · max 10MB each</div>
               <input ref={fileInput} type="file" multiple accept={ACCEPT} className="hidden" onChange={e => e.target.files && addFiles(e.target.files)}/>
             </div>
 

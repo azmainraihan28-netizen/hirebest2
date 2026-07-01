@@ -1,18 +1,22 @@
 import { supabase } from './supabase'
 import type { Profile } from './supabase'
+import { PLAN_LIMITS, type PlanKey } from './plans'
 
-const UNLIMITED_PLANS: Profile['plan'][] = ['basic', 'advanced', 'lifetime', 'retainer']
+function isPaidPlan(plan: Profile['plan'] | undefined | null): plan is PlanKey {
+  return !!plan && plan in PLAN_LIMITS
+}
 
-/** Plans with unlimited screenings. */
+/** Plans with unlimited screenings (currently just Enterprise/retainer). */
 export function isUnlimited(plan: Profile['plan'] | undefined | null): boolean {
-  return !!plan && UNLIMITED_PLANS.includes(plan)
+  return isPaidPlan(plan) && !isFinite(PLAN_LIMITS[plan])
 }
 
 /** Effective limit for this user. Returns Infinity for unlimited plans. */
 export async function getEffectiveLimit(profile: Profile | null): Promise<number> {
   if (!profile) return 0
-  if (isUnlimited(profile.plan)) return Infinity
+  // Per-user admin override always wins over the plan default.
   if (profile.screening_limit != null) return profile.screening_limit
+  if (isPaidPlan(profile.plan)) return PLAN_LIMITS[profile.plan]
   const { data } = await supabase.from('app_settings').select('value').eq('key', 'default_free_limit').maybeSingle()
   const v = (data as any)?.value
   return typeof v === 'number' ? v : 50

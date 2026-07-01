@@ -28,6 +28,8 @@ export type Candidate = {
   strengths: string[] | null
   gaps: string[] | null
   questions: InterviewQuestion[] | null
+  status: 'pending' | 'shortlisted' | 'rejected'
+  status_email_sent: boolean
   created_at: string
 }
 
@@ -58,7 +60,7 @@ export async function listCandidates(screeningId: string): Promise<Candidate[]> 
   return (data ?? []) as Candidate[]
 }
 
-export async function insertCandidate(c: Omit<Candidate, 'id' | 'created_at'>): Promise<Candidate | null> {
+export async function insertCandidate(c: Omit<Candidate, 'id' | 'created_at' | 'status' | 'status_email_sent'>): Promise<Candidate | null> {
   const { data, error } = await supabase.from('candidates').insert(c).select('*').single()
   if (error) { console.error(error); return null }
   return data as Candidate
@@ -71,6 +73,27 @@ export async function countMyCandidates(): Promise<number> {
 
 export async function regenerateQuestions(candidateId: string, questions: InterviewQuestion[]) {
   await supabase.from('candidates').update({ questions }).eq('id', candidateId)
+}
+
+/**
+ * Sets a candidate's manual decision status and, the first time a decision is made,
+ * sends the corresponding interview-invite/rejection email (status_email_sent guards against resends).
+ */
+export async function setCandidateStatus(candidate: Candidate, status: 'shortlisted' | 'rejected'): Promise<{ ok: boolean; error?: string }> {
+  const { error } = await supabase.from('candidates').update({ status }).eq('id', candidate.id)
+  if (error) return { ok: false, error: error.message }
+  if (candidate.status_email_sent || !candidate.email) return { ok: true }
+
+  const res = await fetch('/api/send-decision-email', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ candidateId: candidate.id, email: candidate.email, name: candidate.name, status }),
+  })
+  if (!res.ok) {
+    const t = await res.text()
+    return { ok: false, error: `Email failed: ${t.slice(0, 150)}` }
+  }
+  return { ok: true }
 }
 
 export async function deleteScreening(id: string) {

@@ -10,6 +10,7 @@ import { getScreening, listCandidates, countMyCandidates, type Candidate, type S
 
 type Tab = 'All' | 'Fit' | 'Maybe' | 'Skip'
 type Sort = 'Score' | 'Name' | 'Date'
+type ShowLimit = 10 | 25 | 50 | 100 | 'All'
 
 export default function Results() {
   const { id } = useParams()
@@ -20,6 +21,7 @@ export default function Results() {
   const [tab, setTab] = useState<Tab>('All')
   const [q, setQ] = useState('')
   const [sort, setSort] = useState<Sort>('Score')
+  const [showLimit, setShowLimit] = useState<ShowLimit>('All')
   const [sel, setSel] = useState<Set<string>>(new Set())
   const [openQs, setOpenQs] = useState<Candidate | null>(null)
   const [compareOpen, setCompareOpen] = useState(false)
@@ -57,8 +59,16 @@ export default function Results() {
     return sorted
   }, [cands, tab, q, sort])
 
+  const visible = useMemo(() => (
+    showLimit === 'All' ? filtered : filtered.slice(0, showLimit)
+  ), [filtered, showLimit])
+
   const toggleSel = (id: string, val: boolean) => {
     setSel(s => { const n = new Set(s); val ? n.add(id) : n.delete(id); return n })
+  }
+
+  const handleStatusChange = (id: string, status: Candidate['status']) => {
+    setCands(cs => cs.map(c => c.id === id ? { ...c, status, status_email_sent: true } : c))
   }
 
   const exportCsv = () => {
@@ -123,6 +133,17 @@ export default function Results() {
               <option value="Name">Sort: Name</option>
               <option value="Date">Sort: Date</option>
             </select>
+            <select
+              value={String(showLimit)}
+              onChange={e => setShowLimit(e.target.value === 'All' ? 'All' : (Number(e.target.value) as ShowLimit))}
+              className="field text-sm w-auto"
+            >
+              <option value="10">Show: Top 10</option>
+              <option value="25">Show: Top 25</option>
+              <option value="50">Show: Top 50</option>
+              <option value="100">Show: Top 100</option>
+              <option value="All">Show: All</option>
+            </select>
             <button
               onClick={() => {
                 if (sel.size < 2) return alert('Select at least 2 candidates to compare.')
@@ -141,9 +162,14 @@ export default function Results() {
             {filtered.length === 0 && (
               <div className="py-12 text-center text-[var(--color-muted)] text-sm">No candidates match this filter.</div>
             )}
-            {filtered.map(c => (
-              <CandidateRow key={c.id} c={c} selected={sel.has(c.id)} onSelect={toggleSel} onOpenQs={setOpenQs}/>
+            {visible.map(c => (
+              <CandidateRow key={c.id} c={c} selected={sel.has(c.id)} onSelect={toggleSel} onOpenQs={setOpenQs} onStatusChange={handleStatusChange}/>
             ))}
+            {filtered.length > visible.length && (
+              <div className="pt-2 text-center text-[11px] text-[var(--color-muted)]">
+                Showing {visible.length} of {filtered.length} — change "Show" above to see more.
+              </div>
+            )}
           </div>
         </div>
       </div>

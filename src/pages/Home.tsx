@@ -8,6 +8,7 @@ import { useSeo } from '../lib/seo'
 import { useSchema, organization, softwareApplication, faqPage, websiteSchema } from '../lib/schema'
 import { useInView } from '../lib/useInView'
 import TrustBar from '../components/TrustBar'
+import { formatPlanLimit } from '../lib/plans'
 
 const features = [
   { icon: Sparkles, title: 'AI scoring you can trust', desc: 'Each candidate gets a 0–100 match score with written reasoning citing the JD.' },
@@ -15,11 +16,11 @@ const features = [
   { icon: BarChart3, title: 'Hiring analytics', desc: 'Track screenings over time, average fit ratio, and most common missing skills.' },
   { icon: Mail, title: 'Outreach drafts', desc: 'Generate personalised interview invites and rejection emails in one click.' },
   { icon: Lock, title: 'Private & yours', desc: 'Your CVs stay in your workspace. Auth, RLS, and per-user data isolation by default.' },
-  { icon: FileStack, title: 'Bulk by design', desc: 'Drop 200 CVs at once. PDF, DOCX, PNG, even SVG — we OCR and parse them all.' },
+  { icon: FileStack, title: 'Bulk by design', desc: 'Drop 200 CVs at once. PDF, DOCX, PNG, JPG — we OCR and parse them all.' },
 ]
 
 const steps = [
-  { n: '01', title: 'Drop the JD & CVs', desc: 'Paste any job description, then drag in a folder of resumes — PDF, DOCX, PNG, SVG.' },
+  { n: '01', title: 'Drop the JD & CVs', desc: 'Paste any job description, then drag in a folder of resumes — PDF, DOCX, PNG, JPG.' },
   { n: '02', title: 'Let AI read every line', desc: 'HireBest extracts skills, experience, and matches them to your role with reasoning.' },
   { n: '03', title: 'Hire with confidence', desc: 'Filter to Fit candidates, compare your shortlist, and send the first interview invite.' },
 ]
@@ -34,16 +35,16 @@ const stats = [
 const faqs = [
   { q: 'How fast does HireBest score CVs?', a: '100 CVs in 38 seconds on average.' },
   { q: 'How accurate is HireBest\'s AI scoring?', a: '94% agreement with senior recruiters in internal testing.' },
-  { q: 'What file formats does HireBest support?', a: 'PDF, DOCX, PNG, and SVG with OCR for image-based CVs.' },
+  { q: 'What file formats does HireBest support?', a: 'PDF, DOCX, PNG, and JPG with OCR for image-based CVs.' },
   { q: 'Does HireBest integrate with my ATS?', a: 'The Team plan ($199/mo) includes API access and the Enterprise plan adds custom ATS integration (Greenhouse, Lever, Workday).' },
   { q: 'Is HireBest GDPR compliant?', a: 'Yes — your CVs stay in your workspace with auth and row-level security by default.' },
 ]
 
 const tiers = [
-  { plan: 'basic',    name: 'Starter',    subtitle: 'Solo recruiters & consultants',     price: '$49',  per: '/ month', billing: '14-day free trial. Annual: $420/yr (save 29%)', cta: 'Start free trial',           features: ['3 active job slots', '150 CVs / month', '1 user', 'AI scoring with JD-cited reasoning', 'Interview question generation', 'CSV export'], best: 'Freelance recruiters, solo HR people, consultants' },
-  { plan: 'advanced', name: 'Growth',     subtitle: 'Small HR teams & startups',         price: '$99',  per: '/ month', billing: '14-day free trial. Annual: $840/yr (save 29%)', cta: 'Start 14-day free trial',     features: ['10 active job slots', '500 CVs / month', '3 users', 'Everything in Starter', 'Bulk upload (100+ PDFs)', 'Custom branding', 'Side-by-side compare', 'Priority email support'], popular: true },
-  { plan: 'lifetime', name: 'Team',       subtitle: 'HR departments & agencies',         price: '$199', per: '/ month', billing: '14-day free trial. Annual: $1,680/yr (save 30%)', cta: 'Start free trial',          features: ['Unlimited job slots', '2,000 CVs / month', '10 users', 'Everything in Growth', 'Analytics dashboard', 'API access', 'Role-based permissions', 'Priority Slack support'] },
-  { plan: 'retainer', name: 'Enterprise', subtitle: '500+ companies & enterprise HR',    price: 'Custom', per: '',      billing: 'Volume-based custom quote',                       cta: 'Talk to sales',             features: ['Unlimited CVs / users', 'Everything in Team', 'Custom ATS integration', 'SSO (Single Sign-On)', 'SLA guarantee', 'Dedicated CSM', 'On-premise option', 'Quarterly business reviews'] },
+  { plan: 'basic',    name: 'Starter',    subtitle: 'Solo recruiters & consultants',     price: '$49',  per: '/ month', billing: '14-day free trial. Annual: $420/yr (save 29%)', cta: 'Start free trial',           features: ['3 active job slots', `${formatPlanLimit('basic')} CVs / month`, '1 user', 'AI scoring with JD-cited reasoning', 'Interview question generation', 'CSV export'], best: 'Freelance recruiters, solo HR people, consultants' },
+  { plan: 'advanced', name: 'Growth',     subtitle: 'Small HR teams & startups',         price: '$99',  per: '/ month', billing: '14-day free trial. Annual: $840/yr (save 29%)', cta: 'Start 14-day free trial',     features: ['10 active job slots', `${formatPlanLimit('advanced')} CVs / month`, '3 users', 'Everything in Starter', 'Bulk upload (100+ PDFs)', 'Custom branding', 'Side-by-side compare', 'Priority email support'], popular: true },
+  { plan: 'lifetime', name: 'Team',       subtitle: 'HR departments & agencies',         price: '$199', per: '/ month', billing: '14-day free trial. Annual: $1,680/yr (save 30%)', cta: 'Start free trial',          features: ['Unlimited job slots', `${formatPlanLimit('lifetime')} CVs / month`, '10 users', 'Everything in Growth', 'Analytics dashboard', 'API access', 'Role-based permissions', 'Priority Slack support'] },
+  { plan: 'retainer', name: 'Enterprise', subtitle: '500+ companies & enterprise HR',    price: 'Custom', per: '',      billing: 'Volume-based custom quote',                       cta: 'Talk to sales',             features: [`${formatPlanLimit('retainer')} CVs / users`, 'Everything in Team', 'Custom ATS integration', 'SSO (Single Sign-On)', 'SLA guarantee', 'Dedicated CSM', 'On-premise option', 'Quarterly business reviews'] },
 ]
 
 const articles = [
@@ -229,7 +230,7 @@ function Hero() {
 
         <motion.div variants={fadeUp} className="mt-6 flex flex-wrap gap-5 justify-center text-xs text-[var(--color-muted)]">
           <span className="flex items-center gap-1"><Check size={14} className="text-[var(--color-primary)]"/>No credit card</span>
-          <span className="flex items-center gap-1"><Check size={14} className="text-[var(--color-primary)]"/>PDF, DOCX, PNG, SVG</span>
+          <span className="flex items-center gap-1"><Check size={14} className="text-[var(--color-primary)]"/>PDF, DOCX, PNG, JPG</span>
           <span className="flex items-center gap-1"><Check size={14} className="text-[var(--color-primary)]"/>Bulk batch screening</span>
         </motion.div>
 
