@@ -6,11 +6,18 @@
 
 const API = 'https://api.resend.com/emails'
 
+type Attachment = {
+  filename: string
+  /** Base64-encoded file content (no data: prefix). */
+  content: string
+}
+
 type Payload = {
   subject: string
   text: string
   html?: string
   replyTo?: string
+  attachments?: Attachment[]
 }
 
 async function resendSend(p: Payload & { to: string[]; from: string }): Promise<{ ok: boolean; error?: string }> {
@@ -30,6 +37,7 @@ async function resendSend(p: Payload & { to: string[]; from: string }): Promise<
         text: p.text,
         html: p.html ?? wrapHtml(p.text),
         reply_to: p.replyTo,
+        attachments: p.attachments,
       }),
     })
     if (!r.ok) {
