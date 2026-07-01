@@ -1,8 +1,10 @@
-import { ChevronRight, Sparkles, Mail, UserCheck, UserX } from 'lucide-react'
+import { ChevronRight, Sparkles, Mail, UserCheck, UserX, FileDown } from 'lucide-react'
 import { useState } from 'react'
+import { pdf } from '@react-pdf/renderer'
 import ScoreGauge from './ScoreGauge'
 import VerdictPill from './VerdictPill'
 import { setCandidateStatus, type Candidate } from '../../lib/screenings'
+import { CandidateFeedbackDocument } from '../../lib/feedbackPdf'
 
 type Props = {
   c: Candidate
@@ -15,6 +17,8 @@ type Props = {
 export default function CandidateRow({ c, selected, onSelect, onOpenQs, onStatusChange }: Props) {
   const [open, setOpen] = useState(false)
   const [statusBusy, setStatusBusy] = useState(false)
+  const [feedbackBusy, setFeedbackBusy] = useState(false)
+  const [feedbackSent, setFeedbackSent] = useState(false)
   const initial = (c.name ?? c.file_name ?? '?').slice(0, 1).toUpperCase()
 
   const decide = async (status: 'shortlisted' | 'rejected') => {
@@ -24,6 +28,28 @@ export default function CandidateRow({ c, selected, onSelect, onOpenQs, onStatus
     setStatusBusy(false)
     if (!result.ok) { alert(result.error ?? 'Failed to update status'); return }
     onStatusChange?.(c.id, status)
+  }
+
+  const sendFeedback = async () => {
+    if (feedbackBusy || !c.email) return
+    setFeedbackBusy(true)
+    try {
+      const blob = await pdf(<CandidateFeedbackDocument candidate={c} />).toBlob()
+      const pdfBase64 = await blobToBase64(blob)
+      const res = await fetch('/api/send-candidate-feedback', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: c.email, name: c.name, pdfBase64 }),
+      })
+      if (!res.ok) {
+        const t = await res.text()
+        alert(`Failed to send feedback: ${t.slice(0, 150)}`)
+        return
+      }
+      setFeedbackSent(true)
+    } finally {
+      setFeedbackBusy(false)
+    }
   }
   return (
     <div className="rounded-xl border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-card)_85%,transparent)] overflow-hidden">
@@ -73,12 +99,24 @@ export default function CandidateRow({ c, selected, onSelect, onOpenQs, onStatus
             <div className="flex gap-1.5 flex-wrap">{(c.skills ?? []).map(s => <span key={s} className="skill-chip">{s}</span>)}</div>
           </div>
           {c.email && (
-            <div className="md:col-span-3">
+            <div className="md:col-span-3 flex items-center justify-between gap-3">
               <a href={`mailto:${c.email}`} className="text-xs text-[var(--color-primary-2)] flex items-center gap-1"><Mail size={12}/>{c.email}</a>
+              <button onClick={sendFeedback} disabled={feedbackBusy || feedbackSent} className="btn-ghost text-xs whitespace-nowrap">
+                <FileDown size={12}/>{feedbackSent ? 'Feedback sent' : feedbackBusy ? 'Sending…' : 'Send Feedback PDF'}
+              </button>
             </div>
           )}
         </div>
       )}
     </div>
   )
+}
+
+function blobToBase64(blob: Blob): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader()
+    reader.onloadend = () => resolve(String(reader.result).split(',')[1] ?? '')
+    reader.onerror = reject
+    reader.readAsDataURL(blob)
+  })
 }
