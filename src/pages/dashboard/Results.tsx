@@ -146,7 +146,7 @@ export default function Results() {
   if (loading) return (
     <>
       <DashboardTopBar title="Loading…"/>
-      <div className="p-6 max-w-7xl mx-auto space-y-5">
+      <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-5">
         <SkeletonStats count={4}/>
         <div className="card p-5 space-y-3">
           <SkeletonRow/><SkeletonRow/><SkeletonRow/>
@@ -159,7 +159,7 @@ export default function Results() {
   return (
     <>
       <DashboardTopBar title={`Screening Results · ${screening.name}`} used={used} />
-      <div className="p-6 max-w-7xl mx-auto space-y-5">
+      <div className="p-4 md:p-6 max-w-7xl mx-auto space-y-5">
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <StatCard label="Total" value={counts.All} icon={<FileText size={18}/>} color="text-[var(--color-primary-2)]"/>
@@ -168,20 +168,20 @@ export default function Results() {
           <StatCard label="Skip" value={counts.Skip} icon={<XCircle size={18}/>} color="text-red-400"/>
         </div>
 
-        <div className="card p-5">
-          <div className="flex flex-wrap items-center gap-3">
-            <div className="flex gap-1 bg-[color-mix(in_srgb,var(--color-fg)_4%,transparent)] rounded-md p-1">
+        <div className="card p-4 md:p-5">
+          <div className="flex flex-wrap items-center gap-2 md:gap-3">
+            <div className="flex gap-1 bg-[color-mix(in_srgb,var(--color-fg)_4%,transparent)] rounded-md p-1 overflow-x-auto max-w-full">
               {(['All','Fit','Maybe','Skip'] as Tab[]).map(t => (
-                <button key={t} onClick={() => setTab(t)} className={`text-xs px-3 py-1.5 rounded ${tab === t ? 'bg-[var(--color-primary)] text-[var(--color-fg)]' : 'text-[var(--color-muted)] hover:text-[var(--color-fg)]'}`}>
+                <button key={t} onClick={() => setTab(t)} className={`text-xs px-3 py-1.5 rounded whitespace-nowrap ${tab === t ? 'bg-[var(--color-primary)] text-[var(--color-fg)]' : 'text-[var(--color-muted)] hover:text-[var(--color-fg)]'}`}>
                   {t} ({counts[t]})
                 </button>
               ))}
             </div>
-            <div className="flex-1 min-w-[200px] relative">
+            <div className="flex-1 min-w-[140px] md:min-w-[200px] relative">
               <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-muted)]"/>
               <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search name or skill" className="field pl-9 text-sm"/>
             </div>
-            <select value={sort} onChange={e => setSort(e.target.value as Sort)} className="field text-sm w-auto">
+            <select value={sort} onChange={e => setSort(e.target.value as Sort)} className="field text-sm w-auto flex-1 md:flex-none min-w-0">
               <option value="Score">Sort: Score</option>
               <option value="Name">Sort: Name</option>
               <option value="Date">Sort: Date</option>
@@ -189,7 +189,7 @@ export default function Results() {
             <select
               value={String(showLimit)}
               onChange={e => setShowLimit(e.target.value === 'All' ? 'All' : (Number(e.target.value) as ShowLimit))}
-              className="field text-sm w-auto"
+              className="field text-sm w-auto flex-1 md:flex-none min-w-0"
             >
               <option value="10">Show: Top 10</option>
               <option value="25">Show: Top 25</option>

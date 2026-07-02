@@ -60,10 +60,10 @@ export default function CandidateRow({ c, selected, onSelect, onOpenQs, onStatus
   }
   return (
     <div className="rounded-xl border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-card)_85%,transparent)] overflow-hidden">
-      <div className="flex items-center gap-3 p-4">
-        <input type="checkbox" checked={selected} onChange={e => onSelect(c.id, e.target.checked)} className="accent-[var(--color-primary)]"/>
-        <div className="w-10 h-10 rounded-full bg-[rgba(47,123,255,0.15)] text-[var(--color-primary-2)] text-xs font-semibold flex items-center justify-center">{initial}</div>
-        <div className="flex-1 min-w-0">
+      <div className="flex flex-wrap md:flex-nowrap items-center gap-3 p-3 md:p-4">
+        <input type="checkbox" checked={selected} onChange={e => onSelect(c.id, e.target.checked)} className="accent-[var(--color-primary)] shrink-0"/>
+        <div className="w-10 h-10 rounded-full bg-[rgba(47,123,255,0.15)] text-[var(--color-primary-2)] text-xs font-semibold flex items-center justify-center shrink-0">{initial}</div>
+        <div className="flex-1 min-w-0 basis-[60%] md:basis-auto">
           <div className="font-semibold text-[var(--color-fg)] uppercase tracking-wide text-sm truncate">{c.name ?? c.file_name ?? 'Unknown'}</div>
           <div className="text-xs text-[var(--color-muted)] truncate">
             {c.email ?? '—'}{c.experience_years != null ? ` · ${c.experience_years} yrs` : ''}
@@ -72,20 +72,24 @@ export default function CandidateRow({ c, selected, onSelect, onOpenQs, onStatus
         <div className="hidden md:flex gap-1.5 flex-wrap max-w-xs justify-end">
           {(c.skills ?? []).slice(0, 3).map(s => <span key={s} className="skill-chip">{s}</span>)}
         </div>
-        <ScoreGauge score={c.score} />
-        <VerdictPill verdict={c.verdict} />
-        {c.status === 'pending' && (
-          <>
-            <button disabled={statusBusy} onClick={() => decide('shortlisted')} className="btn-ghost text-xs whitespace-nowrap text-green-400"><UserCheck size={12}/>Shortlist</button>
-            <button disabled={statusBusy} onClick={() => decide('rejected')} className="btn-ghost text-xs whitespace-nowrap text-red-400"><UserX size={12}/>Reject</button>
-          </>
-        )}
-        {c.status === 'shortlisted' && <span className="text-xs text-green-400 flex items-center gap-1 whitespace-nowrap"><UserCheck size={12}/>Shortlisted</span>}
-        {c.status === 'rejected' && <span className="text-xs text-red-400 flex items-center gap-1 whitespace-nowrap"><UserX size={12}/>Rejected</span>}
-        <button onClick={() => onOpenQs(c)} className="btn-ghost text-xs whitespace-nowrap"><Sparkles size={12}/>Interview Qs</button>
-        <button onClick={() => setOpen(!open)} className="text-[var(--color-muted)] hover:text-[var(--color-fg)]">
-          <ChevronRight size={18} className={`transition ${open ? 'rotate-90' : ''}`}/>
-        </button>
+        <div className="flex items-center gap-2 shrink-0 ml-auto md:ml-0">
+          <ScoreGauge score={c.score} />
+          <VerdictPill verdict={c.verdict} />
+          <button onClick={() => setOpen(!open)} className="text-[var(--color-muted)] hover:text-[var(--color-fg)] p-1">
+            <ChevronRight size={18} className={`transition ${open ? 'rotate-90' : ''}`}/>
+          </button>
+        </div>
+        <div className="basis-full md:basis-auto flex flex-wrap items-center gap-2 md:gap-1.5 md:flex-nowrap">
+          {c.status === 'pending' && (
+            <>
+              <button disabled={statusBusy} onClick={() => decide('shortlisted')} className="btn-ghost text-xs whitespace-nowrap text-green-400"><UserCheck size={12}/>Shortlist</button>
+              <button disabled={statusBusy} onClick={() => decide('rejected')} className="btn-ghost text-xs whitespace-nowrap text-red-400"><UserX size={12}/>Reject</button>
+            </>
+          )}
+          {c.status === 'shortlisted' && <span className="text-xs text-green-400 flex items-center gap-1 whitespace-nowrap"><UserCheck size={12}/>Shortlisted</span>}
+          {c.status === 'rejected' && <span className="text-xs text-red-400 flex items-center gap-1 whitespace-nowrap"><UserX size={12}/>Rejected</span>}
+          <button onClick={() => onOpenQs(c)} className="btn-ghost text-xs whitespace-nowrap"><Sparkles size={12}/>Interview Qs</button>
+        </div>
       </div>
       {open && (
         <div className="border-t border-[var(--color-border)] p-5 grid md:grid-cols-3 gap-5 bg-[color-mix(in_srgb,var(--color-bg)_50%,transparent)]">
