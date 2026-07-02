@@ -45,7 +45,11 @@ html, body, #root {
   -webkit-font-smoothing: antialiased;
 }
 
+html, body { overflow-x: hidden; max-width: 100vw; }
+
 * { box-sizing: border-box; }
+
+img, video { max-width: 100%; height: auto; }
 
 a { color: inherit; text-decoration: none; }
 
@@ -321,3 +325,19 @@ html { scroll-behavior: smooth; }
 
 /* ── Marquee pause on hover ──────────────────────────────────────── */
 .marquee:hover .marquee-track { animation-play-state: paused; }
+
+/* ── Mobile refinements ──────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .btn-primary { padding: 0.6rem 0.9rem; font-size: 0.85rem; }
+  .btn-ghost   { padding: 0.5rem 0.75rem; font-size: 0.8rem; }
+  .marquee-track { gap: 1.5rem; padding: 0.7rem 0; }
+  .prose-blog h2 { font-size: 1.35rem; margin-top: 2rem; }
+  .prose-blog h3 { font-size: 1.1rem; margin-top: 1.5rem; }
+  .prose-blog p, .prose-blog li { line-height: 1.7; }
+  /* Kill heavy hover transforms on touch devices where hover is sticky */
+  .card:hover { transform: none; }
+  .btn-primary:hover, .btn-ghost:hover { transform: none; }
+}
+
+/* Prevent horizontal scroll from long unbroken tokens (emails, URLs) */
+.wrap-anywhere { overflow-wrap: anywhere; word-break: break-word; }
