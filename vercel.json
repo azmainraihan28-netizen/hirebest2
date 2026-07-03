@@ -1,7 +1,14 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
-    { "source": "/((?!api/).*)", "destination": "/" }
+    { "source": "/dashboard", "destination": "/" },
+    { "source": "/dashboard/:path*", "destination": "/" },
+    { "source": "/account", "destination": "/" },
+    { "source": "/admin", "destination": "/" },
+    { "source": "/checkout", "destination": "/" },
+    { "source": "/login", "destination": "/" },
+    { "source": "/signup", "destination": "/" },
+    { "source": "/auth/:path*", "destination": "/" }
   ],
   "headers": [
     {

@@ -32,7 +32,7 @@ const routes = [
   {
     path: '/pricing',
     title: 'Pricing — From $49/mo. 14-day free trial. Cancel anytime · HireBest',
-    description: "Simple SaaS pricing for AI resume screening. Starter $49/mo, Growth $99/mo (most popular), Team $199/mo, or Enterprise custom. 14-day free trial — no credit card.",
+    description: "Transparent pricing from $49/mo. 14-day free trial, no credit card. Starter, Growth (popular), Team, and Enterprise plans — cancel anytime.",
     imageAlt: 'HireBest pricing — Starter $49/mo, Growth $99/mo, Team $199/mo, Enterprise custom',
     type: 'website',
   },
