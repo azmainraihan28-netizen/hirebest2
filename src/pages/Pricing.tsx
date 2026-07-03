@@ -135,7 +135,7 @@ const matrix = [
 export default function Pricing() {
   useSeo({
     title: 'Pricing — From $49/mo. 14-day free trial. Cancel anytime.',
-    description: 'Simple, transparent pricing for AI resume screening. Starter $49/mo, Growth $99/mo (most popular), Team $199/mo, or Enterprise custom. 14-day free trial — no credit card required.',
+    description: 'Transparent pricing from $49/mo. 14-day free trial, no credit card. Starter, Growth (popular), Team, and Enterprise plans — cancel anytime.',
   })
   useSchema('pricing-faq', faqPage(pricingFaqs))
 
