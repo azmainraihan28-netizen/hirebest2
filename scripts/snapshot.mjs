@@ -136,6 +136,34 @@ async function run() {
     }
   }
 
+  // Generate dist/404.html — Vercel serves this with HTTP 404 for unmatched routes.
+  try {
+    await page.goto(`http://localhost:${PORT}/__not_found_synthetic__`, {
+      waitUntil: 'networkidle0',
+      timeout: 30000,
+    })
+    await new Promise(r => setTimeout(r, 600))
+    let html404 = await page.content()
+    html404 = html404.replaceAll(`http://localhost:${PORT}`, BASE)
+    html404 = html404.replace(
+      /<meta\s+name="robots"[^>]*>/,
+      `<meta name="robots" content="noindex,nofollow" />`
+    )
+    html404 = html404.replace(
+      /<title>[\s\S]*?<\/title>/,
+      `<title>404 — Page Not Found · HireBest</title>`
+    )
+    html404 = html404.replace(
+      /<link\s+rel="canonical"[^>]*>/,
+      `<link rel="canonical" href="${BASE}/" />`
+    )
+    writeFileSync(join(distDir, '404.html'), html404, 'utf-8')
+    console.log('  ✓ /404.html [noindex]')
+  } catch (err) {
+    console.error(`  ✗ /404.html: ${err.message}`)
+    fail++
+  }
+
   await browser.close()
   server.close()
 

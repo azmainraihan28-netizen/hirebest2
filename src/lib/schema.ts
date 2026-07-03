@@ -31,7 +31,10 @@ export const organization = () => ({
   name: 'HireBest',
   url: 'https://hirebest.online',
   logo: 'https://hirebest.online/favicon-256.png',
-  sameAs: [],
+  sameAs: [
+    'https://www.producthunt.com/products/hirebest-online',
+    'https://twitter.com/hirebest',
+  ],
   contactPoint: {
     '@type': 'ContactPoint',
     contactType: 'customer support',
@@ -44,14 +47,26 @@ export const softwareApplication = () => ({
   '@type': 'SoftwareApplication',
   name: 'HireBest',
   applicationCategory: 'BusinessApplication',
+  applicationSubCategory: 'HRTech',
   operatingSystem: 'Web',
   description: 'AI resume screener that scores 100 CVs in 38 seconds with JD-cited reasoning.',
   url: 'https://hirebest.online',
   offers: {
-    '@type': 'Offer',
-    price: '400',
+    '@type': 'AggregateOffer',
+    lowPrice: '49',
+    highPrice: '199',
     priceCurrency: 'USD',
+    offerCount: 4,
   },
+  featureList: [
+    'Bulk CV screening (up to 50+ at once)',
+    'JD-cited match reasoning',
+    'Missing-skill detection',
+    'Auto-generated interview questions',
+    'Side-by-side candidate comparison',
+    'Hiring analytics dashboard',
+    'CSV export',
+  ],
 })
 
 export const faqPage = (items: { q: string; a: string }[]) => ({
@@ -64,20 +79,28 @@ export const faqPage = (items: { q: string; a: string }[]) => ({
   })),
 })
 
-export const article = (p: { title: string; description: string; slug: string; date: string; author?: string }) => ({
-  '@context': 'https://schema.org',
-  '@type': 'Article',
-  headline: p.title,
-  description: p.description,
-  datePublished: p.date,
-  author: { '@type': 'Organization', name: p.author ?? 'HireBest Team' },
-  publisher: {
-    '@type': 'Organization',
-    name: 'HireBest',
-    logo: { '@type': 'ImageObject', url: 'https://hirebest.online/favicon-256.png' },
-  },
-  mainEntityOfPage: { '@type': 'WebPage', '@id': `https://hirebest.online/blog/${p.slug}` },
-})
+export const article = (p: { title: string; description: string; slug: string; date: string; author?: string }) => {
+  const authorName = p.author ?? 'HireBest Team'
+  const isNamedPerson = authorName !== 'HireBest Team'
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'BlogPosting',
+    headline: p.title,
+    description: p.description,
+    datePublished: p.date,
+    dateModified: p.date,
+    image: 'https://hirebest.online/og-card.png',
+    author: isNamedPerson
+      ? { '@type': 'Person', name: authorName, url: 'https://hirebest.online/about' }
+      : { '@type': 'Organization', name: 'HireBest', url: 'https://hirebest.online' },
+    publisher: {
+      '@type': 'Organization',
+      name: 'HireBest',
+      logo: { '@type': 'ImageObject', url: 'https://hirebest.online/favicon-256.png' },
+    },
+    mainEntityOfPage: { '@type': 'WebPage', '@id': `https://hirebest.online/blog/${p.slug}` },
+  }
+}
 
 export const breadcrumb = (trail: { name: string; url: string }[]) => ({
   '@context': 'https://schema.org',
