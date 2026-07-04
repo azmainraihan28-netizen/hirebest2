@@ -80,9 +80,15 @@ export default function ChatWidget() {
           sessionId: getSessionId(),
         }),
       })
-      const data = await r.json().catch(() => ({}))
+      const raw = await r.text()
+      let data: any = {}
+      try { data = raw ? JSON.parse(raw) : {} } catch { data = { error: raw.slice(0, 200) } }
       if (!r.ok) {
-        setError(r.status === 429 ? 'You\'ve hit the message limit. Try again in an hour.' : (data.error || 'Something went wrong.'))
+        setError(
+          r.status === 429
+            ? 'You\'ve hit the message limit. Try again in an hour.'
+            : (data.error || `Something went wrong (HTTP ${r.status}).`)
+        )
       } else if (data.reply) {
         setMessages([...next, { role: 'assistant', content: data.reply }])
       } else {
