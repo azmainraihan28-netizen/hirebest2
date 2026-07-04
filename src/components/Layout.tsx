@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom'
 import Header from './Header'
 import Footer from './Footer'
+import ChatWidget from './ChatWidget'
 
 export default function Layout() {
   return (
@@ -8,6 +9,7 @@ export default function Layout() {
       <Header />
       <main className="flex-1"><Outlet /></main>
       <Footer />
+      <ChatWidget />
     </div>
   )
 }
