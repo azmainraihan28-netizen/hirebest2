@@ -3,6 +3,7 @@ import { supabase } from './supabase'
 export type Screening = {
   id: string
   user_id: string
+  org_id: string | null
   name: string
   jd: string
   created_at: string
@@ -44,14 +45,33 @@ export async function getScreening(id: string): Promise<Screening | null> {
   return (data as Screening | null) ?? null
 }
 
-export async function createScreening(name: string, jd: string): Promise<Screening | null> {
+export async function createScreening(name: string, jd: string, orgId?: string | null): Promise<Screening | null> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
   const { data, error } = await supabase.from('screenings').insert({
-    user_id: user.id, name, jd,
+    user_id: user.id, name, jd, org_id: orgId ?? null,
   }).select('*').single()
   if (error) { console.error(error); return null }
   return data as Screening
+}
+
+export async function inferScreeningName(jd: string, timeoutMs = 6000): Promise<string> {
+  try {
+    const controller = new AbortController()
+    const t = setTimeout(() => controller.abort(), timeoutMs)
+    const res = await fetch('/api/infer-name', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ jd }),
+      signal: controller.signal,
+    })
+    clearTimeout(t)
+    if (!res.ok) return ''
+    const data = await res.json().catch(() => ({})) as { name?: string }
+    return typeof data.name === 'string' ? data.name.trim() : ''
+  } catch {
+    return ''
+  }
 }
 
 export async function listCandidates(screeningId: string): Promise<Candidate[]> {

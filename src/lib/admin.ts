@@ -1,4 +1,4 @@
-import { supabase } from './supabase'
+import { supabase, type Profile } from './supabase'
 
 export type PlanKey = 'free' | 'basic' | 'advanced' | 'lifetime' | 'retainer'
 
@@ -16,7 +16,7 @@ export type ExtProfile = {
   id: string
   email: string
   full_name: string | null
-  role: 'user' | 'admin'
+  role: 'user' | 'admin' | 'super_admin'
   plan: PlanKey
   screening_limit: number | null
   active: boolean
@@ -103,10 +103,16 @@ export async function deleteAccessCode(id: string, code: string) {
 }
 
 // ---- Role management ----
-export async function setRoleByEmail(email: string, role: 'user' | 'admin') {
+export async function setRoleByEmail(email: string, role: 'user' | 'admin' | 'super_admin') {
   const { error } = await supabase.rpc('admin_set_role', { target_email: email, new_role: role })
   if (error) throw error
   await logAudit('role.set', email, 'profile', `${email} → ${role}`, { role })
+}
+
+// ---- Role checks (client-side; RLS is the real gate) ----
+export function isSuperAdmin(profile: Profile | null): boolean {
+  if (!profile) return false
+  return profile.role === 'super_admin' || profile.role === 'admin'
 }
 
 // ---- Audit log ----

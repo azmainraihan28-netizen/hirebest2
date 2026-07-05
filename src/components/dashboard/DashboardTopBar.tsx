@@ -55,7 +55,7 @@ export default function DashboardTopBar({ title, used = 0, limit = 50, unlimited
           <Link to="/dashboard/orders" className="text-sm text-[var(--color-muted)] hover:text-[var(--color-fg)] flex items-center gap-1.5">
             <Package size={15}/><span className="hidden md:inline">Orders</span>
           </Link>
-          {profile?.role === 'admin' && (
+          {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
             <Link to="/admin" className="text-sm text-[var(--color-primary-2)] hover:text-[var(--color-primary)] flex items-center gap-1.5">
               <Shield size={15}/><span className="hidden md:inline">Admin</span>
             </Link>

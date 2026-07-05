@@ -10,7 +10,7 @@ export default function UserMenu() {
 
   if (!user) return null
   const initial = (user.email ?? '?').slice(0, 1).toUpperCase()
-  const isAdmin = profile?.role === 'admin'
+  const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin'
 
   return (
     <div className="relative">

@@ -19,7 +19,7 @@ export type Profile = {
   id: string
   email: string
   full_name: string | null
-  role: 'user' | 'admin'
+  role: 'user' | 'admin' | 'super_admin'
   plan: 'free' | 'basic' | 'advanced' | 'lifetime' | 'retainer'
   screening_limit: number | null
   active: boolean

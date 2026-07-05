@@ -14,7 +14,7 @@ export default function AdminsPanel() {
   const promote = async () => {
     if (!email.trim()) return
     setBusy(true)
-    try { await setRoleByEmail(email.trim(), 'admin'); setEmail(''); await reload() }
+    try { await setRoleByEmail(email.trim(), 'super_admin'); setEmail(''); await reload() }
     catch (e: any) { alert(e?.message ?? 'Failed') }
     finally { setBusy(false) }
   }
@@ -25,7 +25,7 @@ export default function AdminsPanel() {
     await reload()
   }
 
-  const admins = users.filter(u => u.role === 'admin')
+  const admins = users.filter(u => u.role === 'super_admin' || u.role === 'admin')
 
   return (
     <div className="space-y-5">

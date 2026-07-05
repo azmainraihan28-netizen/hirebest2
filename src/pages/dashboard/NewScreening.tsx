@@ -4,9 +4,10 @@ import { Sparkles, Upload, FileText, X, AlertCircle } from 'lucide-react'
 import DashboardTopBar from '../../components/dashboard/DashboardTopBar'
 import UpgradeModal from '../../components/UpgradeModal'
 import { parseFile, pAll, type ParsedCV } from '../../lib/parsers'
-import { createScreening, insertCandidate } from '../../lib/screenings'
+import { createScreening, insertCandidate, inferScreeningName } from '../../lib/screenings'
 import { loadQuota, type QuotaState } from '../../lib/quota'
 import { useAuth } from '../../lib/auth'
+import { useCurrentOrg } from '../../hooks/useCurrentOrg'
 
 const ACCEPT = '.pdf,.docx,.png,.jpg,.jpeg'
 const ACCEPT_MIME = new Set([
@@ -26,6 +27,7 @@ function isAllowedResumeFile(file: File): boolean {
 export default function NewScreening() {
   const { profile } = useAuth()
   const nav = useNavigate()
+  const { orgs, currentOrgId, setCurrentOrgId } = useCurrentOrg()
   const [name, setName] = useState('')
   const [jd, setJd] = useState('')
   const [files, setFiles] = useState<File[]>([])
@@ -87,11 +89,16 @@ export default function NewScreening() {
       if (files.length > quota.remaining) return setUpgradeReason('quota-warning')
     }
 
-    const screeningName = name.trim() || `Screening ${new Date().toLocaleString()}`
     setBusy(true)
+    setProgress({ done: 0, total: files.length, label: name.trim() ? 'Parsing files…' : 'Naming screening…' })
+    let screeningName = name.trim()
+    if (!screeningName) {
+      const inferred = await inferScreeningName(jd)
+      screeningName = inferred || `Screening ${new Date().toLocaleString()}`
+    }
     setProgress({ done: 0, total: files.length, label: 'Parsing files…' })
     try {
-      const screening = await createScreening(screeningName, jd)
+      const screening = await createScreening(screeningName, jd, currentOrgId)
       if (!screening) throw new Error('Could not create screening (check auth).')
 
       const parsed: ParsedCV[] = []
@@ -154,8 +161,23 @@ export default function NewScreening() {
         <div className="card p-5 flex flex-col md:flex-row md:items-center gap-5">
           <div className="flex-1">
             <label className="text-xs uppercase tracking-wider text-[var(--color-muted)]">Screening name</label>
-            <input value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Senior Frontend Engineer — Q2" className="field mt-2"/>
+            <input value={name} onChange={e => setName(e.target.value)} placeholder="Leave blank — AI will name it from the JD" className="field mt-2"/>
           </div>
+          {orgs.length > 0 && (
+            <div className="md:w-56">
+              <label className="text-xs uppercase tracking-wider text-[var(--color-muted)]">Folder</label>
+              <select
+                value={currentOrgId ?? ''}
+                onChange={e => setCurrentOrgId(e.target.value || null)}
+                className="field mt-2"
+              >
+                <option value="">Personal</option>
+                {orgs.map(o => (
+                  <option key={o.org_id} value={o.org_id}>{o.name}</option>
+                ))}
+              </select>
+            </div>
+          )}
           <div className="md:w-64">
             <div className="flex justify-between text-xs text-[var(--color-muted)] mb-1">
               <span>Screenings used</span>

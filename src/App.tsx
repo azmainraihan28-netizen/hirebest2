@@ -23,6 +23,7 @@ const About             = lazy(() => import('./pages/About'))
 const Checkout          = lazy(() => import('./pages/Checkout'))
 const Account           = lazy(() => import('./pages/Account'))
 const Admin             = lazy(() => import('./pages/Admin'))
+const AcceptInvite      = lazy(() => import('./pages/AcceptInvite'))
 const NotFound          = lazy(() => import('./pages/NotFound'))
 const Login             = lazy(() => import('./pages/Login'))
 const Signup            = lazy(() => import('./pages/Signup'))
@@ -65,7 +66,8 @@ export default function App() {
           <Route path="/refund-policy" element={<Refund />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/account" element={<ProtectedRoute><Account /></ProtectedRoute>} />
-          <Route path="/admin" element={<ProtectedRoute adminOnly><Admin /></ProtectedRoute>} />
+          <Route path="/admin" element={<ProtectedRoute adminOrOrgAdmin><Admin /></ProtectedRoute>} />
+          <Route path="/invite/:token" element={<ProtectedRoute><AcceptInvite /></ProtectedRoute>} />
           <Route path="*" element={<NotFound />} />
         </Route>
 
