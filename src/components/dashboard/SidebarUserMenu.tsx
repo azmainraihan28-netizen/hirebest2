@@ -21,7 +21,7 @@ export default function SidebarUserMenu() {
   if (!user) return null
   const email = user.email ?? ''
   const initial = email.slice(0, 1).toUpperCase()
-  const isAdmin = profile?.role === 'admin'
+  const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin'
 
   return (
     <div ref={ref} className="relative p-3 border-t border-[var(--color-border)]">
