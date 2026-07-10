@@ -117,15 +117,28 @@ export default function DashAnalytics() {
             {totals.total === 0 ? (
               <p className="text-sm text-[var(--color-muted)] py-12 text-center">No CVs scored yet.</p>
             ) : (
-              <div className="flex items-end gap-3 h-44">
-                {buckets.map((n, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                    <div className="text-[11px] font-semibold text-[var(--color-fg)]">{n}</div>
-                    <div className="w-full rounded-t-lg bg-gradient-to-t from-[var(--color-primary)] to-[var(--color-primary-2)] transition-all"
-                      style={{ height: `${(n / maxBucket) * 100}%`, minHeight: n ? 6 : 2, opacity: 0.5 + (i * 0.12) }}/>
-                    <div className="text-[10px] text-[var(--color-muted)]">{bucketLabels[i]}</div>
-                  </div>
-                ))}
+              <div className="flex items-end gap-3 h-52">
+                {buckets.map((n, i) => {
+                  const pct = maxBucket ? (n / maxBucket) * 100 : 0
+                  const share = totals.total ? Math.round((n / totals.total) * 100) : 0
+                  return (
+                    <div key={i} className="flex-1 h-full flex flex-col items-center group">
+                      <div className="text-[11px] font-semibold tabular-nums text-[var(--color-fg)] mb-1.5">{n}</div>
+                      <div className="relative w-full flex-1 flex items-end rounded-lg overflow-hidden bg-[color-mix(in_srgb,var(--color-fg)_5%,transparent)] border border-[var(--color-border)]">
+                        <div
+                          className="w-full rounded-md bg-gradient-to-t from-[var(--color-primary)] to-[var(--color-primary-2)] shadow-[0_-4px_20px_-4px_var(--color-primary-2)] transition-all duration-500 ease-out group-hover:brightness-110"
+                          style={{ height: `${pct}%`, minHeight: n ? 8 : 0, opacity: 0.55 + i * 0.11 }}
+                        />
+                        <div className="pointer-events-none absolute inset-x-0 top-1 flex justify-center opacity-0 group-hover:opacity-100 transition">
+                          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-[var(--color-card)]/90 border border-[var(--color-border)] backdrop-blur">
+                            {share}%
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-[10px] text-[var(--color-muted)] mt-2 tabular-nums">{bucketLabels[i]}</div>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
