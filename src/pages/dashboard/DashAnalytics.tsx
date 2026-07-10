@@ -117,15 +117,28 @@ export default function DashAnalytics() {
             {totals.total === 0 ? (
               <p className="text-sm text-[var(--color-muted)] py-12 text-center">No CVs scored yet.</p>
             ) : (
-              <div className="flex items-end gap-3 h-44">
-                {buckets.map((n, i) => (
-                  <div key={i} className="flex-1 flex flex-col items-center gap-2">
-                    <div className="text-[11px] font-semibold text-[var(--color-fg)]">{n}</div>
-                    <div className="w-full rounded-t-lg bg-gradient-to-t from-[var(--color-primary)] to-[var(--color-primary-2)] transition-all"
-                      style={{ height: `${(n / maxBucket) * 100}%`, minHeight: n ? 6 : 2, opacity: 0.5 + (i * 0.12) }}/>
-                    <div className="text-[10px] text-[var(--color-muted)]">{bucketLabels[i]}</div>
-                  </div>
-                ))}
+              <div className="flex items-end gap-3 h-52">
+                {buckets.map((n, i) => {
+                  const pct = maxBucket ? (n / maxBucket) * 100 : 0
+                  const share = totals.total ? Math.round((n / totals.total) * 100) : 0
+                  return (
+                    <div key={i} className="flex-1 h-full flex flex-col items-center group">
+                      <div className="text-[11px] font-semibold tabular-nums text-[var(--color-fg)] mb-1.5">{n}</div>
+                      <div className="relative w-full flex-1 flex items-end rounded-lg overflow-hidden bg-[color-mix(in_srgb,var(--color-fg)_5%,transparent)] border border-[var(--color-border)]">
+                        <div
+                          className="w-full rounded-md bg-gradient-to-t from-[var(--color-primary)] to-[var(--color-primary-2)] shadow-[0_-4px_20px_-4px_var(--color-primary-2)] transition-all duration-500 ease-out group-hover:brightness-110"
+                          style={{ height: `${pct}%`, minHeight: n ? 8 : 0, opacity: 0.55 + i * 0.11 }}
+                        />
+                        <div className="pointer-events-none absolute inset-x-0 top-1 flex justify-center opacity-0 group-hover:opacity-100 transition">
+                          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-[var(--color-card)]/90 border border-[var(--color-border)] backdrop-blur">
+                            {share}%
+                          </span>
+                        </div>
+                      </div>
+                      <div className="text-[10px] text-[var(--color-muted)] mt-2 tabular-nums">{bucketLabels[i]}</div>
+                    </div>
+                  )
+                })}
               </div>
             )}
           </div>
@@ -143,17 +156,24 @@ export default function DashAnalytics() {
               <span>{days.reduce((s, d) => s + d.count, 0)} CVs this period</span>
             </div>
           </div>
-          <div className="flex items-end gap-1.5 h-32">
-            {days.map((d, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1.5 group relative">
-                <div className="w-full rounded-t bg-gradient-to-t from-[var(--color-primary)]/60 to-[var(--color-primary-2)] hover:from-[var(--color-primary)] transition"
-                  style={{ height: `${(d.count / maxDay) * 100}%`, minHeight: d.count ? 4 : 1 }}/>
-                <div className="text-[9px] text-[var(--color-muted)]">{d.label}</div>
-                <div className="absolute -top-7 opacity-0 group-hover:opacity-100 transition pointer-events-none text-[10px] bg-[var(--color-card)] border border-[var(--color-border)] rounded px-2 py-0.5 whitespace-nowrap z-10">
-                  {d.full}: {d.count}
+          <div className="flex items-end gap-1.5 h-40">
+            {days.map((d, i) => {
+              const pct = maxDay ? (d.count / maxDay) * 100 : 0
+              return (
+                <div key={i} className="flex-1 h-full flex flex-col items-center group relative">
+                  <div className="relative w-full flex-1 flex items-end rounded-md overflow-hidden bg-[color-mix(in_srgb,var(--color-fg)_4%,transparent)] border border-[var(--color-border)]">
+                    <div
+                      className="w-full rounded-sm bg-gradient-to-t from-[var(--color-primary)] to-[var(--color-primary-2)] shadow-[0_-4px_16px_-4px_var(--color-primary-2)] transition-all duration-500 ease-out group-hover:brightness-110"
+                      style={{ height: `${pct}%`, minHeight: d.count ? 6 : 0 }}
+                    />
+                  </div>
+                  <div className="text-[10px] text-[var(--color-muted)] mt-1.5 tabular-nums">{d.label}</div>
+                  <div className="absolute -top-8 opacity-0 group-hover:opacity-100 transition pointer-events-none text-[10px] bg-[var(--color-card)] border border-[var(--color-border)] rounded-md px-2 py-1 whitespace-nowrap z-10 shadow-lg">
+                    <span className="font-medium">{d.full}</span> · <span className="tabular-nums">{d.count}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
 
@@ -188,12 +208,17 @@ export default function DashAnalytics() {
             <div className="space-y-2.5">
               {topSkills.length === 0 && <p className="text-sm text-[var(--color-muted)]">No data yet.</p>}
               {topSkills.map(([s, n]) => (
-                <div key={s} className="flex items-center gap-3 text-sm">
-                  <span className="w-28 truncate text-[var(--color-fg)]">{s}</span>
-                  <div className="flex-1 h-2 rounded-full bg-[color-mix(in_srgb,var(--color-fg)_6%,transparent)] overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-2)]" style={{ width: `${(n / topSkills[0][1]) * 100}%` }}/>
+                <div key={s} className="group text-sm">
+                  <div className="flex items-baseline justify-between gap-3 mb-1.5">
+                    <span className="font-medium text-[var(--color-fg)] leading-tight break-words" title={s}>{s}</span>
+                    <span className="text-xs tabular-nums font-semibold text-[var(--color-fg)]/80 shrink-0">{n}</span>
                   </div>
-                  <span className="w-8 text-right text-xs tabular-nums text-[var(--color-muted)]">{n}</span>
+                  <div className="h-2 rounded-full bg-[color-mix(in_srgb,var(--color-fg)_6%,transparent)] overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-2)] transition-all duration-500 group-hover:brightness-110"
+                      style={{ width: `${(n / topSkills[0][1]) * 100}%` }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
