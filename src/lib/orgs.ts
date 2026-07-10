@@ -84,6 +84,28 @@ export async function createOrg(input: {
   return data as string
 }
 
+export type OrgSeatUsage = {
+  seatLimit: number
+  members: number
+  pendingInvites: number
+  used: number
+  remaining: number
+}
+
+export async function getOrgSeatUsage(orgId: string): Promise<OrgSeatUsage> {
+  const [{ data: org }, { count: memberCount }, { count: inviteCount }] = await Promise.all([
+    supabase.from('organizations').select('seat_limit').eq('id', orgId).maybeSingle(),
+    supabase.from('org_members').select('user_id', { count: 'exact', head: true }).eq('org_id', orgId),
+    supabase.from('org_invites').select('id', { count: 'exact', head: true })
+      .eq('org_id', orgId).is('accepted_at', null).gt('expires_at', new Date().toISOString()),
+  ])
+  const seatLimit = Number(org?.seat_limit ?? 0)
+  const members = memberCount ?? 0
+  const pendingInvites = inviteCount ?? 0
+  const used = members + pendingInvites
+  return { seatLimit, members, pendingInvites, used, remaining: Math.max(0, seatLimit - used) }
+}
+
 export async function listMembers(orgId: string): Promise<OrgMember[]> {
   const { data } = await supabase
     .from('org_members')
