@@ -156,17 +156,24 @@ export default function DashAnalytics() {
               <span>{days.reduce((s, d) => s + d.count, 0)} CVs this period</span>
             </div>
           </div>
-          <div className="flex items-end gap-1.5 h-32">
-            {days.map((d, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1.5 group relative">
-                <div className="w-full rounded-t bg-gradient-to-t from-[var(--color-primary)]/60 to-[var(--color-primary-2)] hover:from-[var(--color-primary)] transition"
-                  style={{ height: `${(d.count / maxDay) * 100}%`, minHeight: d.count ? 4 : 1 }}/>
-                <div className="text-[9px] text-[var(--color-muted)]">{d.label}</div>
-                <div className="absolute -top-7 opacity-0 group-hover:opacity-100 transition pointer-events-none text-[10px] bg-[var(--color-card)] border border-[var(--color-border)] rounded px-2 py-0.5 whitespace-nowrap z-10">
-                  {d.full}: {d.count}
+          <div className="flex items-end gap-1.5 h-40">
+            {days.map((d, i) => {
+              const pct = maxDay ? (d.count / maxDay) * 100 : 0
+              return (
+                <div key={i} className="flex-1 h-full flex flex-col items-center group relative">
+                  <div className="relative w-full flex-1 flex items-end rounded-md overflow-hidden bg-[color-mix(in_srgb,var(--color-fg)_4%,transparent)] border border-[var(--color-border)]">
+                    <div
+                      className="w-full rounded-sm bg-gradient-to-t from-[var(--color-primary)] to-[var(--color-primary-2)] shadow-[0_-4px_16px_-4px_var(--color-primary-2)] transition-all duration-500 ease-out group-hover:brightness-110"
+                      style={{ height: `${pct}%`, minHeight: d.count ? 6 : 0 }}
+                    />
+                  </div>
+                  <div className="text-[10px] text-[var(--color-muted)] mt-1.5 tabular-nums">{d.label}</div>
+                  <div className="absolute -top-8 opacity-0 group-hover:opacity-100 transition pointer-events-none text-[10px] bg-[var(--color-card)] border border-[var(--color-border)] rounded-md px-2 py-1 whitespace-nowrap z-10 shadow-lg">
+                    <span className="font-medium">{d.full}</span> · <span className="tabular-nums">{d.count}</span>
+                  </div>
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </div>
 
