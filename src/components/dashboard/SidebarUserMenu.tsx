@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ChevronUp, User as UserIcon, Shield, LogOut, Package, FolderKanban, Check } from 'lucide-react'
+import { ChevronUp, User as UserIcon, Shield, LogOut, Package, FolderKanban, Check, Users } from 'lucide-react'
 import { useAuth } from '../../lib/auth'
 import { useCurrentOrg } from '../../hooks/useCurrentOrg'
 
@@ -24,6 +24,7 @@ export default function SidebarUserMenu() {
   const email = user.email ?? ''
   const initial = email.slice(0, 1).toUpperCase()
   const isAdmin = profile?.role === 'admin' || profile?.role === 'super_admin'
+  const isAnyOrgAdmin = orgs.some(o => o.role_in_org === 'org_admin')
 
   return (
     <div ref={ref} className="relative p-3 border-t border-[var(--color-border)]">
@@ -65,6 +66,11 @@ export default function SidebarUserMenu() {
           {isAdmin && (
             <Link to="/admin" onClick={() => setOpen(false)} className="sidebar-item w-full text-sm text-[var(--color-primary-2)]">
               <Shield size={14}/>Admin
+            </Link>
+          )}
+          {!isAdmin && isAnyOrgAdmin && (
+            <Link to="/admin" onClick={() => setOpen(false)} className="sidebar-item w-full text-sm text-[var(--color-primary-2)]">
+              <Users size={14}/>Manage members
             </Link>
           )}
           <button

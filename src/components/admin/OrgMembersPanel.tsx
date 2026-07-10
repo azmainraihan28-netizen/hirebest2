@@ -18,7 +18,11 @@ export default function OrgMembersPanel() {
     getMyOrgs().then(list => {
       const adminOrgs = list.filter(o => o.role_in_org === 'org_admin')
       setMyOrgs(adminOrgs)
-      if (adminOrgs.length > 0) setOrgId(adminOrgs[0].org_id)
+      if (adminOrgs.length > 0) {
+        const stored = localStorage.getItem('hirebest.currentOrgId')
+        const preferred = stored ? adminOrgs.find(o => o.org_id === stored) : undefined
+        setOrgId(preferred?.org_id ?? adminOrgs[0].org_id)
+      }
       setLoading(false)
     })
   }, [])
