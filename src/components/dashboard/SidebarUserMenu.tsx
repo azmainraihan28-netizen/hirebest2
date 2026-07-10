@@ -1,10 +1,12 @@
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { ChevronUp, User as UserIcon, Shield, LogOut, Package } from 'lucide-react'
+import { ChevronUp, User as UserIcon, Shield, LogOut, Package, FolderKanban, Check } from 'lucide-react'
 import { useAuth } from '../../lib/auth'
+import { useCurrentOrg } from '../../hooks/useCurrentOrg'
 
 export default function SidebarUserMenu() {
   const { user, profile, signOut } = useAuth()
+  const { orgs, currentOrgId, setCurrentOrgId, loading: orgsLoading } = useCurrentOrg()
   const [open, setOpen] = useState(false)
   const ref = useRef<HTMLDivElement | null>(null)
   const nav = useNavigate()
@@ -28,6 +30,32 @@ export default function SidebarUserMenu() {
       {open && (
         <div className="absolute bottom-full left-3 right-3 mb-2 card p-1.5 z-50 shadow-xl">
           <div className="px-3 py-2 text-[10px] uppercase tracking-wider text-[var(--color-muted)] truncate border-b border-[var(--color-border)] mb-1">{email}</div>
+          {!orgsLoading && orgs.length > 0 && (
+            <div className="border-b border-[var(--color-border)] pb-1 mb-1">
+              <div className="px-3 pt-1.5 pb-1 text-[10px] uppercase tracking-wider text-[var(--color-muted)]">Folders</div>
+              {orgs.map(org => {
+                const active = org.org_id === currentOrgId
+                return (
+                  <button
+                    key={org.org_id}
+                    onClick={() => {
+                      setCurrentOrgId(org.org_id)
+                      setOpen(false)
+                      nav('/dashboard')
+                    }}
+                    className={`sidebar-item w-full text-sm ${active ? 'bg-[color-mix(in_srgb,var(--color-primary)_12%,transparent)] text-[var(--color-fg)]' : ''}`}
+                  >
+                    <FolderKanban size={14}/>
+                    <span className="flex-1 truncate text-left">{org.name}</span>
+                    {org.role_in_org === 'org_admin' && (
+                      <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-[var(--color-primary-2)]/15 text-[var(--color-primary-2)]">Admin</span>
+                    )}
+                    {active && <Check size={12} className="text-[var(--color-primary-2)]"/>}
+                  </button>
+                )
+              })}
+            </div>
+          )}
           <Link to="/account" onClick={() => setOpen(false)} className="sidebar-item w-full text-sm">
             <UserIcon size={14}/>Account
           </Link>
