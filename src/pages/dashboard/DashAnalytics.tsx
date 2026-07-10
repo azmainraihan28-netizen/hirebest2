@@ -209,8 +209,12 @@ export default function DashAnalytics() {
           ) : (
             <div className="flex flex-wrap gap-2">
               {topGaps.map(([g, n]) => (
-                <span key={g} className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-200">
-                  {g}<span className="text-[10px] text-amber-300/70">×{n}</span>
+                <span
+                  key={g}
+                  className="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full bg-amber-500 text-white border border-amber-600 shadow-sm hover:bg-amber-600 transition"
+                >
+                  <span className="leading-snug">{g}</span>
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-700 text-white tabular-nums">×{n}</span>
                 </span>
               ))}
             </div>
