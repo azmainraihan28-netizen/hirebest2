@@ -47,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
   if (!authorized) return res.status(403).json({ error: 'Not authorized to invite for this org' })
 
-  const { data: org } = await admin.from('organizations').select('name').eq('id', org_id).maybeSingle()
+  const { data: org } = await admin.from('organizations').select('name, seat_limit').eq('id', org_id).maybeSingle()
   if (!org) return res.status(404).json({ error: 'Organization not found' })
 
   // Reuse a pending invite for this email+org if one exists; otherwise create.
@@ -57,6 +57,22 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   let invite = existing
   if (!invite) {
+    // Seat-limit enforcement: block if members + pending invites already fill the seats
+    // super_admin set for this org. Reusing an existing pending invite (branch above)
+    // doesn't consume a new seat, so it skips this check.
+    const [{ count: memberCount }, { count: inviteCount }] = await Promise.all([
+      admin.from('org_members').select('user_id', { count: 'exact', head: true }).eq('org_id', org_id),
+      admin.from('org_invites').select('id', { count: 'exact', head: true })
+        .eq('org_id', org_id).is('accepted_at', null).gt('expires_at', new Date().toISOString()),
+    ])
+    const seatLimit = Number(org.seat_limit ?? 0)
+    const used = (memberCount ?? 0) + (inviteCount ?? 0)
+    if (seatLimit > 0 && used >= seatLimit) {
+      return res.status(403).json({
+        error: `Seat limit reached (${used}/${seatLimit}). Ask a super admin to raise this organization's seat limit before inviting more members.`,
+      })
+    }
+
     const { data: inserted, error: insertErr } = await admin.from('org_invites').insert({
       org_id, email: email.toLowerCase(), role_in_org: role, invited_by: caller.id,
     }).select('*').single()

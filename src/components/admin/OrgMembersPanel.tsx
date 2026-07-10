@@ -1,12 +1,13 @@
 import { useEffect, useState } from 'react'
-import { Mail, X, Send } from 'lucide-react'
-import { getMyOrgs, listMembers, listPendingInvites, inviteMember, revokeInvite, removeMember, type MyOrg, type OrgMember, type OrgInvite } from '../../lib/orgs'
+import { Mail, X, Send, Users } from 'lucide-react'
+import { getMyOrgs, listMembers, listPendingInvites, inviteMember, revokeInvite, removeMember, getOrgSeatUsage, type MyOrg, type OrgMember, type OrgInvite, type OrgSeatUsage } from '../../lib/orgs'
 
 export default function OrgMembersPanel() {
   const [myOrgs, setMyOrgs] = useState<MyOrg[]>([])
   const [orgId, setOrgId] = useState<string | null>(null)
   const [members, setMembers] = useState<OrgMember[]>([])
   const [invites, setInvites] = useState<OrgInvite[]>([])
+  const [seats, setSeats] = useState<OrgSeatUsage | null>(null)
   const [loading, setLoading] = useState(true)
   const [email, setEmail] = useState('')
   const [sending, setSending] = useState(false)
@@ -23,8 +24,8 @@ export default function OrgMembersPanel() {
   }, [])
 
   const reload = async (id: string) => {
-    const [m, i] = await Promise.all([listMembers(id), listPendingInvites(id)])
-    setMembers(m); setInvites(i)
+    const [m, i, s] = await Promise.all([listMembers(id), listPendingInvites(id), getOrgSeatUsage(id)])
+    setMembers(m); setInvites(i); setSeats(s)
   }
 
   useEffect(() => {
@@ -60,12 +61,37 @@ export default function OrgMembersPanel() {
       )}
 
       <form onSubmit={invite} className="card p-5 space-y-3">
-        <div className="flex items-center gap-2 font-semibold"><Mail size={14}/> Invite a member</div>
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 font-semibold"><Mail size={14}/> Invite a member</div>
+          {seats && seats.seatLimit > 0 && (
+            <div className={`text-[11px] flex items-center gap-1.5 px-2 py-1 rounded-full border ${
+              seats.remaining === 0
+                ? 'border-red-500/40 bg-red-500/10 text-red-300'
+                : 'border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-fg)_5%,transparent)] text-[var(--color-muted)]'
+            }`}>
+              <Users size={11}/>
+              <span className="tabular-nums font-medium">{seats.used}/{seats.seatLimit}</span>
+              <span>seats used</span>
+            </div>
+          )}
+        </div>
         {err && <div className="text-xs text-red-300">{err}</div>}
         {ok && <div className="text-xs text-green-300">{ok}</div>}
+        {seats && seats.seatLimit > 0 && seats.remaining === 0 && (
+          <div className="text-xs text-amber-300">
+            You've filled every seat this organization has. Ask a super admin to raise the seat limit before inviting more members.
+          </div>
+        )}
         <div className="flex gap-2">
           <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="teammate@example.com" className="field flex-1"/>
-          <button disabled={sending} className="btn-primary text-xs"><Send size={12}/>{sending ? 'Sending…' : 'Invite'}</button>
+          {(() => {
+            const seatFull = !!seats && seats.seatLimit > 0 && seats.remaining === 0
+            return (
+              <button disabled={sending || seatFull} className="btn-primary text-xs disabled:opacity-50 disabled:cursor-not-allowed">
+                <Send size={12}/>{sending ? 'Sending…' : 'Invite'}
+              </button>
+            )
+          })()}
         </div>
       </form>
 
