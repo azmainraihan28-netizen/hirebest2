@@ -201,12 +201,17 @@ export default function DashAnalytics() {
             <div className="space-y-2.5">
               {topSkills.length === 0 && <p className="text-sm text-[var(--color-muted)]">No data yet.</p>}
               {topSkills.map(([s, n]) => (
-                <div key={s} className="flex items-center gap-3 text-sm">
-                  <span className="w-28 truncate text-[var(--color-fg)]">{s}</span>
-                  <div className="flex-1 h-2 rounded-full bg-[color-mix(in_srgb,var(--color-fg)_6%,transparent)] overflow-hidden">
-                    <div className="h-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-2)]" style={{ width: `${(n / topSkills[0][1]) * 100}%` }}/>
+                <div key={s} className="group text-sm">
+                  <div className="flex items-baseline justify-between gap-3 mb-1.5">
+                    <span className="font-medium text-[var(--color-fg)] leading-tight break-words" title={s}>{s}</span>
+                    <span className="text-xs tabular-nums font-semibold text-[var(--color-fg)]/80 shrink-0">{n}</span>
                   </div>
-                  <span className="w-8 text-right text-xs tabular-nums text-[var(--color-muted)]">{n}</span>
+                  <div className="h-2 rounded-full bg-[color-mix(in_srgb,var(--color-fg)_6%,transparent)] overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-2)] transition-all duration-500 group-hover:brightness-110"
+                      style={{ width: `${(n / topSkills[0][1]) * 100}%` }}
+                    />
+                  </div>
                 </div>
               ))}
             </div>
@@ -222,8 +227,12 @@ export default function DashAnalytics() {
           ) : (
             <div className="flex flex-wrap gap-2">
               {topGaps.map(([g, n]) => (
-                <span key={g} className="inline-flex items-center gap-2 text-xs px-3 py-1.5 rounded-full border border-amber-500/30 bg-amber-500/10 text-amber-200">
-                  {g}<span className="text-[10px] text-amber-300/70">×{n}</span>
+                <span
+                  key={g}
+                  className="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full border border-amber-500/50 bg-amber-500/15 text-amber-900 dark:text-amber-100 shadow-sm hover:bg-amber-500/25 transition"
+                >
+                  <span className="leading-snug">{g}</span>
+                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-500/30 text-amber-950 dark:text-amber-50 tabular-nums">×{n}</span>
                 </span>
               ))}
             </div>
