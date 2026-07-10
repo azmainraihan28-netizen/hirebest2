@@ -38,7 +38,18 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   // Authorization: super_admin OR org_admin of this org
   const { data: profile } = await admin.from('profiles').select('role').eq('id', caller.id).maybeSingle()
-  const isSuper = profile?.role === 'super_admin' || profile?.role === 'admin'
+
+  // Sanity check the service-role key. A real user always has a profiles row
+  // (created by the auth trigger). If we couldn't read one despite a valid
+  // access token, the "service" client is almost certainly the anon key —
+  // RLS then blocks every lookup and the caller sees a confusing 403.
+  if (!profile) {
+    return res.status(500).json({
+      error: 'Server misconfigured: SUPABASE_SERVICE_ROLE_KEY is missing or set to the anon key. Set it to the service_role secret from Supabase → Project Settings → API.',
+    })
+  }
+
+  const isSuper = profile.role === 'super_admin' || profile.role === 'admin'
   let authorized = isSuper
   if (!authorized) {
     const { data: member } = await admin.from('org_members')
