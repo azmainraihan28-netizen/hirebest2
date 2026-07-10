@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Clock, Sparkles, TrendingUp, Target, Zap, Award, FileText } from 'lucide-react'
 import DashboardTopBar from '../../components/dashboard/DashboardTopBar'
 import { SkeletonStats, Skeleton } from '../../components/Skeleton'
@@ -251,34 +251,9 @@ export default function DashAnalytics() {
 }
 
 function TimeSavedHero({ minutesSaved, total, fitRate, screeningCount }: { minutesSaved: number; total: number; fitRate: number; screeningCount: number }) {
-  // Smooth animated counter — starts from current value and ticks forward at
-  // a tiny rate so the number feels live, even on an idle dashboard.
-  const [display, setDisplay] = useState(0)
-  const startRef = useRef<number | null>(null)
-  const targetRef = useRef(minutesSaved)
-  targetRef.current = minutesSaved
-
-  useEffect(() => {
-    let raf = 0
-    const animate = (ts: number) => {
-      if (startRef.current == null) startRef.current = ts
-      const elapsed = (ts - startRef.current) / 1000
-      // Ease-out cap: hit target in ~1.2s, then drift up 1 minute per 60s viewed.
-      const progress = Math.min(1, elapsed / 1.2)
-      const eased = 1 - Math.pow(1 - progress, 3)
-      const drift = Math.max(0, elapsed - 1.2) / 60
-      setDisplay(targetRef.current * eased + drift)
-      raf = requestAnimationFrame(animate)
-    }
-    raf = requestAnimationFrame(animate)
-    return () => cancelAnimationFrame(raf)
-  }, [])
-
-  const totalSeconds = Math.floor(display * 60)
-  const hours = Math.floor(totalSeconds / 3600)
-  const minutes = Math.floor((totalSeconds % 3600) / 60)
-  const seconds = totalSeconds % 60
-  const workDays = (display / 60 / 8).toFixed(1)
+  const hours = Math.floor(minutesSaved / 60)
+  const minutes = minutesSaved % 60
+  const workDays = (minutesSaved / 60 / 8).toFixed(1)
 
   return (
     <div className="relative overflow-hidden rounded-2xl border border-[var(--color-border)] bg-gradient-to-br from-[color-mix(in_srgb,var(--color-primary)_12%,var(--color-card))] via-[var(--color-card)] to-[var(--color-card)] p-6 md:p-8">
@@ -287,18 +262,13 @@ function TimeSavedHero({ minutesSaved, total, fitRate, screeningCount }: { minut
       <div className="relative grid md:grid-cols-[1fr_auto] gap-6 items-center">
         <div>
           <div className="flex items-center gap-2 mb-3">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"/>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-400"/>
-            </span>
-            <span className="text-[11px] uppercase tracking-[0.18em] text-[var(--color-muted)] font-semibold">Live · Time saved</span>
+            <span className="text-[11px] uppercase tracking-[0.18em] text-[var(--color-muted)] font-semibold">Time saved</span>
           </div>
           <div className="flex items-baseline gap-2 flex-wrap">
             <Clock size={28} className="text-[var(--color-primary-2)] mb-1"/>
             <span className="text-4xl md:text-6xl font-extrabold tabular-nums gradient-text leading-none">
               {hours.toLocaleString()}<span className="text-[var(--color-muted)] text-2xl md:text-3xl font-bold">h</span>
               {' '}{minutes.toString().padStart(2, '0')}<span className="text-[var(--color-muted)] text-2xl md:text-3xl font-bold">m</span>
-              {' '}<span className="text-2xl md:text-3xl font-bold text-[var(--color-fg)]/80">{seconds.toString().padStart(2, '0')}<span className="text-[var(--color-muted)] text-base">s</span></span>
             </span>
           </div>
           <p className="mt-3 text-sm text-[var(--color-muted)] max-w-xl">
