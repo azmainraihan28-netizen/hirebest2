@@ -1,13 +1,14 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Sparkles, MapPin, Briefcase, ArrowRight } from 'lucide-react'
+import { Sparkles, MapPin, Briefcase, ArrowRight, Clock, FileText, Users } from 'lucide-react'
 import { useSeo } from '../lib/seo'
-import { useSchema, howTo } from '../lib/schema'
+import { useSchema, howTo, faqPage } from '../lib/schema'
 import Breadcrumbs from '../components/Breadcrumbs'
+import FAQ from '../components/FAQ'
 
 const howToSchema = howTo({
   name: 'How to Generate AI Interview Questions',
-  description: 'Generate 5 tailored interview questions with model answers by pasting a job description into HireBest free tool.',
+  description: 'Generate tailored interview questions with model answers by pasting a job description into HireBest free AI interview question generator.',
   steps: [
     { name: 'Paste the job description', text: 'Copy the full job description and paste it into the JD field. Up to 8,000 characters supported.' },
     { name: 'Enter location and role details', text: 'Add the hiring location (required) and optional role title or seniority level to tailor the questions.' },
@@ -16,12 +17,28 @@ const howToSchema = howTo({
   ],
 })
 
+const faqs = [
+  { q: 'Is this interview question generator really free?', a: 'Yes. No signup, no credit card, no usage limit. Paste any job description and generate tailored interview questions as many times as you need.' },
+  { q: 'What types of interview questions does the AI generate?', a: 'The generator produces a mix of behavioral, situational, and role-specific questions based on the skills, responsibilities, and requirements in your job description. Each question includes an ideal answer so you know what to listen for.' },
+  { q: 'Can I use this for any role or industry?', a: 'Yes. The AI reads your specific job description and tailors questions accordingly — whether you are hiring a software engineer, marketing manager, product designer, data analyst, or any other role in any industry.' },
+  { q: 'How is this different from a generic list of interview questions?', a: 'Generic lists give you the same 10 questions for every role. This tool reads your actual JD and generates questions that reference the specific skills, tools, and responsibilities you listed — so the interview is relevant to what the hire will actually do.' },
+  { q: 'Do I need to create an account to use the interview question generator?', a: 'No. The tool works instantly with no signup. If you want to screen CVs against the same JD, HireBest offers a 14-day free trial for AI resume screening.' },
+]
+
+const faqSchema = faqPage(faqs)
+
+const popularRoles = [
+  { title: '40 Marketing Manager Interview Questions', slug: 'marketing-manager-interview-questions', desc: 'Strategy, campaigns, analytics, leadership — with what to listen for.' },
+  { title: '50 Software Engineer Interview Questions', slug: 'software-engineer-interview-questions', desc: 'Technical, behavioral, system design, situational — with scoring rubric.' },
+]
+
 export default function InterviewQuestions() {
   useSeo({
-    title: 'Free AI Interview Question Generator',
-    description: 'Paste a JD. Get 5 tailored interview questions with model answers. Free, no signup, no usage limit.',
+    title: 'Free AI Interview Question Generator — Tailored to Any JD',
+    description: 'Free AI interview questions generator — paste any job description and get 5 tailored interview questions with ideal answers in seconds. No signup, no limit. Works for any role.',
   })
   useSchema('tools-iq-howto', howToSchema)
+  useSchema('tools-iq-faq', faqSchema)
   const [jd, setJd] = useState('')
   const [loc, setLoc] = useState('')
   const [role, setRole] = useState('')
@@ -47,11 +64,11 @@ export default function InterviewQuestions() {
 
   return (
     <>
-      <Breadcrumbs trail={[{ name: 'Free Tools' }, { name: 'Interview Question Generator' }]} schemaId="tools-iq-bc"/>
+      <Breadcrumbs trail={[{ name: 'Free Tools' }, { name: 'AI Interview Question Generator' }]} schemaId="tools-iq-bc"/>
       <section className="max-w-4xl mx-auto px-5 pt-10 pb-10 text-center">
         <span className="chip">Free Tool</span>
         <h1 className="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight">Free AI <span className="gradient-text">Interview Question Generator</span></h1>
-        <p className="mt-4 text-[var(--color-muted)]">Paste a JD. Get 5 tailored interview questions with model answers. No signup.</p>
+        <p className="mt-4 text-lg text-[var(--color-muted)]">Paste any job description and get 5 tailored interview questions with ideal answers — in seconds. No signup required.</p>
       </section>
 
       <section className="max-w-3xl mx-auto px-5 py-6">
@@ -90,24 +107,62 @@ export default function InterviewQuestions() {
         )}
       </section>
 
-      <section className="max-w-5xl mx-auto px-5 py-16 grid md:grid-cols-3 gap-5">
-        {[
-          { icon: Sparkles, t: 'Tailored to the JD', d: 'Questions reference the actual skills and responsibilities — not generic.' },
-          { icon: Briefcase, t: 'Ideal answers included', d: 'Know what a strong response looks like before the interview starts.' },
-          { icon: MapPin, t: 'Location aware', d: 'Adapts tone and context to where you\'re hiring.' },
-        ].map(c => (
-          <div key={c.t} className="card p-6">
-            <c.icon size={20} className="text-[var(--color-primary-2)]"/>
-            <h3 className="mt-3 font-semibold">{c.t}</h3>
-            <p className="text-sm text-[var(--color-muted)] mt-2">{c.d}</p>
-          </div>
-        ))}
+      <section className="max-w-5xl mx-auto px-5 py-16">
+        <h2 className="text-2xl font-bold text-center mb-8">How the AI interview question generator works</h2>
+        <div className="grid md:grid-cols-4 gap-5">
+          {[
+            { icon: FileText, step: '1', t: 'Paste a job description', d: 'Any role, any industry. The AI reads the full JD — skills, responsibilities, qualifications, and context.' },
+            { icon: MapPin, step: '2', t: 'Add location and role', d: 'Location tailors cultural and regional context. Role title and seniority sharpen question difficulty.' },
+            { icon: Sparkles, step: '3', t: 'Generate questions', d: 'Get 5 interview questions in seconds — behavioral, situational, and role-specific — each tied to what the JD actually asks for.' },
+            { icon: Briefcase, step: '4', t: 'Review ideal answers', d: 'Every question comes with what a strong answer looks like, so interviewers know exactly what to listen for.' },
+          ].map(c => (
+            <div key={c.step} className="card p-6 text-center">
+              <div className="w-8 h-8 rounded-full bg-[var(--color-primary)] text-white flex items-center justify-center mx-auto text-sm font-bold">{c.step}</div>
+              <h3 className="mt-3 font-semibold">{c.t}</h3>
+              <p className="text-sm text-[var(--color-muted)] mt-2">{c.d}</p>
+            </div>
+          ))}
+        </div>
       </section>
+
+      <section className="max-w-4xl mx-auto px-5 py-12">
+        <h2 className="text-2xl font-bold text-center mb-3">Why use an AI interview questions generator</h2>
+        <p className="text-center text-[var(--color-muted)] mb-8 max-w-2xl mx-auto">Generic question lists give the same 10 questions for every role. An AI interview question generator reads your actual job description and produces questions that map to the specific skills, tools, and responsibilities you listed.</p>
+        <div className="grid md:grid-cols-3 gap-5">
+          {[
+            { icon: Sparkles, t: 'Tailored to the JD', d: 'Questions reference the actual skills and responsibilities listed in the job description — not generic filler.' },
+            { icon: Clock, t: 'Ready in seconds', d: 'Skip the 30 minutes of writing questions from scratch. Paste the JD, click generate, and start interviewing.' },
+            { icon: Users, t: 'Works for any role', d: 'Software engineer, marketing manager, product designer, data analyst, operations lead — any role, any industry, any seniority.' },
+          ].map(c => (
+            <div key={c.t} className="card p-6">
+              <c.icon size={20} className="text-[var(--color-primary-2)]"/>
+              <h3 className="mt-3 font-semibold">{c.t}</h3>
+              <p className="text-sm text-[var(--color-muted)] mt-2">{c.d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section className="max-w-4xl mx-auto px-5 py-12">
+        <h2 className="text-2xl font-bold text-center mb-3">Interview question guides by role</h2>
+        <p className="text-center text-[var(--color-muted)] mb-8">Curated lists with scoring rubrics and what to listen for in every answer.</p>
+        <div className="grid md:grid-cols-2 gap-5">
+          {popularRoles.map(r => (
+            <Link key={r.slug} to={`/blog/${r.slug}`} className="card p-6 hover:border-[var(--color-primary)] transition-colors group">
+              <h3 className="font-semibold group-hover:text-[var(--color-primary)] transition-colors">{r.title}</h3>
+              <p className="text-sm text-[var(--color-muted)] mt-2">{r.desc}</p>
+              <span className="inline-flex items-center gap-1 text-sm text-[var(--color-primary-2)] mt-3">Read guide <ArrowRight size={14}/></span>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      <FAQ items={faqs} title="Interview question generator FAQ"/>
 
       <section className="max-w-4xl mx-auto px-5 py-12 text-center">
         <h2 className="text-2xl font-bold">Screen CVs with HireBest</h2>
-        <p className="mt-3 text-[var(--color-muted)]">When you're ready to score actual resumes against the JD.</p>
-        <Link to="/signup" className="btn-primary mt-6">Try HireBest <ArrowRight size={16}/></Link>
+        <p className="mt-3 text-[var(--color-muted)]">Generated interview questions for a role? Screen the actual CVs against the same JD — 100 resumes scored in 38 seconds with AI reasoning.</p>
+        <Link to="/signup" className="btn-primary mt-6">Try HireBest free <ArrowRight size={16}/></Link>
       </section>
     </>
   )
