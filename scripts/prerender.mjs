@@ -52,9 +52,9 @@ const routes = [
   },
   {
     path: '/tools/interview-questions',
-    title: 'Free AI Interview Question Generator · HireBest',
-    description: 'Paste a JD. Get 5 tailored interview questions with model answers. Free, no signup, no usage limit.',
-    imageAlt: 'Free AI interview question generator — paste JD, get 5 tailored questions',
+    title: 'Free AI Interview Question Generator — Tailored to Any JD · HireBest',
+    description: 'Free AI interview questions generator — paste any job description and get 5 tailored interview questions with ideal answers in seconds. No signup, no limit. Works for any role.',
+    imageAlt: 'Free AI interview question generator — paste JD, get 5 tailored questions with ideal answers',
     type: 'website',
   },
   {
