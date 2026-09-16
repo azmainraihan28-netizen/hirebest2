@@ -1,70 +1,123 @@
 import { Link } from 'react-router-dom'
-import { Package, Sun, Moon, Shield, Menu, Sparkles } from 'lucide-react'
+import { useEffect, useState } from 'react'
+import { Sun, Moon, Shield, Menu, Sparkles, Search } from 'lucide-react'
 import { useTheme } from '../../lib/theme'
 import { useAuth } from '../../lib/auth'
 import { useSidebar } from './DashboardLayout'
-import { isUnlimited } from '../../lib/quota'
+import { isUnlimited, loadQuota, type QuotaState } from '../../lib/quota'
 
 type Props = {
   title: string
+  /** Optional line under the title — context for the page you're on. */
+  subtitle?: string
+  /** Page-level actions, rendered left of the utility cluster. */
+  actions?: React.ReactNode
+  /** Quota overrides. Omit them and the bar loads the signed-in user's quota itself. */
   used?: number
   limit?: number
   unlimited?: boolean
 }
 
-export default function DashboardTopBar({ title, used = 0, limit = 50, unlimited: unlimitedProp }: Props) {
+const PLAN_LABELS: Record<string, string> = {
+  lifetime: 'Team',
+  advanced: 'Growth',
+  basic: 'Starter',
+  retainer: 'Enterprise',
+}
+
+export default function DashboardTopBar({ title, subtitle, actions, used, limit, unlimited: unlimitedProp }: Props) {
   const { theme, toggle } = useTheme()
   const { profile } = useAuth()
   const { setOpen } = useSidebar()
+  const [quota, setQuota] = useState<QuotaState | null>(null)
 
-  const unlimited = unlimitedProp ?? isUnlimited(profile?.plan)
-  const pct = limit > 0 ? Math.min(100, (used / limit) * 100) : 0
+  // Self-load quota so every page shows the same, correct meter even when the
+  // page itself doesn't track usage.
+  useEffect(() => {
+    if (used != null && limit != null) return
+    if (profile) loadQuota(profile).then(setQuota)
+  }, [profile, used, limit])
+
+  const unlimited = unlimitedProp ?? quota?.unlimited ?? isUnlimited(profile?.plan)
+  const usedN = used ?? quota?.used ?? 0
+  const limitN = limit ?? (quota && isFinite(quota.limit) ? quota.limit : 50)
+  const pct = limitN > 0 ? Math.min(100, (usedN / limitN) * 100) : 0
   const danger = pct >= 90
   const warn = pct >= 70 && !danger
-  const planLabel = profile?.plan === 'lifetime' ? 'Team'
-    : profile?.plan === 'advanced' ? 'Growth'
-    : profile?.plan === 'basic' ? 'Starter'
-    : profile?.plan === 'retainer' ? 'Enterprise'
-    : 'Free'
+  const planLabel = PLAN_LABELS[profile?.plan ?? ''] ?? 'Free'
+  const ringColor = danger ? 'var(--color-skip)' : warn ? 'var(--color-viz-maybe)' : 'var(--color-primary)'
 
   return (
-    <header className="sticky top-0 z-30 backdrop-blur bg-[color-mix(in_srgb,var(--color-bg)_85%,transparent)] border-b border-[var(--color-border)]">
-      <div className="px-4 md:px-6 py-3 md:py-4 flex items-center justify-between gap-3">
+    <header className="topbar sticky top-0 z-30">
+      <div className="px-4 md:px-6 py-3 flex items-center justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0">
-          <button onClick={() => setOpen(true)} className="md:hidden text-[var(--color-muted)] hover:text-[var(--color-fg)] p-1 -ml-1" aria-label="Menu">
-            <Menu size={20}/>
+          <button onClick={() => setOpen(true)} className="md:hidden icon-btn -ml-1" aria-label="Open menu">
+            <Menu size={18}/>
           </button>
-          <h1 className="text-base md:text-lg font-semibold text-[var(--color-fg)] truncate">{title}</h1>
+          <div className="min-w-0">
+            <h1 className="text-[0.95rem] md:text-base font-semibold text-[var(--color-fg)] truncate leading-tight">{title}</h1>
+            {subtitle && <p className="text-[11px] text-[var(--color-muted)] truncate mt-0.5">{subtitle}</p>}
+          </div>
         </div>
 
-        <div className="flex items-center gap-2 md:gap-3 shrink-0">
+        <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+          {actions}
+
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('hirebest:open-command'))}
+            className="hidden lg:flex items-center gap-2 h-8 pl-2.5 pr-2 rounded-lg border border-[var(--color-border)] text-[11px] text-[var(--color-muted)] hover:text-[var(--color-fg)] hover:border-[var(--color-border-strong)] transition"
+            aria-label="Open quick search"
+          >
+            <Search size={12}/><span>Search</span><kbd>⌘</kbd><kbd>K</kbd>
+          </button>
+
           {unlimited ? (
-            <span className="hidden sm:inline-flex text-xs px-3 py-1.5 rounded-full bg-[rgba(47,123,255,0.1)] border border-[rgba(47,123,255,0.3)] text-[var(--color-primary-2)] items-center gap-1.5">
+            <span className="hidden sm:inline-flex items-center gap-1.5 text-[11px] px-2.5 h-8 rounded-lg bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] border border-[color-mix(in_srgb,var(--color-primary)_28%,transparent)] text-[var(--color-primary-2)]">
               <Sparkles size={11}/>{planLabel} · Unlimited
             </span>
           ) : (
-            <Link to="/checkout?plan=advanced" className={`hidden sm:inline-flex text-xs px-3 py-1.5 rounded-full border items-center gap-2 transition ${
-              danger ? 'bg-red-500/10 border-red-500/40 text-red-300 hover:bg-red-500/20'
-              : warn ? 'bg-yellow-500/10 border-yellow-500/40 text-yellow-300 hover:bg-yellow-500/20'
-              : 'bg-[color-mix(in_srgb,var(--color-fg)_5%,transparent)] border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-fg)]'
-            }`}>
-              {planLabel} · <span className={danger || warn ? '' : 'text-[var(--color-fg)] font-medium'}>{used}/{limit}</span> used
-              {(danger || warn) && <span className="underline">Upgrade</span>}
+            <Link
+              to="/checkout?plan=advanced"
+              title={`${usedN} of ${limitN} CVs used on the ${planLabel} plan`}
+              className="hidden sm:inline-flex items-center gap-2 h-8 px-2.5 rounded-lg border border-[var(--color-border)] hover:border-[var(--color-border-strong)] transition"
+            >
+              <QuotaRing pct={pct} color={ringColor}/>
+              <span className="text-[11px] text-[var(--color-muted)]">
+                <span className="text-[var(--color-fg)] font-medium tabular">{usedN}</span>
+                <span className="text-[var(--color-muted-2)]">/{limitN}</span>
+              </span>
+              {(danger || warn) && (
+                <span className="text-[11px] font-medium" style={{ color: ringColor }}>Upgrade</span>
+              )}
             </Link>
           )}
-          <Link to="/dashboard/orders" className="text-sm text-[var(--color-muted)] hover:text-[var(--color-fg)] flex items-center gap-1.5">
-            <Package size={15}/><span className="hidden md:inline">Orders</span>
-          </Link>
+
           {(profile?.role === 'admin' || profile?.role === 'super_admin') && (
-            <Link to="/admin" className="text-sm text-[var(--color-primary-2)] hover:text-[var(--color-primary)] flex items-center gap-1.5">
-              <Shield size={15}/><span className="hidden md:inline">Admin</span>
+            <Link to="/admin" className="icon-btn tt text-[var(--color-primary-2)]" data-tip="Admin console">
+              <Shield size={15}/>
             </Link>
           )}
-          <button onClick={toggle} className="w-9 h-9 rounded-full hover:bg-[color-mix(in_srgb,var(--color-fg)_5%,transparent)] flex items-center justify-center text-[var(--color-muted)]" title="Toggle theme">
-            {theme === 'dark' ? <Moon size={16}/> : <Sun size={16}/>}
+
+          <button onClick={toggle} className="icon-btn tt" data-tip={theme === 'dark' ? 'Light theme' : 'Dark theme'} aria-label="Toggle theme">
+            {theme === 'dark' ? <Moon size={15}/> : <Sun size={15}/>}
           </button>
         </div>
       </div>
     </header>
+  )
+}
+
+/** Tiny usage ring — the meter reads at a glance without taking bar space. */
+function QuotaRing({ pct, color }: { pct: number; color: string }) {
+  const r = 7
+  const c = 2 * Math.PI * r
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" className="-rotate-90 shrink-0" aria-hidden>
+      <circle cx="9" cy="9" r={r} fill="none" strokeWidth="2.5" stroke="color-mix(in srgb, var(--color-fg) 12%, transparent)"/>
+      <circle
+        cx="9" cy="9" r={r} fill="none" strokeWidth="2.5" stroke={color} strokeLinecap="round"
+        strokeDasharray={`${(c * pct) / 100} ${c}`}
+      />
+    </svg>
   )
 }

@@ -29,11 +29,11 @@ export default function SidebarUserMenu() {
   return (
     <div ref={ref} className="relative p-3 border-t border-[var(--color-border)]">
       {open && (
-        <div className="absolute bottom-full left-3 right-3 mb-2 card p-1.5 z-50 shadow-xl">
+        <div className="absolute bottom-full left-3 right-3 mb-2 panel p-1.5 z-50 shadow-[var(--shadow-elev)]">
           <div className="px-3 py-2 text-[10px] uppercase tracking-wider text-[var(--color-muted)] truncate border-b border-[var(--color-border)] mb-1">{email}</div>
           {!orgsLoading && orgs.length > 0 && (
             <div className="border-b border-[var(--color-border)] pb-1 mb-1">
-              <div className="px-3 pt-1.5 pb-1 text-[10px] uppercase tracking-wider text-[var(--color-muted)]">Folders</div>
+              <div className="px-3 pt-1.5 pb-1 text-[10px] uppercase tracking-wider text-[var(--color-muted)]">Workspaces</div>
               {orgs.map(org => {
                 const active = org.org_id === currentOrgId
                 return (
@@ -44,7 +44,7 @@ export default function SidebarUserMenu() {
                       setOpen(false)
                       nav('/dashboard')
                     }}
-                    className={`sidebar-item w-full text-sm ${active ? 'bg-[color-mix(in_srgb,var(--color-primary)_12%,transparent)] text-[var(--color-fg)]' : ''}`}
+                    className={`rail-item w-full text-sm ${active ? 'bg-[color-mix(in_srgb,var(--color-primary)_12%,transparent)] text-[var(--color-fg)]' : ''}`}
                   >
                     <FolderKanban size={14}/>
                     <span className="flex-1 truncate text-left">{org.name}</span>
@@ -57,25 +57,25 @@ export default function SidebarUserMenu() {
               })}
             </div>
           )}
-          <Link to="/account" onClick={() => setOpen(false)} className="sidebar-item w-full text-sm">
+          <Link to="/account" onClick={() => setOpen(false)} className="rail-item w-full text-sm">
             <UserIcon size={14}/>Account
           </Link>
-          <Link to="/dashboard/orders" onClick={() => setOpen(false)} className="sidebar-item w-full text-sm">
+          <Link to="/dashboard/orders" onClick={() => setOpen(false)} className="rail-item w-full text-sm">
             <Package size={14}/>Orders
           </Link>
           {isAdmin && (
-            <Link to="/admin" onClick={() => setOpen(false)} className="sidebar-item w-full text-sm text-[var(--color-primary-2)]">
+            <Link to="/admin" onClick={() => setOpen(false)} className="rail-item w-full text-sm text-[var(--color-primary-2)]">
               <Shield size={14}/>Admin
             </Link>
           )}
           {!isAdmin && isAnyOrgAdmin && (
-            <Link to="/admin" onClick={() => setOpen(false)} className="sidebar-item w-full text-sm text-[var(--color-primary-2)]">
+            <Link to="/admin" onClick={() => setOpen(false)} className="rail-item w-full text-sm text-[var(--color-primary-2)]">
               <Users size={14}/>Manage members
             </Link>
           )}
           <button
             onClick={async () => { setOpen(false); await signOut(); nav('/') }}
-            className="sidebar-item w-full text-sm text-red-300 hover:text-red-200"
+            className="rail-item w-full text-sm text-red-300 hover:text-red-200"
           >
             <LogOut size={14}/>Sign out
           </button>
@@ -83,7 +83,7 @@ export default function SidebarUserMenu() {
       )}
 
       <button onClick={() => setOpen(o => !o)} className="w-full flex items-center gap-3 hover:bg-[color-mix(in_srgb,var(--color-fg)_5%,transparent)] rounded-md p-1 -m-1 transition">
-        <div className="w-8 h-8 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-[var(--color-fg)] text-xs font-semibold overflow-hidden">
+        <div className="w-8 h-8 rounded-full bg-[var(--color-primary)] flex items-center justify-center text-[var(--color-primary-ink)] text-xs font-semibold overflow-hidden">
           {profile?.avatar_url
             ? <img src={profile.avatar_url} alt="" className="w-full h-full object-cover"/>
             : initial}
