@@ -1,5 +1,26 @@
 import { supabase } from './supabase'
 
+/**
+ * Ids that scope every screening/candidate read to the signed-in user:
+ * their own user id plus the orgs they are a member of. Screenings are never
+ * queried unscoped — an admin account must not see customers' screenings in
+ * its own dashboard, and RLS alone used to allow exactly that.
+ */
+async function myScope(): Promise<{ userId: string; orgIds: string[] } | null> {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return null
+  const { data } = await supabase.from('org_members').select('org_id').eq('user_id', user.id)
+  const orgIds = Array.isArray(data) ? data.map((r: any) => r.org_id as string).filter(Boolean) : []
+  return { userId: user.id, orgIds }
+}
+
+/** PostgREST `or=` filter matching screening rows this user may see. */
+function scopeFilter(scope: { userId: string; orgIds: string[] }, column = 'org_id'): string {
+  const parts = [`user_id.eq.${scope.userId}`]
+  if (scope.orgIds.length) parts.push(`${column}.in.(${scope.orgIds.join(',')})`)
+  return parts.join(',')
+}
+
 export type Screening = {
   id: string
   user_id: string
@@ -35,13 +56,24 @@ export type Candidate = {
 }
 
 export async function listScreenings(limit = 30): Promise<Screening[]> {
+  const scope = await myScope()
+  if (!scope) return []
   const { data } = await supabase.from('screenings')
-    .select('*').order('created_at', { ascending: false }).limit(limit)
+    .select('*')
+    .or(scopeFilter(scope))
+    .order('created_at', { ascending: false })
+    .limit(limit)
   return (data ?? []) as Screening[]
 }
 
 export async function getScreening(id: string): Promise<Screening | null> {
-  const { data } = await supabase.from('screenings').select('*').eq('id', id).maybeSingle()
+  const scope = await myScope()
+  if (!scope) return null
+  const { data } = await supabase.from('screenings')
+    .select('*')
+    .eq('id', id)
+    .or(scopeFilter(scope))
+    .maybeSingle()
   return (data as Screening | null) ?? null
 }
 
@@ -75,6 +107,10 @@ export async function inferScreeningName(jd: string, timeoutMs = 6000): Promise<
 }
 
 export async function listCandidates(screeningId: string): Promise<Candidate[]> {
+  // Only return candidates once the parent screening is confirmed in scope, so
+  // a screening id belonging to somebody else yields nothing.
+  const screening = await getScreening(screeningId)
+  if (!screening) return []
   const { data } = await supabase.from('candidates')
     .select('*').eq('screening_id', screeningId).order('score', { ascending: false })
   return (data ?? []) as Candidate[]
@@ -86,8 +122,13 @@ export async function insertCandidate(c: Omit<Candidate, 'id' | 'created_at' | '
   return data as Candidate
 }
 
+/** Candidates the signed-in user screened (their own screenings only) — this is the quota meter. */
 export async function countMyCandidates(): Promise<number> {
-  const { count } = await supabase.from('candidates').select('*', { count: 'exact', head: true })
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) return 0
+  const { count } = await supabase.from('candidates')
+    .select('screenings!inner(user_id)', { count: 'exact', head: true })
+    .eq('screenings.user_id', user.id)
   return count ?? 0
 }
 
@@ -104,9 +145,15 @@ export async function setCandidateStatus(candidate: Candidate, status: 'shortlis
   if (error) return { ok: false, error: error.message }
   if (candidate.status_email_sent || !candidate.email) return { ok: true }
 
+  const { data: { session } } = await supabase.auth.getSession()
+  if (!session?.access_token) return { ok: false, error: 'Not authenticated' }
+
   const res = await fetch('/api/send-decision-email', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${session.access_token}`,
+    },
     body: JSON.stringify({ candidateId: candidate.id, email: candidate.email, name: candidate.name, status }),
   })
   if (!res.ok) {
@@ -117,5 +164,7 @@ export async function setCandidateStatus(candidate: Candidate, status: 'shortlis
 }
 
 export async function deleteScreening(id: string) {
-  await supabase.from('screenings').delete().eq('id', id)
+  const scope = await myScope()
+  if (!scope) return
+  await supabase.from('screenings').delete().eq('id', id).or(scopeFilter(scope))
 }
