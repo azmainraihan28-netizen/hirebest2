@@ -108,10 +108,10 @@ export default function CandidateRow({ c, selected, rank, onSelect, onOpenQs, on
           </div>
         </button>
 
-        <div className="hidden lg:flex w-56 gap-1.5 flex-wrap justify-end shrink-0">
-          {(c.skills ?? []).slice(0, 3).map(s => <span key={s} className="skill-chip">{s}</span>)}
-          {(c.skills ?? []).length > 3 && (
-            <span className="skill-chip text-[var(--color-muted)]">+{(c.skills ?? []).length - 3}</span>
+        <div className="hidden lg:flex w-56 gap-1.5 flex-nowrap justify-end shrink-0 overflow-hidden">
+          {(c.skills ?? []).slice(0, 2).map(s => <span key={s} className="skill-chip whitespace-nowrap">{s}</span>)}
+          {(c.skills ?? []).length > 2 && (
+            <span className="skill-chip text-[var(--color-muted)] whitespace-nowrap">+{(c.skills ?? []).length - 2}</span>
           )}
         </div>
 

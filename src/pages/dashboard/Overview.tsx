@@ -180,7 +180,7 @@ export default function Overview() {
 
         {/* ── Activity + leaderboard ───────────────────────────────── */}
         <section className="grid lg:grid-cols-3 gap-5">
-          <div className="panel rise lg:col-span-2" style={{ '--d': '200ms' } as React.CSSProperties}>
+          <div className="panel rise lg:col-span-2 flex flex-col" style={{ '--d': '200ms' } as React.CSSProperties}>
             <div className="panel-head">
               <div>
                 <div className="panel-title">Screening activity</div>
@@ -188,7 +188,7 @@ export default function Overview() {
               </div>
               <span className="text-xs text-[var(--color-muted)] tabular">{stats.last7} in the last 7 days</span>
             </div>
-            <div className="p-5">
+            <div className="p-5 flex-1 flex flex-col">
               <Sparkbars data={spark}/>
             </div>
           </div>
@@ -367,10 +367,10 @@ function Sparkbars({ data }: { data: { count: number; label: string }[] }) {
     )
   }
   return (
-    <div className="flex items-end gap-1.5 h-40">
+    <div className="flex items-end gap-1.5 h-full min-h-40">
       {data.map((d, i) => (
         <div key={i} className="bar-col flex-1 h-full flex flex-col items-center group relative">
-          <div className="bar-track relative w-full flex-1 flex items-end">
+          <div className="bar-col-track w-full flex-1">
             <div
               className="bar-fill w-full"
               style={{ height: `${(d.count / max) * 100}%`, minHeight: d.count ? 4 : 0, opacity: 0.55 + (d.count / max) * 0.45 }}

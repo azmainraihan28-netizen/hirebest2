@@ -172,7 +172,8 @@ export default function NewScreening() {
         unlimited={quota?.unlimited}
       />
 
-      <div className="p-4 md:p-6 max-w-[80rem] mx-auto space-y-4 pb-24">
+      <div className="flex flex-col min-h-[calc(100vh-3.55rem)]">
+      <div className="p-4 md:p-6 max-w-[80rem] w-full mx-auto space-y-4 flex-1">
 
         {/* ── Setup row ────────────────────────────────────────────── */}
         <section className="panel rise p-4 md:p-5 flex flex-col md:flex-row md:items-end gap-4" style={{ '--d': '0ms' } as React.CSSProperties}>
@@ -231,7 +232,7 @@ export default function NewScreening() {
                 className="field font-mono text-[13px] leading-relaxed flex-1 resize-none"
               />
               <div className="flex items-center justify-between text-[11px] mt-2.5">
-                <span className={jdReady ? 'text-[var(--color-muted)]' : 'text-[var(--color-viz-maybe)]'}>
+                <span className={jd.length === 0 || jdReady ? 'text-[var(--color-muted)]' : 'text-[var(--color-viz-maybe)]'}>
                   {jd.length === 0
                     ? 'Tip: include must-have skills and years of experience'
                     : jdReady ? 'Good length for accurate scoring' : 'Add more detail — under 40 words scores loosely'}
@@ -335,6 +336,7 @@ export default function NewScreening() {
             </button>
           </div>
         </div>
+      </div>
       </div>
 
       {upgradeReason && (

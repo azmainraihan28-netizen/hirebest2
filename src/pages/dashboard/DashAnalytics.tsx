@@ -172,7 +172,7 @@ export default function DashAnalytics() {
                     return (
                       <div key={i} className="bar-col flex-1 h-full flex flex-col items-center group">
                         <div className="text-[11px] font-medium tabular text-[var(--color-fg-dim)] mb-1.5">{n}</div>
-                        <div className="bar-track relative w-full flex-1 flex items-end">
+                        <div className="bar-col-track w-full flex-1">
                           <div
                             className="bar-fill w-full"
                             style={{ height: `${(n / max) * 100}%`, minHeight: n ? 6 : 0, opacity: 0.5 + i * 0.125 }}
@@ -208,7 +208,7 @@ export default function DashAnalytics() {
                 const max = Math.max(1, ...days.map(x => x.count))
                 return (
                   <div key={i} className="bar-col flex-1 h-full flex flex-col items-center group relative">
-                    <div className="bar-track relative w-full flex-1 flex items-end">
+                    <div className="bar-col-track w-full flex-1">
                       <div className="bar-fill w-full" style={{ height: `${(d.count / max) * 100}%`, minHeight: d.count ? 4 : 0 }}/>
                     </div>
                     <span className="pointer-events-none absolute -top-8 opacity-0 group-hover:opacity-100 transition text-[11px] px-2 py-1 rounded-md bg-[var(--color-card)] border border-[var(--color-border-strong)] whitespace-nowrap z-10 shadow-lg">
