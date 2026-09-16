@@ -77,6 +77,53 @@ export async function getScreening(id: string): Promise<Screening | null> {
   return (data as Screening | null) ?? null
 }
 
+export type ScreeningStats = Screening & {
+  total: number
+  fit: number
+  maybe: number
+  skip: number
+  shortlisted: number
+  avgScore: number
+  topScore: number
+}
+
+/**
+ * Screenings plus their candidate roll-up, in two round-trips: the scoped
+ * screening list, then one candidates query filtered to those ids. Used by the
+ * overview and the sidebar so every screening shows what is inside it.
+ */
+export async function listScreeningsWithStats(limit = 30): Promise<ScreeningStats[]> {
+  const screenings = await listScreenings(limit)
+  if (screenings.length === 0) return []
+  const { data } = await supabase.from('candidates')
+    .select('screening_id, score, verdict, status')
+    .in('screening_id', screenings.map(s => s.id))
+
+  const rows = (data ?? []) as Pick<Candidate, 'screening_id' | 'score' | 'verdict' | 'status'>[]
+  const byScreening = new Map<string, typeof rows>()
+  for (const r of rows) {
+    const list = byScreening.get(r.screening_id)
+    if (list) list.push(r)
+    else byScreening.set(r.screening_id, [r])
+  }
+
+  return screenings.map(s => {
+    const cs = byScreening.get(s.id) ?? []
+    const total = cs.length
+    const sum = cs.reduce((acc, c) => acc + (c.score ?? 0), 0)
+    return {
+      ...s,
+      total,
+      fit: cs.filter(c => c.verdict === 'Fit').length,
+      maybe: cs.filter(c => c.verdict === 'Maybe').length,
+      skip: cs.filter(c => c.verdict === 'Skip').length,
+      shortlisted: cs.filter(c => c.status === 'shortlisted').length,
+      avgScore: total ? Math.round(sum / total) : 0,
+      topScore: total ? Math.max(...cs.map(c => c.score ?? 0)) : 0,
+    }
+  })
+}
+
 export async function createScreening(name: string, jd: string, orgId?: string | null): Promise<Screening | null> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return null
@@ -113,6 +160,20 @@ export async function listCandidates(screeningId: string): Promise<Candidate[]> 
   if (!screening) return []
   const { data } = await supabase.from('candidates')
     .select('*').eq('screening_id', screeningId).order('score', { ascending: false })
+  return (data ?? []) as Candidate[]
+}
+
+/**
+ * Candidates across several screenings in one round-trip. Callers pass ids that
+ * already came from a scoped screening query, so this stays inside the user's data.
+ */
+export async function listCandidatesIn(screeningIds: string[], limit = 1000): Promise<Candidate[]> {
+  if (screeningIds.length === 0) return []
+  const { data } = await supabase.from('candidates')
+    .select('*')
+    .in('screening_id', screeningIds)
+    .order('created_at', { ascending: false })
+    .limit(limit)
   return (data ?? []) as Candidate[]
 }
 

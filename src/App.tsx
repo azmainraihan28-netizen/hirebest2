@@ -32,7 +32,7 @@ const AuthCallback      = lazy(() => import('./pages/AuthCallback'))
 
 // Dashboard pages
 const DashboardLayout   = lazy(() => import('./components/dashboard/DashboardLayout'))
-const DashIndex         = lazy(() => import('./pages/dashboard/DashIndex'))
+const Overview          = lazy(() => import('./pages/dashboard/Overview'))
 const NewScreening      = lazy(() => import('./pages/dashboard/NewScreening'))
 const Results           = lazy(() => import('./pages/dashboard/Results'))
 const Orders            = lazy(() => import('./pages/dashboard/Orders'))
@@ -74,7 +74,7 @@ export default function App() {
         </Route>
 
         <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
-          <Route index element={<DashIndex />} />
+          <Route index element={<Overview />} />
           <Route path="new" element={<NewScreening />} />
           <Route path="results/:id" element={<Results />} />
           <Route path="analytics" element={<DashAnalytics />} />

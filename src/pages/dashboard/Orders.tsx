@@ -46,24 +46,24 @@ export default function Orders() {
 
   return (
     <>
-      <DashboardTopBar title="Orders"/>
-      <div className="p-6 max-w-4xl mx-auto space-y-5">
+      <DashboardTopBar title="Billing & orders" subtitle="Your plan, invoices and subscription history"/>
+      <div className="p-4 md:p-6 max-w-4xl mx-auto space-y-4">
 
         {justPaid && (
-          <div className="card p-5 border-green-500/40 flex items-center gap-3">
-            <CheckCircle2 size={20} className="text-green-400 shrink-0"/>
+          <div className="panel rise p-5 flex items-center gap-3" style={{ borderColor: 'color-mix(in srgb, var(--color-viz-fit) 45%, transparent)' }}>
+            <CheckCircle2 size={20} className="shrink-0" style={{ color: 'var(--color-viz-fit)' }}/>
             <div>
-              <div className="font-semibold text-green-400">Payment received</div>
+              <div className="font-semibold" style={{ color: 'var(--color-viz-fit)' }}>Payment received</div>
               <div className="text-xs text-[var(--color-muted)] mt-0.5">Your plan will activate within a few seconds. Refresh if you don't see it yet.</div>
             </div>
           </div>
         )}
 
-        <div className="card p-6">
-          <div className="flex items-center justify-between gap-4">
+        <div className="panel rise p-6">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
             <div>
-              <div className="text-xs uppercase tracking-wider text-[var(--color-muted)]">Current plan</div>
-              <h2 className="text-2xl font-bold mt-1">{planLabel}</h2>
+              <div className="eyebrow">Current plan</div>
+              <h2 className="text-2xl font-semibold tracking-[-0.03em] mt-1.5">{planLabel}</h2>
               {!active && profile?.plan === 'free' && (
                 <p className="text-sm text-[var(--color-muted)] mt-2">50 free screenings included. Upgrade for unlimited.</p>
               )}
@@ -74,12 +74,12 @@ export default function Orders() {
           </div>
         </div>
 
-        {loading && <div className="text-sm text-[var(--color-muted)]">Loading subscriptions…</div>}
+        {loading && <div className="panel p-5 text-sm text-[var(--color-muted)]">Loading subscriptions…</div>}
 
         {subs.length > 0 && (
-          <div className="card overflow-hidden">
-            <div className="px-5 py-4 border-b border-[var(--color-border)] font-semibold text-sm">Billing history</div>
-            <table className="w-full text-sm">
+          <div className="panel rise overflow-hidden">
+            <div className="panel-head"><div className="panel-title">Billing history</div></div>
+            <div className="overflow-x-auto"><table className="w-full text-sm min-w-[38rem]">
               <thead>
                 <tr className="border-b border-[var(--color-border)] text-[10px] uppercase tracking-wider text-[var(--color-muted)]">
                   <th className="text-left p-4">Plan</th>
@@ -92,7 +92,7 @@ export default function Orders() {
               <tbody>
                 {subs.map(s => (
                   <tr key={s.id} className="border-b border-[var(--color-border)] last:border-0">
-                    <td className="p-4">{PLAN_LABEL[s.plan_name] ?? s.plan_name}{s.test_mode && <span className="ml-2 text-[9px] uppercase text-yellow-400">test</span>}</td>
+                    <td className="p-4">{PLAN_LABEL[s.plan_name] ?? s.plan_name}{s.test_mode && <span className="ml-2 count-pill uppercase">test</span>}</td>
                     <td className="p-4"><span className={`text-xs px-2 py-0.5 rounded ${STATUS_TONE[s.status] ?? 'verdict-maybe'}`}>{s.status}</span></td>
                     <td className="p-4 text-xs text-[var(--color-muted)]">{s.card_brand ? `${s.card_brand} ••${s.card_last_four}` : '—'}</td>
                     <td className="p-4 text-xs text-[var(--color-muted)]">
@@ -107,12 +107,12 @@ export default function Orders() {
                   </tr>
                 ))}
               </tbody>
-            </table>
+            </table></div>
           </div>
         )}
 
-        <div className="card p-6 text-center">
-          <Package size={22} className="mx-auto text-[var(--color-primary-2)]"/>
+        <div className="panel rise p-6 text-center">
+          <span className="icon-badge mx-auto"><Package size={18}/></span>
           <h3 className="mt-3 font-semibold">Need a custom quote or invoice?</h3>
           <p className="mt-1 text-xs text-[var(--color-muted)]">For Enterprise terms, custom ATS integrations, or volume pricing.</p>
           <a href="https://wa.me/8801324419060" target="_blank" rel="noreferrer" className="btn-ghost mt-4 text-xs"><MessageCircle size={12}/>Talk to us</a>

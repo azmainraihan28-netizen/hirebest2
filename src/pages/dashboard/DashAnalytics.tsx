@@ -1,93 +1,133 @@
 import { useEffect, useMemo, useState } from 'react'
-import { Clock, Sparkles, TrendingUp, Target, Zap, Award, FileText } from 'lucide-react'
+import { Link } from 'react-router-dom'
+import { Clock, Sparkles, TrendingUp, Target, Zap, Award, FileText, ArrowUpRight } from 'lucide-react'
 import DashboardTopBar from '../../components/dashboard/DashboardTopBar'
 import { SkeletonStats, Skeleton } from '../../components/Skeleton'
-import { listScreenings, listCandidates, type Candidate, type Screening } from '../../lib/screenings'
+import { listScreeningsWithStats, listCandidatesIn, type Candidate, type ScreeningStats } from '../../lib/screenings'
 
 // Avg minutes a recruiter spends manually screening one CV. Industry studies
 // (LinkedIn 2023, SHRM) put this at 6–8 minutes per resume; we use 7 for the
 // "time saved" tile so the headline number stays defensible.
 const MINUTES_SAVED_PER_CV = 7
 
+type Range = 7 | 30 | 90 | 'All'
+const RANGES: Range[] = [7, 30, 90, 'All']
+
 export default function DashAnalytics() {
   const [loading, setLoading] = useState(true)
   const [all, setAll] = useState<Candidate[]>([])
-  const [screenings, setScreenings] = useState<Screening[]>([])
+  const [screenings, setScreenings] = useState<ScreeningStats[]>([])
+  const [range, setRange] = useState<Range>(30)
 
   useEffect(() => {
-    (async () => {
-      const ss = await listScreenings(200)
+    let alive = true
+    ;(async () => {
+      // Two round-trips for the whole page: the scoped screening list, then
+      // every candidate inside it (previously one query per screening).
+      const ss = await listScreeningsWithStats(200)
+      if (!alive) return
       setScreenings(ss)
-      const lists = await Promise.all(ss.map(s => listCandidates(s.id)))
-      setAll(lists.flat())
+      const cs = await listCandidatesIn(ss.map(s => s.id))
+      if (!alive) return
+      setAll(cs)
       setLoading(false)
     })()
+    return () => { alive = false }
   }, [])
 
+  const inRange = useMemo(() => {
+    if (range === 'All') return all
+    const from = Date.now() - range * 86_400_000
+    return all.filter(c => +new Date(c.created_at) >= from)
+  }, [all, range])
+
   const totals = useMemo(() => {
-    const total = all.length
-    const fit = all.filter(c => c.verdict === 'Fit').length
-    const maybe = all.filter(c => c.verdict === 'Maybe').length
-    const skip = all.filter(c => c.verdict === 'Skip').length
-    const avgScore = total ? Math.round(all.reduce((s, c) => s + c.score, 0) / total) : 0
-    const fitRate = total ? Math.round((fit / total) * 100) : 0
-    const minutesSaved = total * MINUTES_SAVED_PER_CV
-    return { total, fit, maybe, skip, avgScore, fitRate, minutesSaved }
-  }, [all])
+    const total = inRange.length
+    const fit = inRange.filter(c => c.verdict === 'Fit').length
+    const maybe = inRange.filter(c => c.verdict === 'Maybe').length
+    const skip = inRange.filter(c => c.verdict === 'Skip').length
+    const avgScore = total ? Math.round(inRange.reduce((s, c) => s + c.score, 0) / total) : 0
+    return {
+      total, fit, maybe, skip, avgScore,
+      fitRate: total ? Math.round((fit / total) * 100) : 0,
+      minutesSaved: total * MINUTES_SAVED_PER_CV,
+    }
+  }, [inRange])
+
+  const skillRows = useMemo(() => {
+    const freq: Record<string, number> = {}
+    for (const c of inRange) for (const s of (c.skills ?? [])) freq[s] = (freq[s] ?? 0) + 1
+    return Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 10)
+  }, [inRange])
+
+  const gapRows = useMemo(() => {
+    const freq: Record<string, number> = {}
+    for (const c of inRange) for (const g of (c.gaps ?? [])) freq[g] = (freq[g] ?? 0) + 1
+    return Object.entries(freq).sort((a, b) => b[1] - a[1]).slice(0, 8)
+  }, [inRange])
+
+  const buckets = useMemo(() => {
+    const b = [0, 0, 0, 0, 0]
+    for (const c of inRange) b[Math.min(4, Math.floor(c.score / 20))]++
+    return b
+  }, [inRange])
+  const bucketLabels = ['0–19', '20–39', '40–59', '60–79', '80–100']
+
+  const days = useMemo(() => {
+    const span = range === 'All' ? 30 : range
+    const start = new Date(); start.setHours(0, 0, 0, 0)
+    return Array.from({ length: span }, (_, i) => {
+      const from = +start - (span - 1 - i) * 86_400_000
+      const to = from + 86_400_000
+      const count = all.filter(c => {
+        const t = +new Date(c.created_at)
+        return t >= from && t < to
+      }).length
+      return { count, full: new Date(from).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) }
+    })
+  }, [all, range])
+
+  const topCandidates = useMemo(() => [...inRange].sort((a, b) => b.score - a.score).slice(0, 5), [inRange])
+  const busiestScreenings = useMemo(() => [...screenings].sort((a, b) => b.total - a.total).slice(0, 5), [screenings])
+  const screeningName = (id: string) => screenings.find(s => s.id === id)?.name ?? '—'
 
   if (loading) return (
     <>
-      <DashboardTopBar title="CV Review"/>
-      <div className="p-6 max-w-7xl mx-auto space-y-5">
-        <Skeleton className="h-44 w-full"/>
+      <DashboardTopBar title="Analytics"/>
+      <div className="p-4 md:p-6 max-w-[88rem] mx-auto space-y-5">
+        <Skeleton className="h-40 w-full rounded-2xl"/>
         <SkeletonStats count={4}/>
-        <div className="grid lg:grid-cols-2 gap-5">
-          <div className="card p-6"><Skeleton className="h-5 w-40 mb-5"/><div className="space-y-3">{[1,2,3,4,5].map(i => <Skeleton key={i} className="h-3 w-full"/>)}</div></div>
-          <div className="card p-6"><Skeleton className="h-5 w-40 mb-5"/><div className="space-y-3">{[1,2,3].map(i => <Skeleton key={i} className="h-3 w-full"/>)}</div></div>
+        <div className="grid lg:grid-cols-3 gap-5">
+          {[1,2,3].map(i => <Skeleton key={i} className="h-72 rounded-2xl"/>)}
         </div>
       </div>
     </>
   )
 
-  const skillFreq: Record<string, number> = {}
-  for (const c of all) for (const s of (c.skills ?? [])) skillFreq[s] = (skillFreq[s] ?? 0) + 1
-  const topSkills = Object.entries(skillFreq).sort((a, b) => b[1] - a[1]).slice(0, 10)
-
-  const gapsFreq: Record<string, number> = {}
-  for (const c of all) for (const g of (c.gaps ?? [])) gapsFreq[g] = (gapsFreq[g] ?? 0) + 1
-  const topGaps = Object.entries(gapsFreq).sort((a, b) => b[1] - a[1]).slice(0, 5)
-
-  // Score distribution buckets
-  const buckets = [0, 0, 0, 0, 0]
-  for (const c of all) {
-    const idx = Math.min(4, Math.floor(c.score / 20))
-    buckets[idx]++
-  }
-  const maxBucket = Math.max(1, ...buckets)
-  const bucketLabels = ['0–19', '20–39', '40–59', '60–79', '80–100']
-
-  // Activity over last 14 days
-  const days = Array.from({ length: 14 }, (_, i) => {
-    const d = new Date()
-    d.setDate(d.getDate() - (13 - i))
-    d.setHours(0, 0, 0, 0)
-    const next = new Date(d); next.setDate(next.getDate() + 1)
-    const count = all.filter(c => {
-      const t = new Date(c.created_at)
-      return t >= d && t < next
-    }).length
-    return { label: d.toLocaleDateString('en-US', { day: 'numeric' }), full: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), count }
-  })
-  const maxDay = Math.max(1, ...days.map(d => d.count))
-
-  const topCandidates = [...all].sort((a, b) => b.score - a.score).slice(0, 5)
-
   return (
     <>
-      <DashboardTopBar title="CV Review"/>
-      <div className="p-6 max-w-7xl mx-auto space-y-5">
+      <DashboardTopBar
+        title="Analytics"
+        subtitle={`${screenings.length} screenings · ${all.length} CVs scored all-time`}
+      />
 
-        {/* Hero — live time-saved counter */}
+      <div className="p-4 md:p-6 max-w-[88rem] mx-auto space-y-5">
+
+        {/* Filters live in one row above the charts */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="seg">
+            {RANGES.map(r => (
+              <button key={String(r)} onClick={() => setRange(r)} data-active={range === r} className="seg-item">
+                {r === 'All' ? 'All time' : `${r} days`}
+              </button>
+            ))}
+          </div>
+          <span className="text-[11px] text-[var(--color-muted)]">
+            Showing <span className="text-[var(--color-fg)] tabular">{totals.total}</span> CVs
+            {range !== 'All' && <> from the last {range} days</>}
+          </span>
+        </div>
+
         <TimeSavedHero
           minutesSaved={totals.minutesSaved}
           total={totals.total}
@@ -95,190 +135,227 @@ export default function DashAnalytics() {
           screeningCount={screenings.length}
         />
 
-        {/* Quick stats */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <Stat icon={<FileText size={18}/>} label="CVs reviewed" value={totals.total} accent="from-sky-500/20 to-sky-500/0" iconColor="text-sky-400"/>
-          <Stat icon={<Sparkles size={18}/>} label="Fit candidates" value={totals.fit} accent="from-emerald-500/20 to-emerald-500/0" iconColor="text-emerald-400" sub={`${totals.fitRate}% fit rate`}/>
-          <Stat icon={<Target size={18}/>} label="Avg match score" value={totals.avgScore} accent="from-amber-500/20 to-amber-500/0" iconColor="text-amber-400" sub="out of 100"/>
-          <Stat icon={<Zap size={18}/>} label="Screenings run" value={screenings.length} accent="from-fuchsia-500/20 to-fuchsia-500/0" iconColor="text-fuchsia-400"/>
-        </div>
+        <section className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <Stat d={40} icon={<FileText size={15}/>} label="CVs reviewed" value={totals.total}/>
+          <Stat d={80} icon={<Sparkles size={15}/>} label="Fit candidates" value={totals.fit} tone="fit" sub={`${totals.fitRate}% fit rate`}/>
+          <Stat d={120} icon={<Target size={15}/>} label="Avg match score" value={totals.avgScore} sub="out of 100"/>
+          <Stat d={160} icon={<Zap size={15}/>} label="Screenings run" value={screenings.length}/>
+        </section>
 
-        {/* Verdict mix + score distribution */}
-        <div className="grid lg:grid-cols-3 gap-5">
-          <div className="card p-6 lg:col-span-1">
-            <h3 className="font-semibold mb-1">Verdict mix</h3>
-            <p className="text-xs text-[var(--color-muted)] mb-5">How your pipeline breaks down</p>
-            <VerdictDonut fit={totals.fit} maybe={totals.maybe} skip={totals.skip}/>
+        <section className="grid lg:grid-cols-3 gap-5">
+          <div className="panel rise" style={{ '--d': '200ms' } as React.CSSProperties}>
+            <div className="panel-head">
+              <div>
+                <div className="panel-title">Verdict mix</div>
+                <div className="panel-sub">How the pipeline breaks down</div>
+              </div>
+            </div>
+            <div className="p-5">
+              <VerdictDonut fit={totals.fit} maybe={totals.maybe} skip={totals.skip}/>
+            </div>
           </div>
 
-          <div className="card p-6 lg:col-span-2">
-            <h3 className="font-semibold mb-1">Score distribution</h3>
-            <p className="text-xs text-[var(--color-muted)] mb-5">Where most CVs land on the 0–100 scale</p>
-            {totals.total === 0 ? (
-              <p className="text-sm text-[var(--color-muted)] py-12 text-center">No CVs scored yet.</p>
-            ) : (
-              <div className="flex items-end gap-3 h-52">
-                {buckets.map((n, i) => {
-                  const pct = maxBucket ? (n / maxBucket) * 100 : 0
-                  const share = totals.total ? Math.round((n / totals.total) * 100) : 0
-                  return (
-                    <div key={i} className="flex-1 h-full flex flex-col items-center group">
-                      <div className="text-[11px] font-semibold tabular-nums text-[var(--color-fg)] mb-1.5">{n}</div>
-                      <div className="relative w-full flex-1 flex items-end rounded-lg overflow-hidden bg-[color-mix(in_srgb,var(--color-fg)_5%,transparent)] border border-[var(--color-border)]">
-                        <div
-                          className="w-full rounded-md bg-gradient-to-t from-[var(--color-primary)] to-[var(--color-primary-2)] shadow-[0_-4px_20px_-4px_var(--color-primary-2)] transition-all duration-500 ease-out group-hover:brightness-110"
-                          style={{ height: `${pct}%`, minHeight: n ? 8 : 0, opacity: 0.55 + i * 0.11 }}
-                        />
-                        <div className="pointer-events-none absolute inset-x-0 top-1 flex justify-center opacity-0 group-hover:opacity-100 transition">
-                          <span className="text-[10px] font-medium px-1.5 py-0.5 rounded bg-[var(--color-card)]/90 border border-[var(--color-border)] backdrop-blur">
-                            {share}%
+          <div className="panel rise lg:col-span-2" style={{ '--d': '240ms' } as React.CSSProperties}>
+            <div className="panel-head">
+              <div>
+                <div className="panel-title">Score distribution</div>
+                <div className="panel-sub">Where CVs land on the 0–100 scale</div>
+              </div>
+              <span className="text-xs text-[var(--color-muted)] tabular">avg {totals.avgScore}</span>
+            </div>
+            <div className="p-5">
+              {totals.total === 0 ? <EmptyNote/> : (
+                <div className="flex items-end gap-3 h-52">
+                  {buckets.map((n, i) => {
+                    const max = Math.max(1, ...buckets)
+                    const share = totals.total ? Math.round((n / totals.total) * 100) : 0
+                    return (
+                      <div key={i} className="bar-col flex-1 h-full flex flex-col items-center group">
+                        <div className="text-[11px] font-medium tabular text-[var(--color-fg-dim)] mb-1.5">{n}</div>
+                        <div className="bar-track relative w-full flex-1 flex items-end">
+                          <div
+                            className="bar-fill w-full"
+                            style={{ height: `${(n / max) * 100}%`, minHeight: n ? 6 : 0, opacity: 0.5 + i * 0.125 }}
+                          />
+                          <span className="pointer-events-none absolute inset-x-0 top-1.5 flex justify-center opacity-0 group-hover:opacity-100 transition">
+                            <span className="text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-card)] border border-[var(--color-border-strong)]">{share}%</span>
                           </span>
                         </div>
+                        <div className="text-[10px] text-[var(--color-muted-2)] mt-2 tabular">{bucketLabels[i]}</div>
                       </div>
-                      <div className="text-[10px] text-[var(--color-muted)] mt-2 tabular-nums">{bucketLabels[i]}</div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
+                    )
+                  })}
+                </div>
+              )}
+            </div>
           </div>
-        </div>
+        </section>
 
-        {/* Activity chart */}
-        <div className="card p-6">
-          <div className="flex items-start justify-between mb-5">
+        <section className="panel rise" style={{ '--d': '280ms' } as React.CSSProperties}>
+          <div className="panel-head">
             <div>
-              <h3 className="font-semibold">Screening activity</h3>
-              <p className="text-xs text-[var(--color-muted)] mt-1">CVs scored — last 14 days</p>
+              <div className="panel-title">Screening activity</div>
+              <div className="panel-sub">CVs scored per day · last {range === 'All' ? 30 : range} days</div>
             </div>
-            <div className="flex items-center gap-2 text-xs text-[var(--color-muted)]">
-              <TrendingUp size={14} className="text-[var(--color-primary-2)]"/>
-              <span>{days.reduce((s, d) => s + d.count, 0)} CVs this period</span>
-            </div>
+            <span className="text-xs text-[var(--color-muted)] inline-flex items-center gap-1.5">
+              <TrendingUp size={13} className="text-[var(--color-primary-2)]"/>
+              <span className="tabular">{days.reduce((s, d) => s + d.count, 0)}</span> in this period
+            </span>
           </div>
-          <div className="flex items-end gap-1.5 h-40">
-            {days.map((d, i) => {
-              const pct = maxDay ? (d.count / maxDay) * 100 : 0
-              return (
-                <div key={i} className="flex-1 h-full flex flex-col items-center group relative">
-                  <div className="relative w-full flex-1 flex items-end rounded-md overflow-hidden bg-[color-mix(in_srgb,var(--color-fg)_4%,transparent)] border border-[var(--color-border)]">
-                    <div
-                      className="w-full rounded-sm bg-gradient-to-t from-[var(--color-primary)] to-[var(--color-primary-2)] shadow-[0_-4px_16px_-4px_var(--color-primary-2)] transition-all duration-500 ease-out group-hover:brightness-110"
-                      style={{ height: `${pct}%`, minHeight: d.count ? 6 : 0 }}
-                    />
-                  </div>
-                  <div className="text-[10px] text-[var(--color-muted)] mt-1.5 tabular-nums">{d.label}</div>
-                  <div className="absolute -top-8 opacity-0 group-hover:opacity-100 transition pointer-events-none text-[10px] bg-[var(--color-card)] border border-[var(--color-border)] rounded-md px-2 py-1 whitespace-nowrap z-10 shadow-lg">
-                    <span className="font-medium">{d.full}</span> · <span className="tabular-nums">{d.count}</span>
-                  </div>
-                </div>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Top candidates leaderboard */}
-        <div className="grid lg:grid-cols-2 gap-5">
-          <div className="card p-6">
-            <div className="flex items-center gap-2 mb-5">
-              <Award size={16} className="text-[var(--color-primary-2)]"/>
-              <h3 className="font-semibold">Top candidates</h3>
-            </div>
-            {topCandidates.length === 0 ? (
-              <p className="text-sm text-[var(--color-muted)]">No CVs scored yet.</p>
-            ) : (
-              <div className="space-y-2.5">
-                {topCandidates.map((c, i) => (
-                  <div key={c.id} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-[color-mix(in_srgb,var(--color-fg)_4%,transparent)] transition">
-                    <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${i === 0 ? 'bg-amber-500/20 text-amber-300' : i === 1 ? 'bg-slate-400/20 text-slate-300' : i === 2 ? 'bg-orange-700/30 text-orange-300' : 'bg-[var(--color-card)] text-[var(--color-muted)]'}`}>{i + 1}</div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-sm font-medium truncate">{c.name || c.file_name || 'Unnamed candidate'}</div>
-                      <div className="text-[11px] text-[var(--color-muted)] truncate">{(c.skills ?? []).slice(0, 3).join(' · ') || '—'}</div>
+          <div className="p-5">
+            <div className="flex items-end gap-1 h-40">
+              {days.map((d, i) => {
+                const max = Math.max(1, ...days.map(x => x.count))
+                return (
+                  <div key={i} className="bar-col flex-1 h-full flex flex-col items-center group relative">
+                    <div className="bar-track relative w-full flex-1 flex items-end">
+                      <div className="bar-fill w-full" style={{ height: `${(d.count / max) * 100}%`, minHeight: d.count ? 4 : 0 }}/>
                     </div>
-                    <div className={`text-sm font-bold tabular-nums ${c.score >= 80 ? 'text-emerald-400' : c.score >= 60 ? 'text-amber-300' : 'text-[var(--color-muted)]'}`}>{c.score}</div>
+                    <span className="pointer-events-none absolute -top-8 opacity-0 group-hover:opacity-100 transition text-[11px] px-2 py-1 rounded-md bg-[var(--color-card)] border border-[var(--color-border-strong)] whitespace-nowrap z-10 shadow-lg">
+                      {d.full} · <span className="tabular font-medium">{d.count}</span>
+                    </span>
                   </div>
-                ))}
-              </div>
-            )}
+                )
+              })}
+            </div>
+            <div className="flex justify-between text-[10px] text-[var(--color-muted-2)] mt-2 tabular">
+              <span>{days[0]?.full}</span><span>{days[days.length - 1]?.full}</span>
+            </div>
+          </div>
+        </section>
+
+        <section className="grid lg:grid-cols-2 gap-5">
+          <div className="panel rise" style={{ '--d': '320ms' } as React.CSSProperties}>
+            <div className="panel-head">
+              <div className="panel-title flex items-center gap-2"><Award size={15} className="text-[var(--color-primary-2)]"/>Top candidates</div>
+            </div>
+            <div className="p-3">
+              {topCandidates.length === 0 ? <EmptyNote/> : topCandidates.map((c, i) => (
+                <Link
+                  key={c.id}
+                  to={`/dashboard/results/${c.screening_id}`}
+                  className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-[color-mix(in_srgb,var(--color-fg)_4%,transparent)] transition"
+                >
+                  <span className="w-6 h-6 rounded-md bg-[color-mix(in_srgb,var(--color-fg)_6%,transparent)] text-[11px] font-semibold text-[var(--color-muted)] flex items-center justify-center tabular">{i + 1}</span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-sm truncate">{c.name || c.file_name || 'Unnamed candidate'}</span>
+                    <span className="block text-[11px] text-[var(--color-muted)] truncate">{screeningName(c.screening_id)}</span>
+                  </span>
+                  <span className="text-sm font-semibold tabular" style={{
+                    color: c.score >= 80 ? 'var(--color-viz-fit)' : c.score >= 60 ? 'var(--color-viz-maybe)' : 'var(--color-muted)',
+                  }}>{c.score}</span>
+                </Link>
+              ))}
+            </div>
           </div>
 
-          <div className="card p-6">
-            <h3 className="font-semibold mb-1">Top skills across CVs</h3>
-            <p className="text-xs text-[var(--color-muted)] mb-5">What your pipeline brings to the table</p>
-            <div className="space-y-2.5">
-              {topSkills.length === 0 && <p className="text-sm text-[var(--color-muted)]">No data yet.</p>}
-              {topSkills.map(([s, n]) => (
-                <div key={s} className="group text-sm">
+          <div className="panel rise" style={{ '--d': '360ms' } as React.CSSProperties}>
+            <div className="panel-head">
+              <div>
+                <div className="panel-title">Top skills across CVs</div>
+                <div className="panel-sub">What your pipeline brings to the table</div>
+              </div>
+            </div>
+            <div className="p-5 space-y-3">
+              {skillRows.length === 0 && <EmptyNote/>}
+              {skillRows.map(([s, n]) => (
+                <div key={s} className="bar-col">
                   <div className="flex items-baseline justify-between gap-3 mb-1.5">
-                    <span className="font-medium text-[var(--color-fg)] leading-tight break-words" title={s}>{s}</span>
-                    <span className="text-xs tabular-nums font-semibold text-[var(--color-fg)]/80 shrink-0">{n}</span>
+                    <span className="text-sm text-[var(--color-fg-dim)] truncate" title={s}>{s}</span>
+                    <span className="text-xs tabular text-[var(--color-muted)] shrink-0">{n}</span>
                   </div>
-                  <div className="h-2 rounded-full bg-[color-mix(in_srgb,var(--color-fg)_6%,transparent)] overflow-hidden">
-                    <div
-                      className="h-full rounded-full bg-gradient-to-r from-[var(--color-primary)] to-[var(--color-primary-2)] transition-all duration-500 group-hover:brightness-110"
-                      style={{ width: `${(n / topSkills[0][1]) * 100}%` }}
-                    />
+                  <div className="bar-track h-2">
+                    <div className="bar-fill h-full" style={{ width: `${(n / skillRows[0][1]) * 100}%` }}/>
                   </div>
                 </div>
               ))}
             </div>
           </div>
-        </div>
+        </section>
 
-        {/* Gaps */}
-        <div className="card p-6">
-          <h3 className="font-semibold mb-1">Most common gaps</h3>
-          <p className="text-xs text-[var(--color-muted)] mb-5">Skills missing across your pipeline — useful for sourcing decisions</p>
-          {topGaps.length === 0 ? (
-            <p className="text-sm text-[var(--color-muted)]">No data yet.</p>
-          ) : (
-            <div className="flex flex-wrap gap-2">
-              {topGaps.map(([g, n]) => (
-                <span
-                  key={g}
-                  className="inline-flex items-center gap-2 text-xs font-medium px-3 py-1.5 rounded-full bg-amber-500 text-white border border-amber-600 shadow-sm hover:bg-amber-600 transition"
-                >
-                  <span className="leading-snug">{g}</span>
-                  <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-700 text-white tabular-nums">×{n}</span>
-                </span>
+        <section className="grid lg:grid-cols-2 gap-5">
+          <div className="panel rise" style={{ '--d': '400ms' } as React.CSSProperties}>
+            <div className="panel-head">
+              <div>
+                <div className="panel-title">Most common gaps</div>
+                <div className="panel-sub">Missing skills across the pipeline — useful for sourcing</div>
+              </div>
+            </div>
+            <div className="p-5">
+              {gapRows.length === 0 ? <EmptyNote/> : (
+                <div className="flex flex-wrap gap-2">
+                  {gapRows.map(([g, n]) => (
+                    <span key={g} className="inline-flex items-center gap-2 text-xs px-2.5 py-1.5 rounded-lg border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-fg)_4%,transparent)] text-[var(--color-fg-dim)]">
+                      <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: 'var(--color-viz-maybe)' }}/>
+                      <span className="leading-snug">{g}</span>
+                      <span className="count-pill tabular">{n}</span>
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          <div className="panel rise" style={{ '--d': '440ms' } as React.CSSProperties}>
+            <div className="panel-head">
+              <div>
+                <div className="panel-title">Biggest screenings</div>
+                <div className="panel-sub">All-time, by candidates processed</div>
+              </div>
+            </div>
+            <div className="p-3">
+              {busiestScreenings.length === 0 ? <EmptyNote/> : busiestScreenings.map(s => (
+                <Link key={s.id} to={`/dashboard/results/${s.id}`} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-[color-mix(in_srgb,var(--color-fg)_4%,transparent)] transition group">
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-sm truncate">{s.name}</span>
+                    <span className="block text-[11px] text-[var(--color-muted)]">
+                      {s.total} CVs · {s.fit} fit · avg {s.avgScore}
+                    </span>
+                  </span>
+                  <ArrowUpRight size={14} className="text-[var(--color-muted-2)] group-hover:text-[var(--color-fg)] transition shrink-0"/>
+                </Link>
               ))}
             </div>
-          )}
-        </div>
+          </div>
+        </section>
       </div>
     </>
   )
 }
 
-function TimeSavedHero({ minutesSaved, total, fitRate, screeningCount }: { minutesSaved: number; total: number; fitRate: number; screeningCount: number }) {
+/* ── pieces ──────────────────────────────────────────────────────── */
+
+function EmptyNote() {
+  return <p className="text-sm text-[var(--color-muted)] py-8 text-center">Nothing scored in this period yet.</p>
+}
+
+function TimeSavedHero({ minutesSaved, total, fitRate, screeningCount }: {
+  minutesSaved: number; total: number; fitRate: number; screeningCount: number
+}) {
   const hours = Math.floor(minutesSaved / 60)
   const minutes = minutesSaved % 60
   const workDays = (minutesSaved / 60 / 8).toFixed(1)
 
   return (
-    <div className="relative overflow-hidden rounded-2xl border border-[var(--color-border)] bg-gradient-to-br from-[color-mix(in_srgb,var(--color-primary)_12%,var(--color-card))] via-[var(--color-card)] to-[var(--color-card)] p-6 md:p-8">
-      <div className="pointer-events-none absolute -top-24 -right-24 w-72 h-72 rounded-full bg-[var(--color-primary)]/20 blur-3xl"/>
-      <div className="pointer-events-none absolute -bottom-24 -left-24 w-72 h-72 rounded-full bg-[var(--color-primary-2)]/15 blur-3xl"/>
+    <div className="panel rise relative overflow-hidden p-6 md:p-8" style={{ '--d': '0ms' } as React.CSSProperties}>
+      <div className="pointer-events-none absolute -top-28 -right-20 w-80 h-80 rounded-full blur-3xl bg-[color-mix(in_srgb,var(--color-primary)_16%,transparent)]"/>
       <div className="relative grid md:grid-cols-[1fr_auto] gap-6 items-center">
         <div>
-          <div className="flex items-center gap-2 mb-3">
-            <span className="text-[11px] uppercase tracking-[0.18em] text-[var(--color-muted)] font-semibold">Time saved</span>
-          </div>
-          <div className="flex items-baseline gap-2 flex-wrap">
-            <Clock size={28} className="text-[var(--color-primary-2)] mb-1"/>
-            <span className="text-4xl md:text-6xl font-extrabold tabular-nums gradient-text leading-none">
-              {hours.toLocaleString()}<span className="text-[var(--color-muted)] text-2xl md:text-3xl font-bold">h</span>
-              {' '}{minutes.toString().padStart(2, '0')}<span className="text-[var(--color-muted)] text-2xl md:text-3xl font-bold">m</span>
+          <div className="eyebrow">Time saved</div>
+          <div className="flex items-baseline gap-3 mt-2">
+            <Clock size={26} className="text-[var(--color-primary-2)] self-center"/>
+            <span className="text-4xl md:text-[3.5rem] font-semibold tabular leading-none tracking-[-0.04em]">
+              {hours.toLocaleString()}<span className="text-[var(--color-muted)] text-2xl font-medium">h</span>
+              {' '}{minutes.toString().padStart(2, '0')}<span className="text-[var(--color-muted)] text-2xl font-medium">m</span>
             </span>
           </div>
-          <p className="mt-3 text-sm text-[var(--color-muted)] max-w-xl">
-            Manual CV review averages <span className="text-[var(--color-fg)] font-semibold">~{MINUTES_SAVED_PER_CV} min</span> per resume.
-            You've put <span className="text-[var(--color-fg)] font-semibold">{total.toLocaleString()}</span> CVs through HireBest — that's roughly
-            {' '}<span className="text-[var(--color-fg)] font-semibold">{workDays}</span> full work-days back in your week.
+          <p className="mt-4 text-sm text-[var(--color-muted)] max-w-xl leading-relaxed">
+            Manual CV review averages <span className="text-[var(--color-fg)] font-medium">~{MINUTES_SAVED_PER_CV} min</span> per resume.
+            You've put <span className="text-[var(--color-fg)] font-medium tabular">{total.toLocaleString()}</span> CVs through HireBest — roughly
+            {' '}<span className="text-[var(--color-fg)] font-medium tabular">{workDays}</span> full work-days back in your week.
           </p>
         </div>
-
-        <div className="grid grid-cols-3 md:grid-cols-1 gap-3 md:min-w-[180px]">
+        <div className="grid grid-cols-3 md:grid-cols-1 gap-3 md:min-w-[190px]">
           <MiniMetric label="Screenings" value={screeningCount}/>
           <MiniMetric label="CVs scored" value={total}/>
           <MiniMetric label="Fit rate" value={`${fitRate}%`}/>
@@ -290,69 +367,75 @@ function TimeSavedHero({ minutesSaved, total, fitRate, screeningCount }: { minut
 
 function MiniMetric({ label, value }: { label: string; value: number | string }) {
   return (
-    <div className="rounded-lg border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-fg)_3%,transparent)] px-3 py-2">
-      <div className="text-[10px] uppercase tracking-wider text-[var(--color-muted)]">{label}</div>
-      <div className="text-lg font-bold tabular-nums">{value}</div>
+    <div className="rounded-xl border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-fg)_3%,transparent)] px-3 py-2.5">
+      <div className="eyebrow">{label}</div>
+      <div className="text-lg font-semibold tabular mt-0.5">{value}</div>
     </div>
   )
 }
 
-function Stat({ icon, label, value, sub, accent, iconColor }: { icon: React.ReactNode; label: string; value: number | string; sub?: string; accent: string; iconColor: string }) {
+function Stat({ icon, label, value, sub, tone, d = 0 }: {
+  icon: React.ReactNode; label: string; value: number | string; sub?: string; tone?: 'fit'; d?: number
+}) {
   return (
-    <div className="card p-5 relative overflow-hidden">
-      <div className={`pointer-events-none absolute -top-12 -right-12 w-32 h-32 rounded-full bg-gradient-to-br ${accent} blur-2xl`}/>
-      <div className="relative flex items-start justify-between">
-        <div>
-          <div className="text-xs uppercase tracking-wider text-[var(--color-muted)]">{label}</div>
-          <div className="text-3xl font-bold mt-2 tabular-nums">{value}</div>
-          {sub && <div className="text-[11px] text-[var(--color-muted)] mt-1">{sub}</div>}
-        </div>
-        <div className={`w-9 h-9 rounded-lg bg-[color-mix(in_srgb,var(--color-fg)_5%,transparent)] flex items-center justify-center ${iconColor}`}>{icon}</div>
+    <div className="panel panel-hover rise p-4 md:p-5" style={{ '--d': `${d}ms` } as React.CSSProperties}>
+      <div className="flex items-center justify-between">
+        <span className="eyebrow">{label}</span>
+        <span
+          className="w-7 h-7 rounded-lg flex items-center justify-center"
+          style={{
+            background: 'color-mix(in srgb, var(--color-fg) 5%, transparent)',
+            color: tone === 'fit' ? 'var(--color-viz-fit)' : 'var(--color-primary-2)',
+          }}
+        >{icon}</span>
       </div>
+      <div className="text-[1.9rem] md:text-[2.15rem] font-semibold tabular leading-none mt-3 tracking-[-0.03em]">{value}</div>
+      {sub && <div className="text-[11px] text-[var(--color-muted)] mt-2">{sub}</div>}
     </div>
   )
 }
 
+/** Donut with a 2px surface gap between segments and a labelled legend. */
 function VerdictDonut({ fit, maybe, skip }: { fit: number; maybe: number; skip: number }) {
   const total = fit + maybe + skip
-  if (total === 0) return <p className="text-sm text-[var(--color-muted)] py-8 text-center">No CVs scored yet.</p>
-  const r = 56
+  if (total === 0) return <EmptyNote/>
+  const r = 54
   const c = 2 * Math.PI * r
-  const fitPct = fit / total
-  const maybePct = maybe / total
-  const skipPct = skip / total
+  const gap = 2
+  const seg = (n: number) => Math.max(0, (n / total) * c - gap)
 
-  const fitLen = c * fitPct
-  const maybeLen = c * maybePct
-  const skipLen = c * skipPct
+  const fitLen = seg(fit)
+  const maybeLen = seg(maybe)
+  const skipLen = seg(skip)
+  const fitOffset = 0
+  const maybeOffset = -(fit / total) * c
+  const skipOffset = -((fit + maybe) / total) * c
 
   return (
-    <div className="flex items-center gap-5">
-      <svg width="140" height="140" viewBox="0 0 140 140" className="-rotate-90">
-        <circle cx="70" cy="70" r={r} fill="none" stroke="color-mix(in srgb, var(--color-fg) 6%, transparent)" strokeWidth="14"/>
-        <circle cx="70" cy="70" r={r} fill="none" stroke="rgb(52 211 153)" strokeWidth="14"
-          strokeDasharray={`${fitLen} ${c - fitLen}`} strokeDashoffset="0" strokeLinecap="butt"/>
-        <circle cx="70" cy="70" r={r} fill="none" stroke="rgb(251 191 36)" strokeWidth="14"
-          strokeDasharray={`${maybeLen} ${c - maybeLen}`} strokeDashoffset={`${-fitLen}`} strokeLinecap="butt"/>
-        <circle cx="70" cy="70" r={r} fill="none" stroke="rgb(148 163 184)" strokeWidth="14"
-          strokeDasharray={`${skipLen} ${c - skipLen}`} strokeDashoffset={`${-(fitLen + maybeLen)}`} strokeLinecap="butt"/>
-        <text x="70" y="70" textAnchor="middle" dominantBaseline="central" className="fill-[var(--color-fg)]" style={{ fontSize: 22, fontWeight: 700 }} transform="rotate(90 70 70)">{total}</text>
+    <div className="flex items-center gap-6 flex-wrap justify-center">
+      <svg width="136" height="136" viewBox="0 0 136 136" className="-rotate-90 shrink-0" role="img" aria-label={`Fit ${fit}, Maybe ${maybe}, Skip ${skip}`}>
+        <circle cx="68" cy="68" r={r} fill="none" strokeWidth="13" stroke="color-mix(in srgb, var(--color-fg) 6%, transparent)"/>
+        <circle cx="68" cy="68" r={r} fill="none" strokeWidth="13" stroke="var(--color-viz-fit)" strokeDasharray={`${fitLen} ${c - fitLen}`} strokeDashoffset={fitOffset}/>
+        <circle cx="68" cy="68" r={r} fill="none" strokeWidth="13" stroke="var(--color-viz-maybe)" strokeDasharray={`${maybeLen} ${c - maybeLen}`} strokeDashoffset={maybeOffset}/>
+        <circle cx="68" cy="68" r={r} fill="none" strokeWidth="13" stroke="var(--color-viz-skip)" strokeDasharray={`${skipLen} ${c - skipLen}`} strokeDashoffset={skipOffset}/>
+        <text x="68" y="68" textAnchor="middle" dominantBaseline="central" transform="rotate(90 68 68)"
+          className="fill-[var(--color-fg)]" style={{ fontSize: 21, fontWeight: 600 }}>{total}</text>
       </svg>
-      <div className="space-y-2 text-sm flex-1">
-        <Legend dot="bg-emerald-400" label="Fit" n={fit} pct={Math.round(fitPct * 100)}/>
-        <Legend dot="bg-amber-400" label="Maybe" n={maybe} pct={Math.round(maybePct * 100)}/>
-        <Legend dot="bg-slate-400" label="Skip" n={skip} pct={Math.round(skipPct * 100)}/>
+      <div className="space-y-2.5 text-sm flex-1 min-w-[150px]">
+        <Legend color="var(--color-viz-fit)" label="Fit" n={fit} pct={Math.round((fit / total) * 100)}/>
+        <Legend color="var(--color-viz-maybe)" label="Maybe" n={maybe} pct={Math.round((maybe / total) * 100)}/>
+        <Legend color="var(--color-viz-skip)" label="Skip" n={skip} pct={Math.round((skip / total) * 100)}/>
       </div>
     </div>
   )
 }
 
-function Legend({ dot, label, n, pct }: { dot: string; label: string; n: number; pct: number }) {
+function Legend({ color, label, n, pct }: { color: string; label: string; n: number; pct: number }) {
   return (
     <div className="flex items-center gap-2">
-      <span className={`w-2.5 h-2.5 rounded-full ${dot}`}/>
-      <span className="text-[var(--color-fg)] flex-1">{label}</span>
-      <span className="text-[var(--color-muted)] text-xs tabular-nums">{n} · {pct}%</span>
+      <span className="w-2.5 h-2.5 rounded-sm shrink-0" style={{ background: color }}/>
+      <span className="text-[var(--color-fg-dim)] flex-1">{label}</span>
+      <span className="text-[var(--color-muted)] text-xs tabular">{n} · {pct}%</span>
     </div>
   )
 }

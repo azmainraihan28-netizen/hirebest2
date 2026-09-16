@@ -444,3 +444,314 @@ a { color: inherit; text-decoration: none; }
   background: none;
   -webkit-text-fill-color: currentColor;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+   DASHBOARD SHELL — "command center" layer
+   Built on the same tokens as the marketing surface: dark-first, one
+   electric-blue accent, hairline borders, no gradient text. Everything
+   below is scoped to the app shell so the marketing pages are untouched.
+   ══════════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* Chart marks. Steps sit inside the dark-mode OKLCH lightness band
+     (0.48–0.67) so fills stay legible against --color-card. */
+  --color-viz-fit: #0ea371;
+  --color-viz-maybe: #d97706;
+  --color-viz-skip: #64748b;
+}
+
+:root[data-theme="light"] {
+  --color-viz-fit: #047857;
+  --color-viz-maybe: #b45309;
+  --color-viz-skip: #64748b;
+}
+
+/* ── Shell surfaces ───────────────────────────────────────────────── */
+.app-shell {
+  background:
+    radial-gradient(900px 500px at 12% -8%, color-mix(in srgb, var(--color-primary) 7%, transparent), transparent 62%),
+    radial-gradient(700px 420px at 100% 0%, color-mix(in srgb, var(--color-primary) 4%, transparent), transparent 60%),
+    var(--color-bg);
+}
+
+.rail {
+  background: color-mix(in srgb, var(--color-bg-2) 92%, var(--color-primary) 2%);
+  border-right: 1px solid var(--color-border);
+  box-shadow: inset -1px 0 0 color-mix(in srgb, var(--color-fg) 3%, transparent);
+}
+
+.topbar {
+  background: color-mix(in srgb, var(--color-bg) 72%, transparent);
+  border-bottom: 1px solid var(--color-border);
+  backdrop-filter: blur(18px) saturate(160%);
+  -webkit-backdrop-filter: blur(18px) saturate(160%);
+}
+
+/* Panel — the dashboard's card. Hairline + inner highlight, no heavy shadow. */
+.panel {
+  background: color-mix(in srgb, var(--color-card) 94%, transparent);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-card);
+  transition: border-color .25s var(--spring), transform .3s var(--spring), box-shadow .3s ease;
+}
+.panel-hover:hover {
+  border-color: var(--color-border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-elev);
+}
+.panel-head {
+  display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem;
+  padding: 1.1rem 1.25rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.panel-title { font-size: 0.925rem; font-weight: 600; letter-spacing: -0.012em; }
+.panel-sub { font-size: 0.75rem; color: var(--color-muted); margin-top: 0.15rem; }
+
+/* Eyebrow label used above numbers and section titles */
+.eyebrow {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-weight: 600;
+  color: var(--color-muted);
+}
+
+/* ── Rail navigation ──────────────────────────────────────────────── */
+.rail-item {
+  position: relative;
+  display: flex; align-items: center; gap: 0.6rem;
+  padding: 0.5rem 0.7rem;
+  border-radius: var(--radius-sm);
+  color: var(--color-muted);
+  font-size: 0.8125rem;
+  line-height: 1.2;
+  transition: background .16s, color .16s;
+}
+.rail-item:hover { background: color-mix(in srgb, var(--color-fg) 5%, transparent); color: var(--color-fg); }
+.rail-item.active { background: color-mix(in srgb, var(--color-primary) 12%, transparent); color: var(--color-fg); }
+.rail-item.active::before {
+  content: "";
+  position: absolute; left: -0.7rem; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 1.05rem; border-radius: 999px;
+  background: var(--color-primary);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--color-primary) 60%, transparent);
+}
+.rail-group {
+  padding: 0.9rem 0.7rem 0.35rem;
+  font-size: 0.625rem; text-transform: uppercase; letter-spacing: 0.16em;
+  font-weight: 600; color: var(--color-muted-2);
+}
+.count-pill {
+  font-size: 0.625rem; font-weight: 600;
+  padding: 0.05rem 0.35rem; border-radius: 999px;
+  background: color-mix(in srgb, var(--color-fg) 7%, transparent);
+  color: var(--color-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Segmented control ────────────────────────────────────────────── */
+.seg {
+  display: inline-flex; align-items: center; gap: 0.15rem;
+  padding: 0.2rem;
+  border-radius: 0.6rem;
+  background: color-mix(in srgb, var(--color-fg) 4%, transparent);
+  border: 1px solid var(--color-border);
+}
+.seg-item {
+  display: inline-flex; align-items: center; gap: 0.4rem;
+  padding: 0.35rem 0.7rem;
+  border-radius: 0.45rem;
+  font-size: 0.75rem; font-weight: 500;
+  color: var(--color-muted);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background .18s var(--spring), color .18s, box-shadow .18s;
+}
+.seg-item:hover { color: var(--color-fg); }
+.seg-item[data-active="true"] {
+  background: color-mix(in srgb, var(--color-card) 96%, var(--color-fg) 4%);
+  color: var(--color-fg);
+  box-shadow: 0 1px 2px rgba(0,0,0,.18), inset 0 1px 0 color-mix(in srgb, var(--color-fg) 8%, transparent);
+}
+.seg-item[data-active="true"][data-tone="fit"]   { color: var(--color-viz-fit); }
+.seg-item[data-active="true"][data-tone="maybe"] { color: var(--color-viz-maybe); }
+.seg-item[data-active="true"][data-tone="skip"]  { color: var(--color-skip); }
+
+/* ── Icon button + tooltip ────────────────────────────────────────── */
+.icon-btn {
+  position: relative;
+  width: 2rem; height: 2rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  border-radius: 0.5rem;
+  border: 1px solid transparent;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: background .16s, color .16s, border-color .16s, transform .16s var(--spring);
+}
+.icon-btn:hover {
+  background: color-mix(in srgb, var(--color-fg) 6%, transparent);
+  border-color: var(--color-border);
+  color: var(--color-fg);
+}
+.icon-btn:active { transform: scale(.94); }
+.icon-btn:disabled { opacity: .45; cursor: not-allowed; }
+
+.tt { position: relative; }
+.tt::after {
+  content: attr(data-tip);
+  position: absolute; top: calc(100% + 0.45rem); left: 50%; transform: translateX(-50%) translateY(-3px);
+  padding: 0.3rem 0.5rem;
+  border-radius: 0.4rem;
+  background: color-mix(in srgb, var(--color-bg-2) 96%, var(--color-fg) 4%);
+  border: 1px solid var(--color-border-strong);
+  color: var(--color-fg-dim);
+  font-size: 0.6875rem; font-weight: 500; white-space: nowrap;
+  opacity: 0; pointer-events: none;
+  transition: opacity .16s ease, transform .16s var(--spring);
+  z-index: 60;
+  box-shadow: var(--shadow-elev);
+}
+.tt:hover::after { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+kbd, .kbd {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 1.15rem; padding: 0.1rem 0.32rem;
+  border-radius: 0.3rem;
+  border: 1px solid var(--color-border-strong);
+  background: color-mix(in srgb, var(--color-fg) 5%, transparent);
+  color: var(--color-muted);
+  font-family: var(--font-mono);
+  font-size: 0.65rem; line-height: 1.35;
+}
+
+/* ── Command palette ──────────────────────────────────────────────── */
+.cmdk-scrim {
+  position: fixed; inset: 0; z-index: 90;
+  background: color-mix(in srgb, #05060a 62%, transparent);
+  backdrop-filter: blur(4px);
+  animation: cmdk-fade .16s ease both;
+}
+.cmdk-panel {
+  width: min(42rem, calc(100vw - 2rem));
+  background: color-mix(in srgb, var(--color-card) 97%, transparent);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 32px 70px -28px rgba(0,0,0,.7), inset 0 1px 0 color-mix(in srgb, var(--color-fg) 6%, transparent);
+  overflow: hidden;
+  animation: cmdk-in .22s var(--spring) both;
+}
+@keyframes cmdk-fade { from { opacity: 0 } to { opacity: 1 } }
+@keyframes cmdk-in {
+  from { opacity: 0; transform: translateY(-8px) scale(.985) }
+  to   { opacity: 1; transform: none }
+}
+.cmdk-item {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.6rem 0.85rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.8125rem;
+  color: var(--color-fg-dim);
+  cursor: pointer;
+}
+.cmdk-item[data-active="true"] {
+  background: color-mix(in srgb, var(--color-primary) 14%, transparent);
+  color: var(--color-fg);
+}
+
+/* ── Meters ───────────────────────────────────────────────────────── */
+.meter {
+  height: 0.375rem; border-radius: 999px;
+  background: color-mix(in srgb, var(--color-fg) 8%, transparent);
+  overflow: hidden;
+}
+.meter > span {
+  display: block; height: 100%; border-radius: 999px;
+  background: var(--color-primary);
+  transition: width .6s var(--spring);
+}
+
+/* ── Chart marks (dataviz: thin marks, rounded data-end, 2px gaps) ── */
+.bar-track {
+  position: relative;
+  border-radius: 0.4rem;
+  background: color-mix(in srgb, var(--color-fg) 4%, transparent);
+  overflow: hidden;
+}
+.bar-fill {
+  background: var(--color-primary);
+  border-radius: 0.25rem;
+  transition: height .6s var(--spring), width .6s var(--spring), filter .2s;
+}
+.bar-col:hover .bar-fill { filter: brightness(1.18); }
+
+/* ── Entry choreography — one staggered page load ─────────────────── */
+@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: none; }
+}
+.rise { animation: rise .5s var(--spring) both; animation-delay: var(--d, 0ms); }
+
+/* ── Empty states ─────────────────────────────────────────────────── */
+.empty {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 0.6rem; padding: 3rem 1.5rem; text-align: center;
+}
+.empty-icon {
+  width: 2.75rem; height: 2.75rem; border-radius: 0.8rem;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: color-mix(in srgb, var(--color-primary) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-primary) 20%, transparent);
+  color: var(--color-primary-2);
+}
+
+/* Focus visibility across the app shell */
+.app-shell :focus-visible,
+.cmdk-panel :focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--color-primary) 70%, transparent);
+  outline-offset: 2px;
+  border-radius: 0.35rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rise, .cmdk-panel, .cmdk-scrim { animation: none !important; }
+  .panel-hover:hover { transform: none; }
+}
+
+/* ── Modal shell (shares the command-palette motion) ──────────────── */
+.modal-scrim {
+  position: fixed; inset: 0; z-index: 50;
+  display: flex; align-items: center; justify-content: center;
+  padding: 1rem;
+  background: color-mix(in srgb, #05060a 66%, transparent);
+  backdrop-filter: blur(5px);
+  animation: cmdk-fade .16s ease both;
+}
+.modal-panel {
+  background: color-mix(in srgb, var(--color-card) 97%, transparent);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 36px 80px -30px rgba(0,0,0,.7), inset 0 1px 0 color-mix(in srgb, var(--color-fg) 6%, transparent);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+  animation: cmdk-in .24s var(--spring) both;
+}
+.tag-chip {
+  font-size: 0.625rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-weight: 600;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0.35rem;
+  border: 1px solid var(--color-border);
+  background: color-mix(in srgb, var(--color-fg) 4%, transparent);
+  color: var(--color-muted);
+}
+.tag-chip[data-accent="true"] {
+  border-color: var(--color-chip-border);
+  background: var(--color-chip-bg);
+  color: var(--color-chip-fg);
+}
+@media (prefers-reduced-motion: reduce) {
+  .modal-scrim, .modal-panel { animation: none !important; }
+}
