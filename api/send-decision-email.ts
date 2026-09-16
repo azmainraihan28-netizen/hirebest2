@@ -30,13 +30,33 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (!supabaseUrl || !serviceKey) return res.status(500).json({ error: 'Server not configured: Supabase service role missing' })
   const supa = createClient(supabaseUrl, serviceKey, { auth: { persistSession: false } })
 
+  // The caller must be signed in and own (or share the org of) the candidate's
+  // screening — this route runs with the service role, so without this check
+  // anyone could act on another account's candidates.
+  const authHeader = req.headers.authorization || ''
+  const token = authHeader.startsWith('Bearer ') ? authHeader.slice(7) : ''
+  if (!token) return res.status(401).json({ error: 'Missing bearer token' })
+  const { data: userData, error: userErr } = await supa.auth.getUser(token)
+  if (userErr || !userData?.user) return res.status(401).json({ error: 'Invalid session' })
+  const caller = userData.user
+
   const { data: candidate, error: fetchError } = await supa
     .from('candidates')
-    .select('status_email_sent')
+    .select('status_email_sent, screenings!inner(user_id, org_id)')
     .eq('id', candidateId)
     .maybeSingle()
   if (fetchError) return res.status(500).json({ error: fetchError.message })
   if (!candidate) return res.status(404).json({ error: 'Candidate not found' })
+
+  const screening = (candidate as any).screenings as { user_id: string; org_id: string | null } | null
+  let allowed = screening?.user_id === caller.id
+  if (!allowed && screening?.org_id) {
+    const { data: member } = await supa.from('org_members')
+      .select('user_id').eq('org_id', screening.org_id).eq('user_id', caller.id).maybeSingle()
+    allowed = !!member
+  }
+  if (!allowed) return res.status(403).json({ error: 'Not authorized for this candidate' })
+
   if (candidate.status_email_sent) return res.status(200).json({ ok: true, skipped: 'already sent' })
 
   const greeting = name ? name.split(' ')[0] : 'there'

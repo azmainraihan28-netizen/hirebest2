@@ -1,5 +1,6 @@
 import { supabase } from './supabase'
 import type { Profile } from './supabase'
+import { countMyCandidates } from './screenings'
 import { PLAN_LIMITS, type PlanKey } from './plans'
 
 function isPaidPlan(plan: Profile['plan'] | undefined | null): plan is PlanKey {
@@ -32,8 +33,9 @@ export type QuotaState = {
 
 export async function loadQuota(profile: Profile | null): Promise<QuotaState> {
   const limit = await getEffectiveLimit(profile)
-  const { count } = await supabase.from('candidates').select('*', { count: 'exact', head: true })
-  const used = count ?? 0
+  // Count only the signed-in user's own candidates. An unscoped count made an
+  // admin account's meter show every customer's usage (e.g. 122/50).
+  const used = await countMyCandidates()
   if (!isFinite(limit)) {
     return { used, limit: Infinity, remaining: Infinity, pct: 0, unlimited: true }
   }
