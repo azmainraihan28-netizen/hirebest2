@@ -9,8 +9,8 @@ export default function Breadcrumbs({ trail, schemaId = 'breadcrumb' }: { trail:
   useSchema(schemaId, breadcrumb(full.map(c => ({ name: c.name, url: `https://hirebest.online${c.href ?? ''}` }))))
 
   return (
-    <nav aria-label="Breadcrumb" className="max-w-5xl mx-auto px-5 pt-6">
-      <ol className="flex items-center flex-wrap gap-1 text-xs text-[var(--color-muted)]">
+    <nav aria-label="Breadcrumb" className="relative z-10 max-w-7xl mx-auto px-5 pt-8">
+      <ol className="flex items-center flex-wrap gap-1.5 text-[11px] font-mono uppercase tracking-[0.14em] text-[var(--color-muted)]">
         {full.map((c, i) => {
           const last = i === full.length - 1
           return (

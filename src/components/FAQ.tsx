@@ -1,51 +1,33 @@
 import { useState } from 'react'
-import { ChevronDown } from 'lucide-react'
+import { Plus } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Eyebrow } from './motion/primitives'
 
 export type FAQItem = { q: string; a: string }
 
 export default function FAQ({ items, title = 'Frequently asked questions' }: { items: FAQItem[]; title?: string }) {
   const [open, setOpen] = useState<number | null>(0)
   return (
-    <section className="max-w-3xl mx-auto px-5 py-20">
-      <motion.h2
-        initial={{ opacity: 0, y: 20 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ type: 'spring', stiffness: 180, damping: 22 }}
-        className="text-3xl md:text-4xl font-bold text-center mb-10"
-      >
-        {title}
-      </motion.h2>
-      <motion.div
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.1 }}
-        variants={{ hidden: {}, show: { transition: { staggerChildren: 0.06 } } }}
-        className="space-y-3"
-      >
+    <section className="max-w-4xl mx-auto px-5 py-24">
+      <Eyebrow>FAQ</Eyebrow>
+      <h2 className="display-md mt-5 mb-10">{title}</h2>
+      <div className="border-t border-[var(--color-border)]">
         {items.map((it, i) => {
           const isOpen = open === i
           return (
-            <motion.div
-              key={i}
-              variants={{
-                hidden: { opacity: 0, y: 16 },
-                show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 200, damping: 22 } },
-              }}
-              className="card overflow-hidden"
-            >
+            <div key={i} className="border-b border-[var(--color-border)]">
               <button
                 onClick={() => setOpen(isOpen ? null : i)}
-                className="w-full flex items-center justify-between p-5 text-left"
+                aria-expanded={isOpen}
+                className="w-full flex items-center justify-between gap-6 py-5 text-left group"
               >
-                <span className="font-medium text-[var(--color-fg)]">{it.q}</span>
-                <motion.span
-                  animate={{ rotate: isOpen ? 180 : 0 }}
-                  transition={{ type: 'spring', stiffness: 280, damping: 22 }}
-                >
-                  <ChevronDown size={18} />
-                </motion.span>
+                <span className="flex items-baseline gap-4">
+                  <span className="font-mono text-xs text-[var(--color-muted-2)] tabular">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="font-[family-name:var(--font-heading)] text-lg font-semibold tracking-[-0.03em] text-[var(--color-fg)] group-hover:text-[var(--color-primary-2)] transition">{it.q}</span>
+                </span>
+                <span className={`shrink-0 w-8 h-8 rounded-full border flex items-center justify-center transition ${isOpen ? 'bg-[var(--color-primary)] border-transparent text-white rotate-45' : 'border-[var(--color-border-strong)] text-[var(--color-muted)]'}`}>
+                  <Plus size={15}/>
+                </span>
               </button>
               <AnimatePresence initial={false}>
                 {isOpen && (
@@ -54,17 +36,17 @@ export default function FAQ({ items, title = 'Frequently asked questions' }: { i
                     initial={{ height: 0, opacity: 0 }}
                     animate={{ height: 'auto', opacity: 1 }}
                     exit={{ height: 0, opacity: 0 }}
-                    transition={{ height: { type: 'spring', stiffness: 220, damping: 28 }, opacity: { duration: 0.2 } }}
+                    transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                     className="overflow-hidden"
                   >
-                    <div className="px-5 pb-5 text-[var(--color-muted)] text-sm leading-relaxed">{it.a}</div>
+                    <div className="pb-5 pl-9 pr-10 text-[var(--color-fg-dim)] text-sm leading-relaxed">{it.a}</div>
                   </motion.div>
                 )}
               </AnimatePresence>
-            </motion.div>
+            </div>
           )
         })}
-      </motion.div>
+      </div>
     </section>
   )
 }
