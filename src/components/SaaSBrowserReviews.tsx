@@ -1,4 +1,5 @@
 import { useEffect } from 'react'
+import { Eyebrow, SplitHeading } from './motion/primitives'
 
 const SCRIPT_SRC = 'https://assets.saasbrowser.com/widgets/display.min.js'
 const PROFILE = '3dfba172-0f6a-44b8-9c4b-583f067ac147'
@@ -21,25 +22,21 @@ export default function SaaSBrowserReviews() {
   }, [])
 
   return (
-    <section className="max-w-6xl mx-auto px-5 py-16">
-      <div className="text-center mb-10">
-        <span className="chip">Reviews</span>
-        <h2 className="mt-4 text-3xl md:text-4xl font-bold">What people are saying</h2>
-        <p className="mt-3 text-sm text-[var(--color-muted)]">Verified reviews from real HireBest users.</p>
+    <section className="max-w-7xl mx-auto px-5 py-24">
+      <div className="grid lg:grid-cols-12 gap-8 items-end mb-12">
+        <div className="lg:col-span-8">
+          <Eyebrow>Reviews</Eyebrow>
+          <SplitHeading text={'What hiring teams\n*are saying.*'} className="display-lg mt-6 text-[var(--color-fg)]" />
+        </div>
+        <p className="lg:col-span-4 text-[var(--color-fg-dim)] leading-relaxed">
+          Verified reviews from real HireBest users.{' '}
+          <a href="https://saasbrowser.com/en/saas/1519084/hirebest" target="_blank" rel="noreferrer" className="u-link text-[var(--color-primary-2)]">
+            See our SaaS Browser profile ↗
+          </a>
+        </p>
       </div>
 
       <div id="saas-browser-reviews" />
-
-      <p className="mt-8 text-center text-xs text-[var(--color-muted)]">
-        <a
-          href="https://saasbrowser.com/en/saas/1519084/hirebest"
-          target="_blank"
-          rel="noreferrer"
-          className="hover:text-[var(--color-fg)] transition inline-flex items-center gap-1"
-        >
-          We're verified on SaaS Browser ↗
-        </a>
-      </p>
     </section>
   )
 }

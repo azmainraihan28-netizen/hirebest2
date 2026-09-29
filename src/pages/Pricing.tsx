@@ -1,11 +1,12 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Check, Minus } from 'lucide-react'
-import { motion, type Variants } from 'framer-motion'
+import { Check, Minus, Plus, ArrowRight } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useSeo } from '../lib/seo'
 import { useSchema, faqPage } from '../lib/schema'
 import Breadcrumbs from '../components/Breadcrumbs'
 import { formatPlanLimit } from '../lib/plans'
+import { Reveal, SplitHeading, Eyebrow, Spotlight, Magnetic } from '../components/motion/primitives'
 
 const pricingFaqs = [
   { q: 'Is there a free trial?',                                    a: 'Yes — 14 days free on the Growth plan. No credit card required to start. Cancel anytime during the trial without being charged.' },
@@ -56,14 +57,6 @@ const matrix = [
   { f: 'On-premise deployment',               v: [false, false, false, true] },
 ]
 
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 18 },
-  show:   { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 180, damping: 22 } },
-}
-const stagger: Variants = {
-  hidden: { opacity: 0 },
-  show:   { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.05 } },
-}
 
 export default function Pricing() {
   useSeo({
@@ -73,6 +66,7 @@ export default function Pricing() {
   useSchema('pricing-faq', faqPage(pricingFaqs))
 
   const [billing, setBilling] = useState<'monthly' | 'annual'>('annual')
+  const [open, setOpen] = useState<number | null>(0)
 
   const formatPrice = (t: Tier) => {
     if (t.monthly === null) return { price: 'Custom', per: '' }
@@ -85,182 +79,176 @@ export default function Pricing() {
 
   return (
     <>
-      <Breadcrumbs trail={[{ name: 'Pricing' }]} schemaId="pricing-breadcrumb"/>
-
       {/* ── Hero ── */}
-      <section className="relative overflow-hidden">
-        <div aria-hidden className="absolute inset-0 -z-10 mesh-bg opacity-70" />
-        <div aria-hidden className="absolute inset-0 -z-10 grid-overlay opacity-30" />
-        <div className="max-w-7xl mx-auto px-5 pt-16 pb-10 text-center">
-          <motion.span initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="chip">Pricing</motion.span>
-          <motion.h1
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: 'spring', stiffness: 180, damping: 22, delay: 0.05 }}
-            className="mt-6 text-4xl md:text-6xl font-semibold tracking-[-0.035em]"
-          >
-            Simple pricing.<br/>
-            <span className="text-[var(--color-muted)]">No per-seat tax.</span>
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.15 }}
-            className="mt-5 text-[var(--color-fg-dim)] max-w-2xl mx-auto"
-          >
+      <section className="relative overflow-hidden -mt-[76px] pt-[76px]">
+        <div className="aurora" aria-hidden><span/><span/><span/></div>
+        <div className="hairlines" aria-hidden />
+        <Breadcrumbs trail={[{ name: 'Pricing' }]} schemaId="pricing-breadcrumb"/>
+        <div className="relative max-w-7xl mx-auto px-5 pt-14 pb-14 text-center">
+          <Eyebrow n="$">Pricing</Eyebrow>
+          <SplitHeading as="h1" text={'Simple pricing.\n*No* per-seat tax.'} className="display-xl mt-7 text-[var(--color-fg)]" />
+          <Reveal delay={0.35} className="mt-7 text-[var(--color-fg-dim)] max-w-2xl mx-auto text-lg">
             Start with a 14-day free trial — no credit card. Switch monthly ↔ annual anytime. Save ~29% with annual billing.
-          </motion.p>
+          </Reveal>
 
-          {/* Billing toggle */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="mt-9 inline-flex items-center gap-1 p-1 rounded-full border border-[var(--color-border)] bg-[var(--color-card)] relative"
-          >
+          <Reveal delay={0.5} className="mt-10 inline-flex items-center gap-1 p-1.5 rounded-full border border-[var(--color-border-strong)] bg-[color-mix(in_srgb,var(--color-card)_70%,transparent)] backdrop-blur">
             {(['monthly', 'annual'] as const).map(b => (
               <button
                 key={b}
                 onClick={() => setBilling(b)}
-                className={`relative px-5 py-1.5 rounded-full text-sm font-medium transition z-10 ${billing === b ? 'text-[var(--color-primary-ink)]' : 'text-[var(--color-muted)] hover:text-[var(--color-fg)]'}`}
+                className={`relative px-6 py-2 rounded-full text-sm font-medium transition ${billing === b ? 'text-[var(--color-primary-ink)]' : 'text-[var(--color-muted)] hover:text-[var(--color-fg)]'}`}
               >
                 {billing === b && (
-                  <motion.span
-                    layoutId="billing-pill"
-                    className="absolute inset-0 rounded-full bg-[var(--color-primary)] -z-10"
-                    transition={{ type: 'spring', stiffness: 300, damping: 28 }}
-                  />
+                  <motion.span layoutId="billing-pill" className="absolute inset-0 rounded-full bg-[var(--color-primary)]" transition={{ type: 'spring', stiffness: 320, damping: 30 }} />
                 )}
-                <span className="inline-flex items-center gap-2 capitalize">
+                <span className="relative inline-flex items-center gap-2 capitalize">
                   {b}
                   {b === 'annual' && (
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase tracking-widest font-bold ${billing === 'annual' ? 'bg-white/20 text-white' : 'bg-[var(--color-chip-bg)] text-[var(--color-chip-fg)]'}`}>
-                      −29%
-                    </span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${billing === 'annual' ? 'bg-white/20 text-white' : 'bg-[var(--color-chip-bg)] text-[var(--color-chip-fg)]'}`}>−29%</span>
                   )}
                 </span>
               </button>
             ))}
-          </motion.div>
+          </Reveal>
         </div>
       </section>
 
       {/* ── Tiers ── */}
       <section className="max-w-7xl mx-auto px-5 pb-10">
-        <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.15 }} className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {tiers.map(t => {
+        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {tiers.map((t, i) => {
             const { price, per } = formatPrice(t)
             return (
-              <motion.div
-                key={t.name}
-                variants={fadeUp}
-                whileHover={{ y: -4, transition: { type: 'spring', stiffness: 320, damping: 22 } }}
-                className={`card card-lift p-6 relative flex flex-col ${t.popular ? 'border-[var(--color-primary)]/60 ring-1 ring-[var(--color-primary)]/25' : ''}`}
-              >
-                {t.popular && (
-                  <span className="absolute -top-3 left-6 text-[10px] px-2.5 py-1 rounded-full bg-[var(--color-primary)] text-[var(--color-primary-ink)] uppercase tracking-widest font-semibold">
-                    Most popular
-                  </span>
-                )}
-                <h3 className="text-lg font-semibold tracking-tight">{t.name}</h3>
-                <p className="text-xs text-[var(--color-muted)] mt-1">{t.subtitle}</p>
+              <Reveal key={t.name} delay={i * 0.07}>
+                <Spotlight className={`tile h-full p-7 flex flex-col ${t.popular ? 'ring-glow border-[color-mix(in_srgb,var(--color-primary)_45%,transparent)]' : ''}`}>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-xl font-semibold tracking-[-0.03em]">{t.name}</h3>
+                    {t.popular && <span className="text-[10px] px-2.5 py-1 rounded-full bg-[var(--color-primary)] text-[var(--color-primary-ink)] uppercase tracking-widest font-semibold">Popular</span>}
+                  </div>
+                  <p className="text-xs text-[var(--color-muted)] mt-1">{t.subtitle}</p>
 
-                <div className="mt-6 flex items-baseline gap-1 min-h-[3.5rem]">
-                  <span className="text-4xl font-semibold text-[var(--color-fg)] tracking-tight font-mono tabular">{price}</span>
-                  {per && <span className="text-xs text-[var(--color-muted)]">{per}</span>}
-                </div>
-                {t.annual !== null && billing === 'annual' && (
-                  <p className="text-[11px] text-[var(--color-muted)] mt-1 font-mono">${t.annual}/yr billed up front</p>
-                )}
-                {t.annual === null && (
-                  <p className="text-[11px] text-[var(--color-muted)] mt-1">Volume-based custom quote</p>
-                )}
+                  <div className="mt-8 min-h-[4.25rem]">
+                    <AnimatePresence mode="popLayout" initial={false}>
+                      <motion.div
+                        key={price}
+                        initial={{ opacity: 0, y: 14, filter: 'blur(4px)' }}
+                        animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                        exit={{ opacity: 0, y: -14, filter: 'blur(4px)' }}
+                        transition={{ duration: 0.35 }}
+                        className="flex items-baseline gap-1.5"
+                      >
+                        <span className="price-digits text-5xl text-[var(--color-fg)] tabular">{price}</span>
+                        {per && <span className="text-xs text-[var(--color-muted)]">{per}</span>}
+                      </motion.div>
+                    </AnimatePresence>
+                    {t.annual !== null && billing === 'annual' && (
+                      <p className="text-[11px] text-[var(--color-muted)] mt-2 font-mono">${t.annual}/yr billed up front</p>
+                    )}
+                    {t.annual === null && <p className="text-[11px] text-[var(--color-muted)] mt-2">Volume-based custom quote</p>}
+                  </div>
 
-                <Link to={ctaHref(t)} className={`mt-5 w-full justify-center ${t.popular ? 'btn-primary' : 'btn-ghost'}`}>
-                  {t.cta}
-                </Link>
+                  <Link to={ctaHref(t)} className={`mt-6 w-full justify-center ${t.popular ? 'btn-primary' : 'btn-ghost'}`}>{t.cta}</Link>
 
-                <p className="text-[10px] uppercase tracking-widest text-[var(--color-muted)] mt-6">Best for</p>
-                <p className="text-xs text-[var(--color-fg-dim)] mt-1">{t.best}</p>
+                  <p className="text-[10px] font-mono uppercase tracking-[0.16em] text-[var(--color-muted)] mt-7">Best for</p>
+                  <p className="text-xs text-[var(--color-fg-dim)] mt-1.5">{t.best}</p>
 
-                <ul className="mt-5 space-y-2 flex-1 pt-5 border-t border-[var(--color-border)]">
-                  {t.features.map(f => (
-                    <li key={f} className="text-xs text-[var(--color-fg-dim)] flex gap-2">
-                      <Check size={13} className="text-[var(--color-primary-2)] mt-0.5 shrink-0"/>{f}
-                    </li>
-                  ))}
-                </ul>
-              </motion.div>
+                  <ul className="mt-6 space-y-2.5 flex-1 pt-6 border-t border-[var(--color-border)]">
+                    {t.features.map(f => (
+                      <li key={f} className="text-[13px] text-[var(--color-fg-dim)] flex gap-2.5">
+                        <Check size={14} className="text-[var(--color-primary-2)] mt-0.5 shrink-0"/>{f}
+                      </li>
+                    ))}
+                  </ul>
+                </Spotlight>
+              </Reveal>
             )
           })}
-        </motion.div>
+        </div>
         <p className="text-center text-[11px] text-[var(--color-muted)] mt-6">
           Prices in USD. 14-day free trial on Starter, Growth, and Team. Cancel anytime — no questions asked.
         </p>
       </section>
 
       {/* ── Feature matrix ── */}
-      <section className="max-w-7xl mx-auto px-5 py-20">
-        <div className="mb-8">
-          <span className="chip">Comparison</span>
-          <h2 className="mt-4 text-3xl md:text-4xl font-semibold tracking-[-0.03em]">Compare every feature</h2>
+      <section className="max-w-7xl mx-auto px-5 py-24">
+        <div className="mb-10">
+          <Eyebrow n="01">Comparison</Eyebrow>
+          <SplitHeading text={'Compare *every* feature.'} className="display-lg mt-6 text-[var(--color-fg)]" />
         </div>
 
-        <div className="card overflow-x-auto p-0">
-          <table className="w-full text-sm table-clean">
-            <thead>
-              <tr className="border-b border-[var(--color-border)]">
-                <th className="text-left p-4 text-[11px] uppercase tracking-widest text-[var(--color-muted)] font-medium">Feature</th>
-                {tiers.map(t => (
-                  <th key={t.name} className="text-center p-4 font-semibold tracking-tight">
-                    <div className={t.popular ? 'text-[var(--color-primary-2)]' : 'text-[var(--color-fg)]'}>{t.name}</div>
-                    <div className="text-[10px] uppercase tracking-widest text-[var(--color-muted)] font-normal mt-1">
-                      {t.monthly !== null ? `$${t.monthly}/mo` : 'Custom'}
-                    </div>
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {matrix.map(row => (
-                <tr key={row.f} className="border-b border-[var(--color-border)] last:border-0">
-                  <td className="p-4 text-[var(--color-fg-dim)]">{row.f}</td>
-                  {row.v.map((v, i) => (
-                    <td key={i} className="text-center p-4 text-sm">
-                      {typeof v === 'boolean'
-                        ? (v
-                          ? <Check size={16} className="inline text-[var(--color-primary-2)]"/>
-                          : <Minus size={16} className="inline text-[var(--color-muted-2)]"/>)
-                        : <span className="text-[var(--color-fg)] font-mono tabular text-xs">{v}</span>}
-                    </td>
+        <Reveal>
+          <div className="tile overflow-x-auto">
+            <table className="w-full text-sm min-w-[44rem]">
+              <thead>
+                <tr className="border-b border-[var(--color-border)]">
+                  <th className="text-left p-5 text-[11px] font-mono uppercase tracking-[0.16em] text-[var(--color-muted)] font-medium">Feature</th>
+                  {tiers.map(t => (
+                    <th key={t.name} className={`text-center p-5 ${t.popular ? 'bg-[color-mix(in_srgb,var(--color-primary)_7%,transparent)]' : ''}`}>
+                      <div className={`font-[family-name:var(--font-heading)] text-base font-semibold tracking-[-0.03em] ${t.popular ? 'text-[var(--color-primary-2)]' : 'text-[var(--color-fg)]'}`}>{t.name}</div>
+                      <div className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-muted)] font-normal mt-1">
+                        {t.monthly !== null ? `$${t.monthly}/mo` : 'Custom'}
+                      </div>
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+              </thead>
+              <tbody>
+                {matrix.map(row => (
+                  <tr key={row.f} className="border-b border-[var(--color-border)] last:border-0 hover:bg-[color-mix(in_srgb,var(--color-fg)_2.5%,transparent)] transition">
+                    <td className="px-5 py-4 text-[var(--color-fg-dim)]">{row.f}</td>
+                    {row.v.map((v, i) => (
+                      <td key={i} className={`text-center px-5 py-4 ${tiers[i].popular ? 'bg-[color-mix(in_srgb,var(--color-primary)_5%,transparent)]' : ''}`}>
+                        {typeof v === 'boolean'
+                          ? (v
+                            ? <span className="inline-flex w-6 h-6 rounded-full items-center justify-center bg-[color-mix(in_srgb,var(--color-primary)_16%,transparent)] text-[var(--color-primary-2)]"><Check size={13}/></span>
+                            : <Minus size={15} className="inline text-[var(--color-muted-2)]"/>)
+                          : <span className="text-[var(--color-fg)] font-mono tabular text-xs">{v}</span>}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Reveal>
       </section>
 
       {/* ── FAQ ── */}
-      <section className="max-w-7xl mx-auto px-5 py-16">
-        <div className="mb-8">
-          <span className="chip">FAQ</span>
-          <h3 className="mt-4 text-3xl md:text-4xl font-semibold tracking-[-0.03em]">Questions?</h3>
+      <section className="max-w-7xl mx-auto px-5 py-16 grid lg:grid-cols-12 gap-10">
+        <div className="lg:col-span-5">
+          <div className="lg:sticky lg:top-28">
+            <Eyebrow n="02">FAQ</Eyebrow>
+            <SplitHeading text={'Billing,\n*demystified.*'} className="display-lg mt-6 text-[var(--color-fg)]" />
+            <div className="mt-8">
+              <Magnetic><Link to="/contact" className="btn-ghost">Still unsure? Talk to us <ArrowRight size={14}/></Link></Magnetic>
+            </div>
+          </div>
         </div>
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.2 }}
-          className="grid md:grid-cols-2 gap-3"
-        >
-          {pricingFaqs.map(it => (
-            <motion.div key={it.q} variants={fadeUp} className="card p-6">
-              <div className="font-medium text-[var(--color-fg)]">{it.q}</div>
-              <div className="text-sm text-[var(--color-fg-dim)] mt-2 leading-relaxed">{it.a}</div>
-            </motion.div>
-          ))}
-        </motion.div>
+        <div className="lg:col-span-7 border-t border-[var(--color-border)]">
+          {pricingFaqs.map((it, i) => {
+            const isOpen = open === i
+            return (
+              <div key={it.q} className="border-b border-[var(--color-border)]">
+                <button onClick={() => setOpen(isOpen ? null : i)} aria-expanded={isOpen} className="w-full flex items-center justify-between gap-6 py-6 text-left group">
+                  <span className="flex items-baseline gap-5">
+                    <span className="font-mono text-xs text-[var(--color-muted-2)] tabular">{String(i + 1).padStart(2, '0')}</span>
+                    <span className="font-[family-name:var(--font-heading)] text-lg md:text-xl font-semibold tracking-[-0.03em] text-[var(--color-fg)] group-hover:text-[var(--color-primary-2)] transition">{it.q}</span>
+                  </span>
+                  <span className={`shrink-0 w-9 h-9 rounded-full border flex items-center justify-center transition ${isOpen ? 'bg-[var(--color-primary)] border-transparent text-white rotate-45' : 'border-[var(--color-border-strong)] text-[var(--color-muted)]'}`}>
+                    <Plus size={16}/>
+                  </span>
+                </button>
+                <AnimatePresence initial={false}>
+                  {isOpen && (
+                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }} className="overflow-hidden">
+                      <p className="pb-6 pl-10 pr-12 text-[var(--color-fg-dim)] leading-relaxed">{it.a}</p>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            )
+          })}
+        </div>
       </section>
     </>
   )

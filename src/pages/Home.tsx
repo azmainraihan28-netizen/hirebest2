@@ -1,38 +1,29 @@
 import { Link } from 'react-router-dom'
-import { ArrowRight, Sparkles, Layers, BarChart3, Mail, Lock, FileStack, Check, Zap, Clock, Users } from 'lucide-react'
-import FAQ from '../components/FAQ'
-import SaaSBrowserReviews from '../components/SaaSBrowserReviews'
-import { useState, useEffect, useRef, memo } from 'react'
-import { motion, useMotionValue, useSpring, useReducedMotion, AnimatePresence, type Variants } from 'framer-motion'
+import {
+  ArrowRight, ArrowUpRight, Sparkles, Layers, BarChart3, Mail, Lock, FileStack, Check,
+  Shield, Globe, Plus, Minus, FileText, Wand2, ListChecks,
+} from 'lucide-react'
+import { useRef, useState, memo, useEffect } from 'react'
+import {
+  motion, AnimatePresence, useScroll, useTransform, useMotionValue, useAnimationFrame,
+  useReducedMotion, useSpring, type MotionValue,
+} from 'framer-motion'
 import { useSeo } from '../lib/seo'
 import { useSchema, organization, softwareApplication, faqPage, websiteSchema } from '../lib/schema'
-import { useInView } from '../lib/useInView'
-import TrustBar from '../components/TrustBar'
 import { formatPlanLimit } from '../lib/plans'
+import SaaSBrowserReviews from '../components/SaaSBrowserReviews'
+import {
+  Reveal, SplitHeading, ScrollWords, Magnetic, CountUp, VelocityMarquee, Eyebrow, Spotlight,
+} from '../components/motion/primitives'
 
 // ─────────────────────────────────────────────────────────────────────
-// Data
+// Content (unchanged from the previous site — design-only redesign)
 // ─────────────────────────────────────────────────────────────────────
-const features = [
-  { icon: Sparkles,  title: 'AI scoring you can trust', desc: 'Each candidate gets a 0–100 match score with written reasoning citing the JD.' },
-  { icon: Layers,    title: 'Side-by-side compare',     desc: 'Pin shortlisted candidates and compare strengths, gaps, and experience instantly.' },
-  { icon: BarChart3, title: 'Hiring analytics',         desc: 'Track screenings over time, average fit ratio, and most common missing skills.' },
-  { icon: Mail,      title: 'Outreach drafts',          desc: 'Generate personalised interview invites and rejection emails in one click.' },
-  { icon: Lock,      title: 'Private & yours',          desc: 'Your CVs stay in your workspace. Auth, RLS, and per-user data isolation by default.' },
-  { icon: FileStack, title: 'Bulk by design',           desc: 'Drop 200 CVs at once. PDF, DOCX, PNG, JPG — we OCR and parse them all.' },
-]
-
-const steps = [
-  { n: '01', title: 'Drop the JD & CVs',      desc: 'Paste any job description, then drag in a folder of resumes — PDF, DOCX, PNG, JPG.' },
-  { n: '02', title: 'Let AI read every line', desc: 'HireBest extracts skills, experience, and matches them to your role with reasoning.' },
-  { n: '03', title: 'Hire with confidence',   desc: 'Filter to Fit candidates, compare your shortlist, and send the first interview invite.' },
-]
-
 const stats = [
-  { n: '38s',      label: 'to screen 100 CVs' },
-  { n: '94%',      label: 'agreement with recruiters' },
-  { n: '10,000+',  label: 'resumes processed weekly' },
-  { n: '1',        label: 'tab you need open' },
+  { n: '38s',     label: 'to screen 100 CVs' },
+  { n: '94%',     label: 'agreement with recruiters' },
+  { n: '10,000+', label: 'resumes processed weekly' },
+  { n: '1',       label: 'tab you need open' },
 ]
 
 const faqs = [
@@ -43,56 +34,44 @@ const faqs = [
   { q: 'Is HireBest GDPR compliant?',              a: 'Yes — your CVs stay in your workspace with auth and row-level security by default.' },
 ]
 
-const tiers = [
-  { plan: 'basic',    name: 'Starter',    subtitle: 'Solo recruiters & consultants',   price: '$49',    per: '/ month', billing: '14-day free trial. Annual $420/yr — save 29%.',   cta: 'Start free trial',       features: ['3 active job slots', `${formatPlanLimit('basic')} CVs / month`, '1 user', 'AI scoring with cited reasoning', 'Interview question generation', 'CSV export'], best: 'Freelance recruiters, solo HR, consultants' },
-  { plan: 'advanced', name: 'Growth',     subtitle: 'Small HR teams & startups',       price: '$99',    per: '/ month', billing: '14-day free trial. Annual $840/yr — save 29%.',   cta: 'Start 14-day trial',      features: ['10 active job slots', `${formatPlanLimit('advanced')} CVs / month`, '3 users', 'Everything in Starter', 'Bulk upload (100+ PDFs)', 'Custom branding', 'Side-by-side compare', 'Priority email support'], popular: true },
-  { plan: 'lifetime', name: 'Team',       subtitle: 'HR departments & agencies',       price: '$199',   per: '/ month', billing: '14-day free trial. Annual $1,680/yr — save 30%.', cta: 'Start free trial',       features: ['Unlimited job slots', `${formatPlanLimit('lifetime')} CVs / month`, '10 users', 'Everything in Growth', 'Analytics dashboard', 'API access', 'Role-based permissions', 'Priority Slack support'] },
-  { plan: 'retainer', name: 'Enterprise', subtitle: '500+ companies & enterprise HR',  price: 'Custom', per: '',        billing: 'Volume-based custom quote',                       cta: 'Talk to sales',           features: [`${formatPlanLimit('retainer')} CVs / users`, 'Everything in Team', 'Custom ATS integration', 'SSO', 'SLA guarantee', 'Dedicated CSM', 'On-premise option', 'Quarterly reviews'] },
+const pricingFaqs = [
+  { q: 'Is there a free trial?',         a: 'Yes — 14 days free on the Growth plan. No credit card required to start.' },
+  { q: 'Can I switch monthly ↔ annual?', a: 'Yes. Upgrade to annual anytime and save ~29% compared to monthly billing.' },
+  { q: 'What if I exceed my CV limit?',  a: 'We notify you before you hit the cap. Upgrade mid-cycle (prorated) — no surprise overage fees.' },
+  { q: 'Can I cancel anytime?',          a: 'Yes — one-click cancel from your dashboard. Monthly plans end at cycle close; annual gets prorated refunds within 30 days.' },
 ]
+
+const tiers = [
+  { plan: 'basic',    name: 'Starter',    subtitle: 'Solo recruiters & consultants',  price: '$49',    per: '/mo', billing: '14-day free trial. Annual $420/yr — save 29%.',   cta: 'Start free trial',   features: ['3 active job slots', `${formatPlanLimit('basic')} CVs / month`, '1 user', 'AI scoring with cited reasoning', 'Interview question generation', 'CSV export'] },
+  { plan: 'advanced', name: 'Growth',     subtitle: 'Small HR teams & startups',      price: '$99',    per: '/mo', billing: '14-day free trial. Annual $840/yr — save 29%.',   cta: 'Start 14-day trial', features: ['10 active job slots', `${formatPlanLimit('advanced')} CVs / month`, '3 users', 'Everything in Starter', 'Bulk upload (100+ PDFs)', 'Custom branding', 'Side-by-side compare', 'Priority email support'], popular: true },
+  { plan: 'lifetime', name: 'Team',       subtitle: 'HR departments & agencies',      price: '$199',   per: '/mo', billing: '14-day free trial. Annual $1,680/yr — save 30%.', cta: 'Start free trial',   features: ['Unlimited job slots', `${formatPlanLimit('lifetime')} CVs / month`, '10 users', 'Everything in Growth', 'Analytics dashboard', 'API access', 'Role-based permissions', 'Priority Slack support'] },
+  { plan: 'retainer', name: 'Enterprise', subtitle: '500+ companies & enterprise HR', price: 'Custom', per: '',    billing: 'Volume-based custom quote',                       cta: 'Talk to sales',      features: [`${formatPlanLimit('retainer')} CVs / users`, 'Everything in Team', 'Custom ATS integration', 'SSO', 'SLA guarantee', 'Dedicated CSM', 'On-premise option', 'Quarterly reviews'] },
+] as const
 
 const articles = [
-  { slug: 'screen-100-cvs-in-38-seconds', title: 'How to Screen 100 CVs in 38 Seconds',                   read: '6 min read' },
-  { slug: 'greenhouse-pricing-2026',      title: "Greenhouse Pricing in 2026: What's Really Going On",   read: '8 min read' },
-  { slug: 'ai-ats-wrong-way-to-think',    title: "Why 'AI ATS' is the Wrong Way to Think About Hiring",   read: '5 min read' },
+  { slug: 'screen-100-cvs-in-38-seconds', title: 'How to Screen 100 CVs in 38 Seconds',                 read: '6 min read', tag: 'Playbook' },
+  { slug: 'greenhouse-pricing-2026',      title: "Greenhouse Pricing in 2026: What's Really Going On", read: '8 min read', tag: 'Pricing' },
+  { slug: 'ai-ats-wrong-way-to-think',    title: "Why 'AI ATS' is the Wrong Way to Think About Hiring", read: '5 min read', tag: 'Opinion' },
 ]
 
-const marqueeWords = ['38 SECONDS','100 CVS','AI POWERED','HIRE SMARTER','NO CREDIT CARD','BULK SCREENING']
+const trust = [
+  { icon: Shield, label: 'GDPR compliant',            sub: 'EU data protection standards' },
+  { icon: Lock,   label: 'Never used for training',   sub: 'Your CVs stay private' },
+  { icon: Globe,  label: 'Row-level security',        sub: 'Every workspace isolated' },
+]
 
-// ─────────────────────────────────────────────────────────────────────
-// Motion primitives
-// ─────────────────────────────────────────────────────────────────────
-const fadeUp: Variants = {
-  hidden: { opacity: 0, y: 20 },
-  show:   { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 180, damping: 22, mass: 0.9 } },
-}
-const stagger: Variants = {
-  hidden: { opacity: 0 },
-  show:   { opacity: 1, transition: { staggerChildren: 0.07, delayChildren: 0.04 } },
-}
+const EASE = [0.22, 1, 0.36, 1] as const
 
-function CountUp({ value }: { value: string }) {
-  const clean = value.replace(/,/g, '')
-  const match = clean.match(/^(\d+)(.*)$/)
-  const target = match ? parseInt(match[1]) : 0
-  const suffix = match ? match[2] : value
-  const { ref, inView } = useInView<HTMLSpanElement>(0.5)
-  const [count, setCount] = useState(0)
-
+function useMediaQuery(q: string) {
+  const [match, setMatch] = useState(() => typeof window !== 'undefined' && window.matchMedia(q).matches)
   useEffect(() => {
-    if (!inView) return
-    if (target <= 1) { setCount(target); return }
-    const duration = target > 1000 ? 2200 : 1600
-    const start = performance.now()
-    const tick = (now: number) => {
-      const t = Math.min((now - start) / duration, 1)
-      setCount(Math.round((1 - (1 - t) ** 3) * target))
-      if (t < 1) requestAnimationFrame(tick)
-    }
-    requestAnimationFrame(tick)
-  }, [inView, target])
-
-  if (!match) return <>{value}</>
-  return <span ref={ref}>{target >= 1000 ? count.toLocaleString() : count}{suffix}</span>
+    const m = window.matchMedia(q)
+    const on = () => setMatch(m.matches)
+    on()
+    m.addEventListener('change', on)
+    return () => m.removeEventListener('change', on)
+  }, [q])
+  return match
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -111,665 +90,878 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <TrustBar />
-      <Marquee />
+      <WordBand />
+      <Manifesto />
       <Features />
       <HowItWorks />
       <Stats />
       <SaaSBrowserReviews />
       <SavingsCalculator />
       <PricingTiers />
-      <PricingFAQ />
-      <CTA />
+      <FAQBlock />
       <BlogStrip />
-      <FAQ items={faqs} />
+      <FinalCTA />
     </>
   )
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// HERO — split, editorial, restrained. Mock candidate card on the right.
+// 01 · HERO — giant editorial type + the scanner device.
+// Scrolling away pushes the copy back and tilts the device.
 // ─────────────────────────────────────────────────────────────────────
 function Hero() {
+  const ref = useRef<HTMLElement>(null)
   const reduce = useReducedMotion()
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end start'] })
+  const copyY = useTransform(scrollYProgress, [0, 1], [0, 160])
+  const copyOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0])
+  const deviceY = useTransform(scrollYProgress, [0, 1], [0, -80])
+  const deviceRotate = useTransform(scrollYProgress, [0, 1], [0, -6])
+  const deviceScale = useTransform(scrollYProgress, [0, 1], [1, 0.92])
+  // Parallax only where copy and device sit side by side; stacked on mobile it would collide.
+  const wide = useMediaQuery('(min-width: 1024px)')
+  const parallax = wide && !reduce
 
   return (
-    <section className="relative overflow-hidden">
-      {/* mesh + grid background */}
-      <div aria-hidden className="absolute inset-0 -z-10 mesh-bg" />
-      <div aria-hidden className="absolute inset-0 -z-10 grid-overlay opacity-40" />
+    <section ref={ref} className="relative overflow-hidden -mt-[76px] pt-[76px]">
+      <div className="aurora" aria-hidden><span/><span/><span/></div>
+      <div className="hairlines" aria-hidden />
 
-      <div className="max-w-7xl mx-auto px-5 pt-20 pb-24 grid lg:grid-cols-12 gap-12 items-center">
-        {/* Left — copy */}
-        <motion.div
-          variants={stagger}
-          initial="hidden"
-          animate="show"
-          className="lg:col-span-7"
-        >
-          <motion.span variants={fadeUp} className="chip chip-dot">
-            AI resume screener · Live
-          </motion.span>
-
-          <motion.h1
-            variants={fadeUp}
-            className="mt-6 text-[2.75rem] leading-[1.02] md:text-6xl lg:text-[4.5rem] font-semibold tracking-[-0.035em] text-[var(--color-fg)]"
+      <div className="relative max-w-7xl mx-auto px-5 pt-14 md:pt-24 pb-20 md:pb-28 grid lg:grid-cols-12 gap-12 lg:gap-8 items-center min-h-[calc(100svh-76px)]">
+        <motion.div style={parallax ? { y: copyY, opacity: copyOpacity } : undefined} className="lg:col-span-7 relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: EASE }}
+            className="inline-flex items-center gap-2.5 rounded-full border border-[var(--color-border-strong)] bg-[color-mix(in_srgb,var(--color-card)_70%,transparent)] backdrop-blur pl-1.5 pr-4 py-1.5 text-xs text-[var(--color-fg-dim)]"
           >
-            Score 100 CVs
-            <br />
-            in <span className="text-[var(--color-primary-2)]">38 seconds</span>.
-          </motion.h1>
-
-          <motion.p variants={fadeUp} className="mt-6 max-w-[52ch] text-[var(--color-fg-dim)] text-base md:text-lg leading-relaxed">
-            HireBest reads every CV against your job description, scores fit, surfaces missing skills, and drafts interview questions — while your coffee is still brewing.
-          </motion.p>
-
-          <motion.div variants={fadeUp} className="mt-8 flex flex-wrap gap-3">
-            <Link to="/signup" className="btn-primary">
-              Start screening free <ArrowRight size={14}/>
-            </Link>
-            <a href="#how-it-works" className="btn-ghost">See how it works</a>
+            <span className="rounded-full bg-[var(--color-primary)] text-[var(--color-primary-ink)] px-2 py-0.5 text-[10px] font-semibold tracking-wide">NEW</span>
+            AI resume screener with cited reasoning
           </motion.div>
 
-          <motion.div variants={fadeUp} className="mt-6 flex flex-wrap gap-x-5 gap-y-2 text-xs text-[var(--color-muted)]">
-            <span className="inline-flex items-center gap-1.5"><Check size={13} className="text-[var(--color-primary-2)]"/>No credit card</span>
-            <span className="inline-flex items-center gap-1.5"><Check size={13} className="text-[var(--color-primary-2)]"/>PDF · DOCX · PNG · JPG</span>
-            <span className="inline-flex items-center gap-1.5"><Check size={13} className="text-[var(--color-primary-2)]"/>Bulk 200+ resumes</span>
-          </motion.div>
+          <SplitHeading
+            as="h1"
+            text={'Read 100 CVs\n*before* your\ncoffee cools.'}
+            className="display-hero mt-7 text-[var(--color-fg)]"
+            delay={0.1}
+          />
 
-          <motion.div variants={fadeUp} className="mt-9 flex flex-wrap items-center gap-4 opacity-90">
-            <a
-              href="https://www.producthunt.com/products/hirebest-online?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-hirebest-online"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img
-                alt="Hirebest.online — Score 100 CVs in 38 Seconds | Product Hunt"
-                width={220}
-                height={48}
-                src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1175830&theme=light&t=1781854290026"
-              />
+          <Reveal delay={0.55} className="mt-8 max-w-[46ch] text-[var(--color-fg-dim)] text-base md:text-lg leading-relaxed">
+            HireBest scores every CV against your job description in <b className="text-[var(--color-fg)] font-semibold">38 seconds</b>,
+            flags the missing skills, and drafts the interview questions — with reasoning you can check.
+          </Reveal>
+
+          <Reveal delay={0.7} className="mt-9 flex flex-wrap items-center gap-3">
+            <Magnetic>
+              <Link to="/signup" className="btn-primary btn-lg">Start screening free <ArrowRight size={16}/></Link>
+            </Magnetic>
+            <a href="#how-it-works" className="btn-ghost btn-lg">See how it works</a>
+          </Reveal>
+
+          <Reveal delay={0.85} className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs text-[var(--color-muted)] font-mono uppercase tracking-[0.12em]">
+            {['No credit card', 'PDF · DOCX · PNG · JPG', 'Bulk 200+ CVs'].map(t => (
+              <span key={t} className="inline-flex items-center gap-2"><Check size={12} className="text-[var(--color-primary-2)]"/>{t}</span>
+            ))}
+          </Reveal>
+
+          <Reveal delay={1} className="mt-10 flex flex-wrap items-center gap-4">
+            <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[var(--color-muted-2)]">Featured on</span>
+            <a href="https://www.producthunt.com/products/hirebest-online?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-hirebest-online" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition">
+              <img alt="Hirebest.online — Score 100 CVs in 38 Seconds | Product Hunt" width={180} height={39} src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1175830&theme=light&t=1781854290026"/>
             </a>
-            <a
-              href="https://www.shipit.buzz/products/hirebest?ref=badge"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <img
-                src="https://www.shipit.buzz/api/products/hirebest/badge?theme=light"
-                alt="Featured on Shipit"
-                height={48}
-              />
+            <a href="https://www.shipit.buzz/products/hirebest?ref=badge" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition">
+              <img src="https://www.shipit.buzz/api/products/hirebest/badge?theme=light" alt="Featured on Shipit" height={39} style={{ height: 39 }}/>
             </a>
-          </motion.div>
+          </Reveal>
         </motion.div>
 
-        {/* Right — live-candidate mock card, memoized */}
-        <div className="lg:col-span-5">
-          <CandidateMock reduce={!!reduce} />
-        </div>
+        <motion.div
+          style={parallax ? { y: deviceY, rotate: deviceRotate, scale: deviceScale } : undefined}
+          className="lg:col-span-5 relative"
+        >
+          <ScannerDevice />
+        </motion.div>
       </div>
+
+      {/* scroll cue */}
+      <motion.div
+        aria-hidden
+        className="hidden md:flex absolute bottom-6 left-1/2 -translate-x-1/2 flex-col items-center gap-2 text-[10px] font-mono uppercase tracking-[0.25em] text-[var(--color-muted-2)]"
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.4 }}
+      >
+        Scroll
+        <span className="w-px h-10 bg-gradient-to-b from-[var(--color-muted-2)] to-transparent relative overflow-hidden">
+          <motion.span
+            className="absolute left-0 top-0 w-px h-4 bg-[var(--color-primary-2)]"
+            animate={reduce ? undefined : { y: [-16, 40] }}
+            transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+          />
+        </span>
+      </motion.div>
     </section>
   )
 }
 
-// Isolated + memoized so perpetual motion doesn't re-render the hero.
-const CandidateMock = memo(function CandidateMock({ reduce }: { reduce: boolean }) {
-  const items = [
-    { name: 'Priya Iyer',      role: 'Senior Backend Engineer', score: 94, verdict: 'fit'   as const, tag: 'Python · AWS · gRPC' },
-    { name: 'Marcus Adekunle', role: 'Senior Backend Engineer', score: 87, verdict: 'fit'   as const, tag: 'Go · K8s · Postgres' },
-    { name: 'Elena Voss',      role: 'Senior Backend Engineer', score: 72, verdict: 'maybe' as const, tag: 'Node · Redis · GCP' },
-    { name: 'Jordan Rivera',   role: 'Senior Backend Engineer', score: 61, verdict: 'maybe' as const, tag: 'Rails · MySQL' },
-    { name: 'Tomás Câmara',    role: 'Senior Backend Engineer', score: 42, verdict: 'skip'  as const, tag: 'Java · Oracle' },
+/**
+ * The signature: a CV being read. One clock drives the beam, the matched
+ * lines lighting up, the score counting and the chips popping in — so it all
+ * stays in sync without re-rendering React every frame.
+ */
+const ScannerDevice = memo(function ScannerDevice() {
+  const reduce = useReducedMotion()
+  const t = useMotionValue(reduce ? 1 : 0)
+  const H = 360 // scan travel in px
+  useAnimationFrame(time => {
+    if (reduce) return
+    t.set((time % 4200) / 4200)
+  })
+  const beamY = useTransform(t, [0, 0.9], [0, H])
+  const beamOpacity = useTransform(t, [0, 0.05, 0.86, 0.94], [0, 1, 1, 0])
+  const score = useTransform(t, [0.05, 0.85], [0, 94], { clamp: true })
+  const scoreText = useTransform(score, v => Math.round(v).toString())
+  const ring = useTransform(score, [0, 100], [0, 1])
+
+  // [width%, isMatch]
+  const lines: [number, boolean][] = [
+    [92, false], [78, true], [85, false], [64, true], [88, false],
+    [70, false], [80, true], [58, false], [90, true],
   ]
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20, scale: 0.98 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ type: 'spring', stiffness: 160, damping: 22, delay: 0.15 }}
-      className="card p-5 relative overflow-hidden"
-      aria-label="Sample HireBest shortlist"
-    >
-      {/* subtle top gradient */}
-      <div aria-hidden className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-[var(--color-primary)]/60 to-transparent" />
+    <div className="relative mx-auto w-full max-w-[440px] aspect-[5/6]" aria-label="HireBest reading a CV">
+      {/* back sheets */}
+      <div className="absolute inset-0 translate-x-6 translate-y-6 rotate-[5deg] rounded-[1.6rem] border border-[var(--color-border)] bg-[var(--color-card)] opacity-50" />
+      <div className="absolute inset-0 translate-x-3 translate-y-3 rotate-[2.5deg] rounded-[1.6rem] border border-[var(--color-border)] bg-[var(--color-card)] opacity-75" />
 
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-md bg-[color-mix(in_srgb,var(--color-primary)_16%,transparent)] flex items-center justify-center text-[var(--color-primary-2)]">
-            <Zap size={15}/>
+      {/* front sheet */}
+      <div className="ring-glow absolute inset-0 rounded-[1.6rem] border border-[var(--color-border-strong)] bg-[var(--color-card)] overflow-hidden shadow-[0_40px_120px_-40px_rgba(0,0,0,.8)]">
+        <div className="p-7">
+          <div className="flex items-center gap-3.5">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-2)] flex items-center justify-center text-white font-semibold">PI</div>
+            <div className="flex-1">
+              <div className="text-[15px] font-semibold text-[var(--color-fg)] font-[family-name:var(--font-heading)] tracking-tight">Priya Iyer</div>
+              <div className="text-[11px] text-[var(--color-muted)] font-mono">Senior Backend Engineer · 7 yrs</div>
+            </div>
+            <div className="relative w-14 h-14">
+              <svg viewBox="0 0 56 56" className="w-14 h-14 -rotate-90">
+                <circle cx="28" cy="28" r="24" fill="none" strokeWidth="4" stroke="color-mix(in srgb, var(--color-fg) 10%, transparent)"/>
+                <motion.circle cx="28" cy="28" r="24" fill="none" strokeWidth="4" stroke="var(--color-fit)" strokeLinecap="round" style={{ pathLength: ring }}/>
+              </svg>
+              <motion.span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-[var(--color-fg)] tabular">{scoreText}</motion.span>
+            </div>
           </div>
-          <div>
-            <div className="text-xs font-mono text-[var(--color-muted)]">shortlist-042</div>
-            <div className="text-sm font-medium">Backend Engineer · 100 CVs</div>
+
+          <div className="mt-7 space-y-3.5 relative">
+            {lines.map(([w, hit], i) => (
+              <DocLine key={i} t={t} at={(i + 0.5) / lines.length * 0.9} width={w} hit={hit} />
+            ))}
           </div>
+
+          <div className="mt-6 flex flex-wrap gap-1.5">
+            {['Python', 'AWS', 'gRPC', 'Postgres'].map((s, i) => (
+              <Chip key={s} t={t} at={0.25 + i * 0.12}>{s}</Chip>
+            ))}
+          </div>
+
+          <Reason t={t} />
         </div>
-        <div className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-fit)] flex items-center gap-1.5">
-          <span className="w-1.5 h-1.5 rounded-full bg-[var(--color-fit)] animate-pulse"/>
-          Live
-        </div>
+
+        {/* the beam */}
+        <motion.div className="absolute left-0 right-0 top-[92px]" style={{ y: beamY, opacity: beamOpacity }}>
+          <div className="scan-beam" />
+        </motion.div>
       </div>
 
-      <ul className="space-y-1.5">
-        {items.map((c, i) => (
-          <motion.li
-            key={c.name}
-            layout
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: 0.35 + i * 0.08, type: 'spring', stiffness: 220, damping: 22 }}
-            className="flex items-center justify-between gap-3 rounded-md px-3 py-2.5 bg-[color-mix(in_srgb,var(--color-fg)_2.5%,transparent)] border border-[var(--color-border)]"
-          >
-            <div className="flex items-center gap-3 min-w-0">
-              <Avatar name={c.name} />
-              <div className="min-w-0">
-                <div className="text-sm font-medium truncate">{c.name}</div>
-                <div className="text-[11px] text-[var(--color-muted)] font-mono truncate">{c.tag}</div>
-              </div>
-            </div>
-            <div className="flex items-center gap-2 shrink-0">
-              <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold verdict-${c.verdict}`}>
-                {c.verdict}
-              </span>
-              <div className="w-12 text-right font-mono text-sm tabular text-[var(--color-fg)]">{c.score}</div>
-            </div>
-          </motion.li>
-        ))}
-      </ul>
-
-      {/* footer with countdown-ish progress */}
-      <div className="mt-4 flex items-center justify-between text-[11px] text-[var(--color-muted)] font-mono">
-        <span className="inline-flex items-center gap-1.5"><Clock size={11}/>Processed in 38.2s</span>
-        <span className="inline-flex items-center gap-1.5"><Users size={11}/>100 / 100</span>
-      </div>
-
-      {!reduce && (
-        <motion.div
-          aria-hidden
-          className="absolute -inset-24 -z-10 opacity-40"
-          animate={{ rotate: [0, 360] }}
-          transition={{ duration: 60, repeat: Infinity, ease: 'linear' }}
-          style={{
-            background: 'conic-gradient(from 0deg, transparent 0%, color-mix(in srgb, var(--color-primary) 22%, transparent) 25%, transparent 40%)',
-            filter: 'blur(60px)',
-          }}
-        />
-      )}
-    </motion.div>
+      {/* floating verdict + gap chips */}
+      <FloatChip t={t} at={0.88} className="-left-6 md:-left-14 top-[30%]">
+        <span className="w-2 h-2 rounded-full bg-[var(--color-fit)]"/> Strong fit · 94
+      </FloatChip>
+      <FloatChip t={t} at={0.6} className="-right-3 md:-right-8 top-[46%]" tone="maybe">
+        <Minus size={12}/> Missing: Kubernetes
+      </FloatChip>
+      <FloatChip t={t} at={0.75} className="left-6 -bottom-5">
+        <Sparkles size={12} className="text-[var(--color-primary-2)]"/> 5 interview questions drafted
+      </FloatChip>
+    </div>
   )
 })
 
-function Avatar({ name }: { name: string }) {
-  const initials = name.split(' ').map(w => w[0]).slice(0, 2).join('')
-  const hue = Math.abs([...name].reduce((a, c) => a + c.charCodeAt(0), 0)) % 360
+function Reason({ t }: { t: MotionValue<number> }) {
+  const o = useTransform(t, [0.8, 0.86], [0, 1])
+  const y = useTransform(t, [0.8, 0.86], [8, 0])
   return (
-    <div
-      className="w-8 h-8 rounded-full flex items-center justify-center text-[11px] font-semibold text-white shrink-0"
-      style={{ background: `linear-gradient(135deg, hsl(${hue} 55% 45%), hsl(${(hue + 40) % 360} 55% 35%))` }}
-    >
-      {initials}
+    <motion.div style={{ opacity: o, y }} className="mt-6 rounded-2xl border border-[color-mix(in_srgb,var(--color-fit)_35%,transparent)] bg-[color-mix(in_srgb,var(--color-fit)_8%,transparent)] px-4 py-3">
+      <div className="text-[10px] font-mono uppercase tracking-[0.18em] text-[var(--color-fit)]">Why 94</div>
+      <p className="mt-1 font-[family-name:var(--font-serif)] italic text-[15px] leading-snug text-[var(--color-fg)]">
+        “7 years of Python on AWS — hits must-haves 1–3 in the JD.”
+      </p>
+    </motion.div>
+  )
+}
+
+function DocLine({ t, at, width, hit }: { t: MotionValue<number>; at: number; width: number; hit: boolean }) {
+  const lit = useTransform(t, [at - 0.01, at + 0.02], [0, 1])
+  return (
+    <div className="relative" style={{ width: `${width}%` }}>
+      <div className="doc-line" />
+      {hit && <motion.div className="doc-line hit absolute inset-0" style={{ opacity: lit }} />}
     </div>
   )
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// Marquee
-// ─────────────────────────────────────────────────────────────────────
-function Marquee() {
-  const words = [...marqueeWords, ...marqueeWords, ...marqueeWords]
+function Chip({ t, at, children }: { t: MotionValue<number>; at: number; children: React.ReactNode }) {
+  const o = useTransform(t, [at, at + 0.05], [0.25, 1])
+  const s = useTransform(t, [at, at + 0.05], [0.92, 1])
   return (
-    <div className="marquee">
-      <div className="marquee-track">
-        {words.map((w, i) => (
-          <span key={i} className="text-[11px] tracking-[0.32em] font-semibold text-[var(--color-muted)]">
-            {w} <span className="text-[var(--color-primary-2)]/60">·</span>
-          </span>
-        ))}
-      </div>
-    </div>
+    <motion.span style={{ opacity: o, scale: s }} className="text-[11px] font-mono px-2.5 py-1 rounded-full border border-[color-mix(in_srgb,var(--color-primary)_35%,transparent)] bg-[color-mix(in_srgb,var(--color-primary)_10%,transparent)] text-[var(--color-chip-fg)]">
+      {children}
+    </motion.span>
   )
 }
 
-// ─────────────────────────────────────────────────────────────────────
-// Features — asymmetric 2-column zig-zag bento
-// ─────────────────────────────────────────────────────────────────────
-function Features() {
-  return (
-    <section id="features" className="max-w-7xl mx-auto px-5 py-24">
-      <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }}>
-        <motion.div variants={fadeUp} className="max-w-3xl mb-14">
-          <span className="chip">Features</span>
-          <h2 className="mt-5 text-3xl md:text-5xl font-semibold tracking-[-0.03em]">
-            Everything a recruiter <span className="text-[var(--color-muted)]">wishes an ATS did.</span>
-          </h2>
-          <p className="mt-4 text-[var(--color-fg-dim)] max-w-[60ch]">
-            Built for the moment between "send me CVs" and "schedule the interview."
-          </p>
-        </motion.div>
-
-        {/* Bento — non-uniform grid */}
-        <div className="grid md:grid-cols-6 gap-4">
-          {features.map((f, i) => {
-            const span = i === 0 ? 'md:col-span-3' : i === 1 ? 'md:col-span-3' : 'md:col-span-2'
-            return <FeatureCard key={f.title} feature={f} className={span} />
-          })}
-        </div>
-      </motion.div>
-    </section>
-  )
-}
-
-function FeatureCard({ feature: f, className = '' }: { feature: typeof features[number]; className?: string }) {
-  const ref = useRef<HTMLDivElement>(null)
-  const mx = useMotionValue(0.5)
-  const my = useMotionValue(0.5)
-  const smx = useSpring(mx, { stiffness: 180, damping: 22 })
-  const smy = useSpring(my, { stiffness: 180, damping: 22 })
-  const reduce = useReducedMotion()
-
-  const onMove = (e: React.PointerEvent) => {
-    if (reduce) return
-    const el = ref.current
-    if (!el) return
-    const r = el.getBoundingClientRect()
-    mx.set((e.clientX - r.left) / r.width)
-    my.set((e.clientY - r.top) / r.height)
-  }
-
+function FloatChip({ t, at, className, children, tone }: { t: MotionValue<number>; at: number; className: string; children: React.ReactNode; tone?: 'maybe' }) {
+  const o = useTransform(t, [at, at + 0.04, 0.97, 1], [0, 1, 1, 0])
+  const y = useTransform(t, [at, at + 0.06], [10, 0])
   return (
     <motion.div
-      ref={ref}
-      variants={fadeUp}
-      onPointerMove={onMove}
-      whileHover={{ y: -3, transition: { type: 'spring', stiffness: 320, damping: 22 } }}
-      className={`card card-lift p-7 relative overflow-hidden group ${className}`}
+      style={{ opacity: o, y }}
+      className={`absolute z-10 inline-flex items-center gap-2 rounded-full px-3.5 py-2 text-xs font-medium backdrop-blur-xl border shadow-[0_20px_40px_-20px_rgba(0,0,0,.7)] ${
+        tone === 'maybe'
+          ? 'bg-[color-mix(in_srgb,var(--color-card)_80%,transparent)] border-[color-mix(in_srgb,var(--color-maybe)_40%,transparent)] text-[var(--color-maybe)]'
+          : 'bg-[color-mix(in_srgb,var(--color-card)_80%,transparent)] border-[var(--color-border-strong)] text-[var(--color-fg)]'
+      } ${className}`}
     >
-      <motion.div
-        aria-hidden
-        className="pointer-events-none absolute -inset-px rounded-[inherit] opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-        style={{
-          background: 'radial-gradient(400px circle at var(--x) var(--y), color-mix(in srgb, var(--color-primary) 15%, transparent), transparent 55%)',
-          // @ts-ignore
-          '--x': smx.get() * 100 + '%',
-          '--y': smy.get() * 100 + '%',
-        }}
-      />
-      <div className="icon-badge mb-5">
-        <f.icon size={18}/>
-      </div>
-      <h3 className="text-lg font-semibold text-[var(--color-fg)] tracking-tight">{f.title}</h3>
-      <p className="mt-2 text-sm text-[var(--color-fg-dim)] leading-relaxed max-w-[52ch]">{f.desc}</p>
+      {children}
     </motion.div>
   )
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// How it works — vertical rail with numbered steps
+// 02 · WORD BAND — scroll-velocity marquee
 // ─────────────────────────────────────────────────────────────────────
-function HowItWorks() {
+function WordBand() {
+  const words: [string, 'solid' | 'outline' | 'blue'][] = [
+    ['38 seconds', 'solid'], ['100 CVs', 'outline'], ['cited reasoning', 'blue'],
+    ['no credit card', 'outline'], ['bulk screening', 'solid'], ['hire smarter', 'blue'],
+  ]
   return (
-    <section id="how-it-works" className="max-w-7xl mx-auto px-5 py-24">
-      <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }} className="grid lg:grid-cols-12 gap-12">
-        <motion.div variants={fadeUp} className="lg:col-span-4">
-          <span className="chip">How it works</span>
-          <h2 className="mt-5 text-3xl md:text-4xl font-semibold tracking-[-0.03em]">
-            From inbox chaos<br/>to shortlist in <span className="text-[var(--color-primary-2)]">3 steps.</span>
-          </h2>
-          <p className="mt-4 text-[var(--color-fg-dim)] text-sm leading-relaxed">
-            No integrations. No setup calls. Sign in, paste a JD, drop in resumes.
-          </p>
-        </motion.div>
-
-        <div className="lg:col-span-8 relative">
-          {/* Rail line */}
-          <div aria-hidden className="absolute left-6 top-4 bottom-4 w-px bg-gradient-to-b from-transparent via-[var(--color-border-strong)] to-transparent md:left-6" />
-          <div className="space-y-4">
-            {steps.map((s, i) => (
-              <motion.div
-                key={s.n}
-                variants={fadeUp}
-                whileHover={{ x: 4 }}
-                transition={{ type: 'spring', stiffness: 300, damping: 22 }}
-                className="card p-6 flex gap-5 items-start relative"
-              >
-                <div className="shrink-0 w-12 h-12 rounded-lg border border-[var(--color-border-strong)] bg-[var(--color-bg-2)] flex items-center justify-center font-mono text-sm text-[var(--color-primary-2)] tabular relative">
-                  {s.n}
-                  {i === 0 && (
-                    <motion.span
-                      aria-hidden
-                      className="absolute inset-0 rounded-lg ring-1 ring-[var(--color-primary)]/40"
-                      animate={{ opacity: [0.4, 0, 0.4], scale: [1, 1.15, 1] }}
-                      transition={{ duration: 2.4, repeat: Infinity, ease: 'easeOut' }}
-                    />
-                  )}
-                </div>
-                <div>
-                  <h3 className="font-semibold text-[var(--color-fg)] tracking-tight">{s.title}</h3>
-                  <p className="mt-1.5 text-sm text-[var(--color-fg-dim)] leading-relaxed">{s.desc}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </motion.div>
+    <section aria-label="HireBest at a glance" className="py-10 md:py-14 border-y border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-bg-2)_60%,transparent)]">
+      <VelocityMarquee baseSpeed={55}>
+        {words.map(([w, style], i) => (
+          <span key={i} className="flex items-center">
+            <span className={`band-word ${style === 'outline' ? '' : style}`}>{w}</span>
+            <span className="text-[var(--color-primary)] text-3xl md:text-5xl px-3" aria-hidden>✦</span>
+          </span>
+        ))}
+      </VelocityMarquee>
     </section>
   )
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// Stats — no cards; separator-based row (density-4 rule)
+// 03 · MANIFESTO — words light up as you read
+// ─────────────────────────────────────────────────────────────────────
+function Manifesto() {
+  return (
+    <section className="max-w-6xl mx-auto px-5 py-28 md:py-40">
+      <Eyebrow n="01">Why HireBest</Eyebrow>
+      <ScrollWords
+        className="mt-10 font-[family-name:var(--font-heading)] text-[clamp(1.9rem,4.6vw,4rem)] leading-[1.08] tracking-[-0.04em] font-semibold text-[var(--color-fg)]"
+        text="Most ATS tools rank who wrote the best resume. HireBest reads every line against *your* job description, shows its *reasoning,* and hands you the people who can actually do the job."
+      />
+      <div className="mt-16 grid sm:grid-cols-3 gap-px rounded-2xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-border)]">
+        {trust.map((s, i) => (
+          <Reveal key={s.label} delay={i * 0.08} className="bg-[var(--color-bg)] p-6 flex items-start gap-4">
+            <span className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0 bg-[color-mix(in_srgb,var(--color-fit)_12%,transparent)] text-[var(--color-fit)]">
+              <s.icon size={18}/>
+            </span>
+            <div>
+              <div className="text-sm font-semibold text-[var(--color-fg)]">{s.label}</div>
+              <div className="text-xs text-[var(--color-muted)] mt-0.5">{s.sub}</div>
+            </div>
+          </Reveal>
+        ))}
+      </div>
+    </section>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 04 · FEATURES — bento where every tile demos itself
+// ─────────────────────────────────────────────────────────────────────
+function Features() {
+  return (
+    <section id="features" className="max-w-7xl mx-auto px-5 py-24 md:py-32 scroll-mt-24">
+      <div className="grid lg:grid-cols-12 gap-8 items-end mb-14">
+        <div className="lg:col-span-8">
+          <Eyebrow n="02">Product</Eyebrow>
+          <SplitHeading text={'Everything a recruiter\n*wishes* an ATS did.'} className="display-lg mt-6 text-[var(--color-fg)]" />
+        </div>
+        <Reveal className="lg:col-span-4 text-[var(--color-fg-dim)] leading-relaxed">
+          Built for the moment between “send me CVs” and “schedule the interview.”
+        </Reveal>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-4 auto-rows-[minmax(0,auto)]">
+        <Tile className="md:col-span-4 md:row-span-2" delay={0}
+          icon={Sparkles} title="AI scoring you can trust"
+          desc="Each candidate gets a 0–100 match score with written reasoning that cites the JD — agree, override, or push back.">
+          <ScoringDemo />
+        </Tile>
+        <Tile className="md:col-span-2" delay={0.06} icon={FileStack} title="Bulk by design" desc="Drop 200 CVs at once. PDF, DOCX, PNG, JPG — scanned ones too.">
+          <BulkDemo />
+        </Tile>
+        <Tile className="md:col-span-2" delay={0.12} icon={Lock} title="Private & yours" desc="Auth, row-level security and per-user isolation by default.">
+          <LockDemo />
+        </Tile>
+        <Tile className="md:col-span-2" delay={0.06} icon={Layers} title="Side-by-side compare" desc="Pin your shortlist and compare strengths, gaps and experience.">
+          <CompareDemo />
+        </Tile>
+        <Tile className="md:col-span-2" delay={0.12} icon={BarChart3} title="Hiring analytics" desc="Screenings over time, fit ratio, and the skills your pipeline lacks.">
+          <BarsDemo />
+        </Tile>
+        <Tile className="md:col-span-2" delay={0.18} icon={Mail} title="Outreach drafts" desc="Personalised invites and rejections, one click each.">
+          <TypeDemo />
+        </Tile>
+      </div>
+    </section>
+  )
+}
+
+function Tile({ className = '', delay = 0, icon: Icon, title, desc, children }: {
+  className?: string; delay?: number; icon: typeof Sparkles; title: string; desc: string; children?: React.ReactNode
+}) {
+  return (
+    <Reveal delay={delay} className={className}>
+      <Spotlight className="tile h-full flex flex-col">
+        <div className="relative flex-1 min-h-[150px] flex items-center justify-center p-6 pb-0">{children}</div>
+        <div className="p-6 md:p-7">
+          <div className="flex items-center gap-2.5 text-[var(--color-primary-2)]">
+            <Icon size={16}/>
+            <h3 className="text-lg font-semibold text-[var(--color-fg)] tracking-[-0.03em]">{title}</h3>
+          </div>
+          <p className="mt-2 text-sm text-[var(--color-fg-dim)] leading-relaxed max-w-[52ch]">{desc}</p>
+        </div>
+      </Spotlight>
+    </Reveal>
+  )
+}
+
+/* — tile demos — each loops quietly, pauses under reduced motion — */
+
+function useLoop(ms: number) {
+  const reduce = useReducedMotion()
+  const [tick, setTick] = useState(0)
+  useEffect(() => {
+    if (reduce) return
+    const id = setInterval(() => setTick(t => t + 1), ms)
+    return () => clearInterval(id)
+  }, [ms, reduce])
+  return tick
+}
+
+function ScoringDemo() {
+  const rows = [
+    { n: 'Priya Iyer',      s: 94, v: 'fit',   why: '“7 yrs Python + AWS — matches must-haves 1–3”' },
+    { n: 'Marcus Adekunle', s: 87, v: 'fit',   why: '“Led gRPC migration; JD asks for service design”' },
+    { n: 'Elena Voss',      s: 72, v: 'maybe', why: '“Strong Node, no Postgres at scale”' },
+    { n: 'Tomás Câmara',    s: 42, v: 'skip',  why: '“Java/Oracle stack; 0 of 4 core skills”' },
+  ] as const
+  const tick = useLoop(2600)
+  const active = tick % rows.length
+  return (
+    <div className="w-full max-w-xl space-y-2">
+      {rows.map((r, i) => (
+        <motion.div
+          key={r.n}
+          animate={{ opacity: i === active ? 1 : 0.55, scale: i === active ? 1 : 0.985 }}
+          transition={{ duration: 0.5, ease: EASE }}
+          className={`rounded-xl border px-4 py-3 ${i === active ? 'border-[color-mix(in_srgb,var(--color-primary)_45%,transparent)] bg-[color-mix(in_srgb,var(--color-primary)_7%,transparent)]' : 'border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-fg)_2%,transparent)]'}`}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-medium flex-1 truncate">{r.n}</span>
+            <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold verdict-${r.v}`}>{r.v}</span>
+            <span className="w-9 text-right font-mono text-sm tabular">{r.s}</span>
+          </div>
+          <div className="mt-2 h-1 rounded-full bg-[color-mix(in_srgb,var(--color-fg)_8%,transparent)] overflow-hidden">
+            <motion.div
+              className="h-full rounded-full"
+              style={{ background: r.v === 'fit' ? 'var(--color-fit)' : r.v === 'maybe' ? 'var(--color-maybe)' : 'var(--color-skip)' }}
+              initial={{ width: 0 }} whileInView={{ width: `${r.s}%` }} viewport={{ once: true }} transition={{ duration: 1.2, ease: EASE, delay: i * 0.1 }}
+            />
+          </div>
+          <AnimatePresence initial={false}>
+            {i === active && (
+              <motion.p
+                initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                transition={{ duration: 0.4, ease: EASE }}
+                className="text-xs text-[var(--color-fg-dim)] font-[family-name:var(--font-serif)] italic text-[15px] overflow-hidden pt-2"
+              >{r.why}</motion.p>
+            )}
+          </AnimatePresence>
+        </motion.div>
+      ))}
+    </div>
+  )
+}
+
+function BulkDemo() {
+  const tick = useLoop(1400)
+  const count = 40 + ((tick * 37) % 161)
+  return (
+    <div className="relative w-full h-28 flex items-center justify-center">
+      {[0, 1, 2, 3, 4].map(i => (
+        <motion.div
+          key={`${tick}-${i}`}
+          initial={{ y: -40, opacity: 0, rotate: (i - 2) * 8 }}
+          animate={{ y: 0, opacity: [0, 1, 0], rotate: (i - 2) * 6 }}
+          transition={{ duration: 1.3, delay: i * 0.08, ease: EASE }}
+          className="absolute w-10 h-12 rounded-md border border-[var(--color-border-strong)] bg-[var(--color-bg-2)] flex items-center justify-center"
+          style={{ left: `calc(50% + ${(i - 2) * 26}px - 20px)` }}
+        >
+          <FileText size={14} className="text-[var(--color-primary-2)]"/>
+        </motion.div>
+      ))}
+      <div className="absolute bottom-0 right-0 font-mono text-xs text-[var(--color-muted)]">
+        <span className="text-[var(--color-fg)] tabular">{count}</span> / 200 queued
+      </div>
+    </div>
+  )
+}
+
+function LockDemo() {
+  const reduce = useReducedMotion()
+  return (
+    <div className="relative w-28 h-28 flex items-center justify-center">
+      {[0, 1, 2].map(i => (
+        <motion.span
+          key={i}
+          className="absolute inset-0 rounded-full border border-[color-mix(in_srgb,var(--color-fit)_45%,transparent)]"
+          animate={reduce ? undefined : { scale: [0.5, 1.35], opacity: [0.9, 0] }}
+          transition={{ duration: 2.6, repeat: Infinity, delay: i * 0.85, ease: 'easeOut' }}
+        />
+      ))}
+      <span className="relative w-14 h-14 rounded-2xl bg-[color-mix(in_srgb,var(--color-fit)_14%,transparent)] text-[var(--color-fit)] flex items-center justify-center">
+        <Lock size={22}/>
+      </span>
+    </div>
+  )
+}
+
+function CompareDemo() {
+  const tick = useLoop(2200)
+  const a = [82, 64, 90][tick % 3]
+  const b = [70, 88, 58][tick % 3]
+  return (
+    <div className="w-full grid grid-cols-2 gap-3">
+      {[['Priya', a], ['Marcus', b]].map(([n, v]) => (
+        <div key={n as string} className="rounded-xl border border-[var(--color-border)] p-3">
+          <div className="text-xs font-medium">{n}</div>
+          {['Skills', 'Seniority', 'Domain'].map((k, j) => (
+            <div key={k} className="mt-2">
+              <div className="text-[9px] uppercase tracking-widest text-[var(--color-muted)]">{k}</div>
+              <div className="mt-1 h-1.5 rounded-full bg-[color-mix(in_srgb,var(--color-fg)_8%,transparent)] overflow-hidden">
+                <motion.div className="h-full rounded-full bg-[var(--color-primary)]" animate={{ width: `${Math.max(20, (v as number) - j * 12)}%` }} transition={{ duration: 0.9, ease: EASE }}/>
+              </div>
+            </div>
+          ))}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function BarsDemo() {
+  const tick = useLoop(2000)
+  const base = [34, 52, 41, 68, 57, 80, 72]
+  return (
+    <div className="w-full h-28 flex items-end gap-2 border-b border-[var(--color-border)]">
+      {base.map((h, i) => (
+        <motion.div
+          key={i}
+          className="flex-1 rounded-t-md bg-[var(--color-primary)]"
+          style={{ opacity: 0.45 + i * 0.08 }}
+          animate={{ height: `${Math.min(100, h + ((tick + i) % 3) * 8)}%` }}
+          transition={{ duration: 0.9, ease: EASE }}
+        />
+      ))}
+    </div>
+  )
+}
+
+function TypeDemo() {
+  const full = 'Hi Priya — loved your gRPC migration work. Free Thursday for a 30-min chat?'
+  const tick = useLoop(55)
+  const reduce = useReducedMotion()
+  const n = reduce ? full.length : tick % (full.length + 40)
+  return (
+    <div className="w-full rounded-xl border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-fg)_2%,transparent)] p-3.5 text-[13px] leading-relaxed min-h-[96px]">
+      <div className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-muted)] mb-1.5">Draft · Interview invite</div>
+      <span className="text-[var(--color-fg-dim)]">{full.slice(0, Math.min(n, full.length))}</span>
+      <span className="inline-block w-[2px] h-4 align-middle bg-[var(--color-primary-2)] ml-0.5 animate-pulse" />
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 05 · HOW IT WORKS — sticky stacked cards; each new step slides over
+// the last while the previous one sinks back.
+// ─────────────────────────────────────────────────────────────────────
+const steps = [
+  { n: '01', title: 'Drop the JD & CVs',      desc: 'Paste any job description, then drag in a folder of resumes — PDF, DOCX, PNG, JPG.', icon: Wand2 },
+  { n: '02', title: 'Let AI read every line', desc: 'HireBest extracts skills and experience and matches them to your role — with reasoning.', icon: Sparkles },
+  { n: '03', title: 'Hire with confidence',   desc: 'Filter to Fit candidates, compare your shortlist, and send the first interview invite.', icon: ListChecks },
+]
+
+function HowItWorks() {
+  const ref = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
+  return (
+    <section id="how-it-works" className="relative scroll-mt-24">
+      <div className="max-w-7xl mx-auto px-5 pt-24 md:pt-32">
+        <Eyebrow n="03">How it works</Eyebrow>
+        <SplitHeading text={'From inbox chaos to\nshortlist in *three* steps.'} className="display-lg mt-6 text-[var(--color-fg)]" />
+      </div>
+      <div ref={ref} className="relative max-w-7xl mx-auto px-5 pb-10" style={{ height: `${(steps.length - 1) * 85 + 90}vh` }}>
+        {steps.map((s, i) => (
+          <StackCard key={s.n} step={s} i={i} total={steps.length} progress={scrollYProgress} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function StackCard({ step, i, total, progress }: { step: typeof steps[number]; i: number; total: number; progress: MotionValue<number> }) {
+  const reduce = useReducedMotion()
+  const start = i / total
+  const scale = useTransform(progress, [start, 1], [1, 1 - (total - i - 1) * 0.06])
+  // Sink back only once the next card is sliding over this one.
+  const d0 = Math.min(0.98, start + (1 / total) * 0.9)
+  const d1 = Math.min(1, start + (1 / total) * 1.35)
+  const dim = useTransform(progress, [d0, d1], [0, i === total - 1 ? 0 : 0.6])
+  return (
+    <div className="sticky" style={{ top: `calc(104px + ${i * 44}px)`, height: '82vh' }}>
+      <motion.div style={reduce ? undefined : { scale }} className="stack-card relative h-[min(560px,72vh)] overflow-hidden p-7 md:p-12 grid md:grid-cols-12 gap-8">
+        <div className="md:col-span-6 flex flex-col">
+          <span className="numeral text-[7rem] md:text-[11rem]">{step.n}</span>
+          <h3 className="mt-auto display-md text-[var(--color-fg)]">{step.title}</h3>
+          <p className="mt-4 text-[var(--color-fg-dim)] leading-relaxed max-w-[44ch]">{step.desc}</p>
+        </div>
+        <div className="md:col-span-6 hidden md:flex items-center justify-center">
+          <StepVisual i={i} />
+        </div>
+        <motion.div aria-hidden className="absolute inset-0 bg-[var(--color-bg)] pointer-events-none" style={reduce ? { opacity: 0 } : { opacity: dim }} />
+      </motion.div>
+    </div>
+  )
+}
+
+function StepVisual({ i }: { i: number }) {
+  if (i === 0) {
+    return (
+      <div className="w-full max-w-sm space-y-3">
+        <div className="rounded-2xl border border-[var(--color-border-strong)] p-4 bg-[var(--color-bg-2)]">
+          <div className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-muted)]">Job description</div>
+          <div className="mt-3 space-y-2">{[90, 76, 84, 60].map((w, k) => <div key={k} className="doc-line" style={{ width: `${w}%` }}/>)}</div>
+        </div>
+        <div className="rounded-2xl border-2 border-dashed border-[color-mix(in_srgb,var(--color-primary)_45%,transparent)] p-6 text-center bg-[color-mix(in_srgb,var(--color-primary)_5%,transparent)]">
+          <FileStack className="mx-auto text-[var(--color-primary-2)]" size={22}/>
+          <div className="mt-2 text-sm font-medium">128 CVs dropped</div>
+          <div className="text-[11px] text-[var(--color-muted)] font-mono">pdf · docx · png · jpg</div>
+        </div>
+      </div>
+    )
+  }
+  if (i === 1) {
+    return (
+      <div className="relative w-full max-w-sm rounded-2xl border border-[var(--color-border-strong)] bg-[var(--color-bg-2)] p-5 overflow-hidden" style={{ ['--scan-h' as any]: '220px' }}>
+        <div className="space-y-2.5">{[88, 70, 92, 64, 80, 58, 86, 72].map((w, k) => <div key={k} className={`doc-line ${k % 3 === 1 ? 'hit' : ''}`} style={{ width: `${w}%` }}/>)}</div>
+        <div className="absolute left-0 right-0 top-4 scan-loop"><div className="scan-beam"/></div>
+        <div className="mt-5 flex gap-1.5">{['Python', 'AWS', 'Leadership'].map(s => <span key={s} className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[color-mix(in_srgb,var(--color-primary)_12%,transparent)] text-[var(--color-chip-fg)]">{s}</span>)}</div>
+      </div>
+    )
+  }
+  return (
+    <div className="w-full max-w-sm space-y-2">
+      {[['Priya Iyer', 94, 'fit'], ['Marcus Adekunle', 87, 'fit'], ['Elena Voss', 72, 'maybe']].map(([n, s, v]) => (
+        <div key={n as string} className="flex items-center gap-3 rounded-xl border border-[var(--color-border)] bg-[var(--color-bg-2)] px-4 py-3">
+          <Check size={14} className="text-[var(--color-fit)]"/>
+          <span className="text-sm flex-1">{n}</span>
+          <span className={`text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider font-semibold verdict-${v}`}>{v}</span>
+          <span className="font-mono text-sm tabular w-7 text-right">{s}</span>
+        </div>
+      ))}
+      <div className="pt-2"><span className="btn-primary text-xs">Send interview invites <ArrowRight size={12}/></span></div>
+    </div>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 06 · STATS — oversized numerals
 // ─────────────────────────────────────────────────────────────────────
 function Stats() {
   return (
-    <section className="max-w-7xl mx-auto px-5 py-16">
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.3 }}
-        className="grid grid-cols-2 md:grid-cols-4 divide-x divide-[var(--color-border)] border-y border-[var(--color-border)] rounded-lg overflow-hidden"
-      >
-        {stats.map((s) => (
-          <motion.div
-            key={s.label}
-            variants={{
-              hidden: { opacity: 0, y: 12 },
-              show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 200, damping: 20 } },
-            }}
-            className="px-6 py-8 text-left"
-          >
-            <div className="text-3xl md:text-4xl font-semibold tracking-[-0.03em] text-[var(--color-fg)] font-mono tabular">
+    <section className="max-w-7xl mx-auto px-5 py-20 md:py-28">
+      <div className="grid grid-cols-2 lg:grid-cols-4 border-t border-[var(--color-border)]">
+        {stats.map((s, i) => (
+          <Reveal key={s.label} delay={i * 0.08} className={`pt-8 pb-4 pr-6 ${i > 0 ? 'lg:border-l lg:pl-8' : ''} ${i % 2 === 1 ? 'border-l pl-6 lg:pl-8' : ''} border-[var(--color-border)]`}>
+            <div className="font-[family-name:var(--font-heading)] font-bold tracking-[-0.06em] leading-none text-[clamp(2.75rem,5.4vw,5rem)] text-[var(--color-fg)] tabular">
               <CountUp value={s.n} />
             </div>
-            <div className="text-[11px] text-[var(--color-muted)] mt-2 uppercase tracking-[0.14em]">{s.label}</div>
-          </motion.div>
+            <div className="mt-4 text-xs font-mono uppercase tracking-[0.16em] text-[var(--color-muted)]">{s.label}</div>
+          </Reveal>
         ))}
-      </motion.div>
+      </div>
     </section>
   )
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// Savings calculator — split card, mono numerals
+// 07 · ROI calculator
 // ─────────────────────────────────────────────────────────────────────
 function SavingsCalculator() {
   const [roles, setRoles] = useState(20)
   const [cvs, setCvs] = useState(100)
   const [tool, setTool] = useState('Greenhouse')
   const competitorCost: Record<string, number> = { Greenhouse: 7000, Workable: 3588, Lever: 12000, None: 0 }
-  const ourCost = 840
-  const saved = Math.max(0, competitorCost[tool] - ourCost)
+  const saved = Math.max(0, competitorCost[tool] - 840)
   const hours = Math.round((roles * cvs * 3.5) / 60)
+  const savedSpring = useSpring(saved, { stiffness: 120, damping: 20 })
+  useEffect(() => { savedSpring.set(saved) }, [saved, savedSpring])
+  const savedText = useTransform(savedSpring, v => `$${Math.round(v).toLocaleString()}`)
 
   return (
-    <section className="max-w-7xl mx-auto px-5 py-20">
-      <motion.div variants={stagger} initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.2 }} className="max-w-3xl mb-10">
-        <motion.div variants={fadeUp}><span className="chip">ROI calculator</span></motion.div>
-        <motion.h2 variants={fadeUp} className="mt-5 text-3xl md:text-5xl font-semibold tracking-[-0.03em]">
-          Simple pricing.<br/><span className="text-[var(--color-muted)]">No per-seat tax.</span>
-        </motion.h2>
-        <motion.p variants={fadeUp} className="mt-4 text-[var(--color-fg-dim)]">
-          14-day free trial — no credit card required. Save ~29% with annual billing.
-        </motion.p>
-      </motion.div>
+    <section className="max-w-7xl mx-auto px-5 py-24 md:py-32">
+      <div className="grid lg:grid-cols-12 gap-8 items-end mb-12">
+        <div className="lg:col-span-7">
+          <Eyebrow n="04">ROI</Eyebrow>
+          <SplitHeading text={'Simple pricing.\n*No* per-seat tax.'} className="display-lg mt-6 text-[var(--color-fg)]" />
+        </div>
+        <Reveal className="lg:col-span-5 text-[var(--color-fg-dim)] leading-relaxed">
+          14-day free trial — no credit card required. Save ~29% with annual billing. Move the sliders to see what you'd get back.
+        </Reveal>
+      </div>
 
-      <motion.div variants={fadeUp} initial="hidden" whileInView="show" viewport={{ once: true }} className="card p-8 grid md:grid-cols-2 gap-8">
-        <div>
-          <h3 className="text-lg font-semibold tracking-tight mb-6">How much do you save vs {tool}?</h3>
-
-          <label className="block mb-5">
-            <div className="flex items-baseline justify-between mb-2">
-              <span className="text-xs uppercase tracking-widest text-[var(--color-muted)]">Roles per year</span>
-              <span className="font-mono tabular text-sm text-[var(--color-fg)]">{roles}</span>
+      <Reveal>
+        <div className="tile grid lg:grid-cols-2">
+          <div className="p-8 md:p-10">
+            <h3 className="text-xl font-semibold tracking-[-0.03em]">How much do you save vs {tool}?</h3>
+            <Slider label="Roles per year" value={roles} min={5} max={200} onChange={setRoles} />
+            <Slider label="CVs per role" value={cvs} min={20} max={500} onChange={setCvs} />
+            <div className="text-[11px] font-mono uppercase tracking-[0.16em] text-[var(--color-muted)] mt-8 mb-3">Currently using</div>
+            <div className="flex flex-wrap gap-1.5">
+              {['Greenhouse', 'Workable', 'Lever', 'None'].map(t => (
+                <button
+                  key={t}
+                  onClick={() => setTool(t)}
+                  className={`relative px-4 py-2 rounded-full text-xs font-medium border transition ${tool === t ? 'border-transparent text-[var(--color-primary-ink)]' : 'border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-fg)]'}`}
+                >
+                  {tool === t && <motion.span layoutId="tool-pill" className="absolute inset-0 rounded-full bg-[var(--color-primary)]" transition={{ type: 'spring', stiffness: 320, damping: 28 }}/>}
+                  <span className="relative">{t}</span>
+                </button>
+              ))}
             </div>
-            <input type="range" min={5} max={200} value={roles} onChange={e => setRoles(+e.target.value)} className="w-full accent-[var(--color-primary)]" />
-          </label>
+          </div>
 
-          <label className="block mb-6">
-            <div className="flex items-baseline justify-between mb-2">
-              <span className="text-xs uppercase tracking-widest text-[var(--color-muted)]">CVs per role</span>
-              <span className="font-mono tabular text-sm text-[var(--color-fg)]">{cvs}</span>
+          <div className="relative p-8 md:p-10 border-t lg:border-t-0 lg:border-l border-[var(--color-border)] overflow-hidden flex flex-col">
+            <div className="aurora opacity-50" aria-hidden><span/><span/><span/></div>
+            <div className="relative">
+              <div className="text-[11px] font-mono uppercase tracking-[0.16em] text-[var(--color-muted)]">Saved per year vs {tool}</div>
+              <motion.div className="price-digits text-[clamp(3.5rem,8vw,6.5rem)] text-[var(--color-primary-2)] mt-3 tabular">{savedText}</motion.div>
+              <div className="text-[11px] text-[var(--color-muted)] mt-2 font-mono">${competitorCost[tool].toLocaleString()}/yr {tool} − $840/yr HireBest Growth</div>
+              <div className="grid grid-cols-2 gap-6 mt-8 pt-8 border-t border-[var(--color-border)]">
+                <div>
+                  <div className="price-digits text-4xl text-[var(--color-fg)] tabular">{hours.toLocaleString()}h</div>
+                  <div className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-muted)] mt-2">Hours saved</div>
+                </div>
+                <div>
+                  <div className="price-digits text-4xl text-[var(--color-fg)] tabular">{(roles * cvs).toLocaleString()}</div>
+                  <div className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-muted)] mt-2">CVs / year</div>
+                </div>
+              </div>
+              <p className="text-sm mt-8 text-[var(--color-fg-dim)]">We recommend the <b className="text-[var(--color-fg)]">Growth</b> plan.</p>
+              <Link to="/pricing" className="btn-primary mt-4 w-full justify-center">Start free trial <ArrowRight size={14}/></Link>
+              <p className="text-[10px] text-[var(--color-muted-2)] mt-3 text-center">Estimates based on industry benchmarks. No data collected.</p>
             </div>
-            <input type="range" min={20} max={500} value={cvs} onChange={e => setCvs(+e.target.value)} className="w-full accent-[var(--color-primary)]" />
-          </label>
-
-          <div className="text-xs uppercase tracking-widest text-[var(--color-muted)] mb-2">Currently using</div>
-          <div className="flex flex-wrap gap-1.5">
-            {['Greenhouse','Workable','Lever','None'].map(t => (
-              <button
-                key={t}
-                onClick={() => setTool(t)}
-                className={`relative px-3 py-1.5 rounded-md text-xs font-medium border transition ${
-                  tool === t
-                    ? 'border-[var(--color-primary)] text-[var(--color-primary-ink)]'
-                    : 'border-[var(--color-border)] text-[var(--color-muted)] hover:text-[var(--color-fg)] hover:border-[var(--color-border-strong)]'
-                }`}
-              >
-                {tool === t && (
-                  <motion.span
-                    layoutId="tool-pill"
-                    className="absolute inset-0 rounded-md bg-[var(--color-primary)] -z-10"
-                    transition={{ type: 'spring', stiffness: 300, damping: 26 }}
-                  />
-                )}
-                {t}
-              </button>
-            ))}
           </div>
         </div>
-
-        <div className="rounded-xl p-6 bg-[color-mix(in_srgb,var(--color-primary)_5%,transparent)] border border-[color-mix(in_srgb,var(--color-primary)_18%,transparent)] flex flex-col">
-          <div className="text-[11px] uppercase tracking-[0.16em] text-[var(--color-muted)]">Saved per year vs {tool}</div>
-          <AnimatePresence mode="popLayout">
-            <motion.div
-              key={saved}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8 }}
-              transition={{ type: 'spring', stiffness: 220, damping: 22 }}
-              className="text-5xl font-semibold text-[var(--color-primary-2)] mt-2 tracking-tight font-mono tabular"
-            >
-              ${saved.toLocaleString()}
-            </motion.div>
-          </AnimatePresence>
-          <div className="text-[11px] text-[var(--color-muted)] mt-2 font-mono">
-            ${competitorCost[tool].toLocaleString()}/yr {tool} − $840/yr HireBest Growth
-          </div>
-
-          <div className="grid grid-cols-2 gap-4 mt-6 pt-6 border-t border-[color-mix(in_srgb,var(--color-primary)_18%,transparent)]">
-            <div>
-              <div className="text-2xl font-semibold text-[var(--color-fg)] font-mono tabular">{hours}h</div>
-              <div className="text-[10px] text-[var(--color-muted)] uppercase tracking-widest mt-1">Hours saved</div>
-            </div>
-            <div>
-              <div className="text-2xl font-semibold text-[var(--color-fg)] font-mono tabular">{(roles*cvs).toLocaleString()}</div>
-              <div className="text-[10px] text-[var(--color-muted)] uppercase tracking-widest mt-1">CVs / year</div>
-            </div>
-          </div>
-
-          <p className="text-sm mt-6 text-[var(--color-fg-dim)]">
-            We recommend the <b className="text-[var(--color-fg)]">Growth</b> plan.
-          </p>
-          <Link to="/pricing" className="btn-primary mt-3 w-full justify-center">
-            Start free trial <ArrowRight size={14}/>
-          </Link>
-          <p className="text-[10px] text-[var(--color-muted-2)] mt-3 text-center">Estimates based on industry benchmarks. No data collected.</p>
-        </div>
-      </motion.div>
+      </Reveal>
     </section>
   )
 }
 
+function Slider({ label, value, min, max, onChange }: { label: string; value: number; min: number; max: number; onChange: (n: number) => void }) {
+  const pct = ((value - min) / (max - min)) * 100
+  return (
+    <label className="block mt-8">
+      <div className="flex items-baseline justify-between mb-3">
+        <span className="text-[11px] font-mono uppercase tracking-[0.16em] text-[var(--color-muted)]">{label}</span>
+        <span className="price-digits text-2xl tabular">{value}</span>
+      </div>
+      <input
+        type="range" min={min} max={max} value={value}
+        onChange={e => onChange(+e.target.value)}
+        className="w-full accent-[var(--color-primary)] h-1.5 rounded-full appearance-none cursor-pointer"
+        style={{ background: `linear-gradient(90deg, var(--color-primary) ${pct}%, color-mix(in srgb, var(--color-fg) 10%, transparent) ${pct}%)` }}
+      />
+    </label>
+  )
+}
+
 // ─────────────────────────────────────────────────────────────────────
-// Pricing tiers
+// 08 · PRICING
 // ─────────────────────────────────────────────────────────────────────
 function PricingTiers() {
   return (
-    <section className="max-w-7xl mx-auto px-5 py-10">
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.15 }}
-        className="grid md:grid-cols-2 lg:grid-cols-4 gap-4"
-      >
-        {tiers.map((t) => (
-          <motion.div
-            key={t.name}
-            variants={fadeUp}
-            whileHover={{ y: -4, transition: { type: 'spring', stiffness: 320, damping: 22 } }}
-            className={`card card-lift p-6 relative flex flex-col ${t.popular ? 'border-[var(--color-primary)]/60 ring-1 ring-[var(--color-primary)]/25' : ''}`}
-          >
-            {t.popular && (
-              <span className="absolute -top-3 left-6 text-[10px] px-2.5 py-1 rounded-full bg-[var(--color-primary)] text-[var(--color-primary-ink)] uppercase tracking-widest font-semibold">
-                Most popular
-              </span>
-            )}
-            <h3 className="text-lg font-semibold tracking-tight">{t.name}</h3>
-            <p className="text-xs text-[var(--color-muted)] mt-1">{t.subtitle}</p>
-
-            <div className="mt-6 flex items-baseline gap-1 min-h-[3.5rem]">
-              <span className="text-4xl font-semibold tracking-tight text-[var(--color-fg)] font-mono tabular">{t.price}</span>
-              <span className="text-xs text-[var(--color-muted)]">{t.per}</span>
-            </div>
-            <p className="text-[11px] text-[var(--color-muted)] mt-1">{t.billing}</p>
-
-            <Link
-              to={t.plan === 'retainer' ? '/contact' : `/checkout?plan=${t.plan}`}
-              className={`mt-5 w-full justify-center ${t.popular ? 'btn-primary' : 'btn-ghost'}`}
-            >
-              {t.cta}
-            </Link>
-
-            {t.best && <p className="text-[10px] uppercase tracking-widest text-[var(--color-muted)] mt-5">Best for</p>}
-            {t.best && <p className="text-xs text-[var(--color-fg-dim)] mt-1">{t.best}</p>}
-
-            <ul className="mt-5 space-y-2 flex-1">
-              {t.features.map(f => (
-                <li key={f} className="text-xs text-[var(--color-fg-dim)] flex gap-2">
-                  <Check size={13} className="text-[var(--color-primary-2)] mt-0.5 shrink-0"/>
-                  {f}
-                </li>
-              ))}
-            </ul>
-          </motion.div>
-        ))}
-      </motion.div>
+    <section className="max-w-7xl mx-auto px-5 pb-16">
+      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {tiers.map((t, i) => {
+          const popular = 'popular' in t && t.popular
+          return (
+            <Reveal key={t.name} delay={i * 0.07}>
+              <Spotlight className={`tile h-full p-7 flex flex-col ${popular ? 'ring-glow border-[color-mix(in_srgb,var(--color-primary)_45%,transparent)]' : ''}`}>
+                <div className="flex items-center justify-between">
+                  <h3 className="text-xl font-semibold tracking-[-0.03em]">{t.name}</h3>
+                  {popular && <span className="text-[10px] px-2.5 py-1 rounded-full bg-[var(--color-primary)] text-[var(--color-primary-ink)] uppercase tracking-widest font-semibold">Popular</span>}
+                </div>
+                <p className="text-xs text-[var(--color-muted)] mt-1">{t.subtitle}</p>
+                <div className="mt-8 flex items-baseline gap-1.5">
+                  <span className="price-digits text-5xl text-[var(--color-fg)] tabular">{t.price}</span>
+                  <span className="text-sm text-[var(--color-muted)]">{t.per}</span>
+                </div>
+                <p className="text-[11px] text-[var(--color-muted)] mt-2">{t.billing}</p>
+                <Link to={t.plan === 'retainer' ? '/contact' : `/checkout?plan=${t.plan}`} className={`mt-6 w-full justify-center ${popular ? 'btn-primary' : 'btn-ghost'}`}>
+                  {t.cta}
+                </Link>
+                <ul className="mt-7 pt-6 border-t border-[var(--color-border)] space-y-2.5 flex-1">
+                  {t.features.map(f => (
+                    <li key={f} className="text-[13px] text-[var(--color-fg-dim)] flex gap-2.5">
+                      <Check size={14} className="text-[var(--color-primary-2)] mt-0.5 shrink-0"/>{f}
+                    </li>
+                  ))}
+                </ul>
+              </Spotlight>
+            </Reveal>
+          )
+        })}
+      </div>
       <p className="text-center text-[11px] text-[var(--color-muted)] mt-6">Prices in USD. Starting points — final quote depends on scope.</p>
     </section>
   )
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// Pricing FAQ
+// 09 · FAQ — sticky title, one accordion for product + billing questions
 // ─────────────────────────────────────────────────────────────────────
-function PricingFAQ() {
-  const items = [
-    { q: 'Is there a free trial?',                    a: 'Yes — 14 days free on the Growth plan. No credit card required to start.' },
-    { q: 'Can I switch monthly ↔ annual?',            a: 'Yes. Upgrade to annual anytime and save ~29% compared to monthly billing.' },
-    { q: 'What if I exceed my CV limit?',             a: 'We notify you before you hit the cap. Upgrade mid-cycle (prorated) — no surprise overage fees.' },
-    { q: 'Can I cancel anytime?',                     a: 'Yes — one-click cancel from your dashboard. Monthly plans end at cycle close; annual gets prorated refunds within 30 days.' },
-  ]
+function FAQBlock() {
+  const all = [...faqs, ...pricingFaqs]
+  const [open, setOpen] = useState<number | null>(0)
   return (
-    <section className="max-w-7xl mx-auto px-5 py-20">
-      <motion.h3
-        initial={{ opacity: 0, y: 16 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ type: 'spring', stiffness: 180, damping: 22 }}
-        className="text-2xl md:text-3xl font-semibold tracking-[-0.02em] mb-8"
-      >
-        Questions?
-      </motion.h3>
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.2 }}
-        className="grid md:grid-cols-2 gap-3"
-      >
-        {items.map(it => (
-          <motion.div key={it.q} variants={fadeUp} className="card p-6">
-            <div className="font-medium text-[var(--color-fg)]">{it.q}</div>
-            <div className="text-sm text-[var(--color-fg-dim)] mt-2 leading-relaxed">{it.a}</div>
-          </motion.div>
-        ))}
-      </motion.div>
-    </section>
-  )
-}
-
-// ─────────────────────────────────────────────────────────────────────
-// CTA
-// ─────────────────────────────────────────────────────────────────────
-function CTA() {
-  return (
-    <section className="max-w-7xl mx-auto px-5 py-24">
-      <motion.div
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.3 }}
-        transition={{ type: 'spring', stiffness: 160, damping: 22 }}
-        className="card p-12 md:p-16 relative overflow-hidden text-center"
-      >
-        <div aria-hidden className="absolute inset-0 -z-10 mesh-bg opacity-80" />
-        <div aria-hidden className="absolute inset-0 -z-10 grid-overlay opacity-30" />
-
-        <h2 className="text-3xl md:text-5xl font-semibold tracking-[-0.03em] max-w-3xl mx-auto">
-          Stop reading CVs.<br/>
-          <span className="text-[var(--color-muted)]">Start meeting people.</span>
-        </h2>
-        <p className="mt-5 text-[var(--color-fg-dim)] max-w-xl mx-auto">
-          Spin up your first screening in under a minute. No setup, no integrations, no nonsense.
-        </p>
-        <div className="mt-8 flex flex-wrap gap-3 justify-center">
-          <Link to="/signup" className="btn-primary">Start screening free <ArrowRight size={14}/></Link>
-          <Link to="/login" className="btn-ghost">I have an account</Link>
+    <section className="max-w-7xl mx-auto px-5 py-24 md:py-32 grid lg:grid-cols-12 gap-10">
+      <div className="lg:col-span-5">
+        <div className="lg:sticky lg:top-28">
+          <Eyebrow n="05">FAQ</Eyebrow>
+          <SplitHeading text={'Questions,\n*answered.*'} className="display-lg mt-6 text-[var(--color-fg)]" />
+          <p className="mt-6 text-[var(--color-fg-dim)] max-w-sm">Something else? <Link to="/contact" className="text-[var(--color-primary-2)] u-link">Talk to us</Link> — we usually reply within a few hours.</p>
         </div>
-      </motion.div>
+      </div>
+      <div className="lg:col-span-7 border-t border-[var(--color-border)]">
+        {all.map((it, i) => {
+          const isOpen = open === i
+          return (
+            <div key={it.q} className="border-b border-[var(--color-border)]">
+              <button onClick={() => setOpen(isOpen ? null : i)} className="w-full flex items-center justify-between gap-6 py-6 text-left group" aria-expanded={isOpen}>
+                <span className="flex items-baseline gap-5">
+                  <span className="font-mono text-xs text-[var(--color-muted-2)] tabular">{String(i + 1).padStart(2, '0')}</span>
+                  <span className="font-[family-name:var(--font-heading)] text-lg md:text-xl font-semibold tracking-[-0.03em] text-[var(--color-fg)] group-hover:text-[var(--color-primary-2)] transition">{it.q}</span>
+                </span>
+                <span className={`shrink-0 w-9 h-9 rounded-full border flex items-center justify-center transition ${isOpen ? 'bg-[var(--color-primary)] border-transparent text-white rotate-45' : 'border-[var(--color-border-strong)] text-[var(--color-muted)]'}`}>
+                  <Plus size={16}/>
+                </span>
+              </button>
+              <AnimatePresence initial={false}>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.45, ease: EASE }}
+                    className="overflow-hidden"
+                  >
+                    <p className="pb-6 pl-10 pr-12 text-[var(--color-fg-dim)] leading-relaxed">{it.a}</p>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )
+        })}
+      </div>
     </section>
   )
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// Blog strip
+// 10 · BLOG — editorial index rows
 // ─────────────────────────────────────────────────────────────────────
 function BlogStrip() {
   return (
     <section className="max-w-7xl mx-auto px-5 py-16">
-      <div className="flex items-end justify-between mb-8">
-        <motion.h3
-          initial={{ opacity: 0, y: 16 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ type: 'spring', stiffness: 180, damping: 22 }}
-          className="text-2xl md:text-3xl font-semibold tracking-[-0.02em]"
-        >
-          From the blog
-        </motion.h3>
-        <Link to="/blog" className="btn-link">All posts <ArrowRight size={14}/></Link>
+      <div className="flex items-end justify-between mb-10 gap-6">
+        <div>
+          <Eyebrow n="06">Journal</Eyebrow>
+          <h2 className="display-md mt-5">From the blog</h2>
+        </div>
+        <Link to="/blog" className="btn-ghost">All posts <ArrowRight size={14}/></Link>
       </div>
-
-      <motion.div
-        variants={stagger}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.2 }}
-        className="grid md:grid-cols-3 gap-4"
-      >
-        {articles.map(a => (
-          <motion.div key={a.slug} variants={fadeUp} whileHover={{ y: -3, transition: { type: 'spring', stiffness: 320, damping: 22 } }}>
-            <Link to={`/blog/${a.slug}`} className="card card-lift p-6 block h-full">
-              <div className="text-[11px] font-mono uppercase tracking-widest text-[var(--color-muted)]">{a.read}</div>
-              <h4 className="mt-3 font-semibold text-[var(--color-fg)] leading-snug tracking-tight">{a.title}</h4>
-              <div className="mt-6 text-sm text-[var(--color-primary-2)] inline-flex items-center gap-1">
-                Read
-                <ArrowRight size={13}/>
-              </div>
+      <div className="border-t border-[var(--color-border)]">
+        {articles.map((a, i) => (
+          <Reveal key={a.slug} delay={i * 0.06}>
+            <Link to={`/blog/${a.slug}`} className="group grid grid-cols-12 items-center gap-4 py-7 border-b border-[var(--color-border)] relative overflow-hidden">
+              <span aria-hidden className="absolute inset-0 -z-0 origin-bottom scale-y-0 group-hover:scale-y-100 transition-transform duration-500 ease-[cubic-bezier(.22,1,.36,1)] bg-[color-mix(in_srgb,var(--color-primary)_7%,transparent)]" />
+              <span className="relative col-span-2 md:col-span-1 font-mono text-xs text-[var(--color-muted-2)] pl-2">0{i + 1}</span>
+              <span className="relative col-span-10 md:col-span-7 font-[family-name:var(--font-heading)] text-xl md:text-3xl font-semibold tracking-[-0.035em] text-[var(--color-fg)] group-hover:translate-x-2 transition-transform duration-500">{a.title}</span>
+              <span className="relative hidden md:block col-span-2 text-xs font-mono uppercase tracking-[0.14em] text-[var(--color-muted)]">{a.tag}</span>
+              <span className="relative hidden md:flex col-span-2 justify-end items-center gap-3 pr-2 text-xs text-[var(--color-muted)]">
+                {a.read}
+                <span className="w-10 h-10 rounded-full border border-[var(--color-border-strong)] flex items-center justify-center group-hover:bg-[var(--color-primary)] group-hover:border-transparent group-hover:text-white transition">
+                  <ArrowUpRight size={16}/>
+                </span>
+              </span>
             </Link>
-          </motion.div>
+          </Reveal>
         ))}
-      </motion.div>
+      </div>
+    </section>
+  )
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 11 · FINAL CTA
+// ─────────────────────────────────────────────────────────────────────
+function FinalCTA() {
+  const ref = useRef<HTMLDivElement>(null)
+  const reduce = useReducedMotion()
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] })
+  const beam = useTransform(scrollYProgress, [0.15, 0.75], ['0%', '100%'])
+  return (
+    <section className="max-w-7xl mx-auto px-5 py-16 md:py-24">
+      <div ref={ref} className="relative overflow-hidden rounded-[2rem] border border-[var(--color-border-strong)] bg-[var(--color-card)] px-6 py-20 md:py-32 text-center">
+        <div className="aurora" aria-hidden><span/><span/><span/></div>
+        <div className="hairlines" aria-hidden />
+        {!reduce && (
+          <motion.div aria-hidden className="absolute left-0 right-0" style={{ top: beam }}>
+            <div className="scan-beam" />
+          </motion.div>
+        )}
+        <div className="relative">
+          <SplitHeading as="h2" text={'Stop reading CVs.\n*Start meeting people.*'} className="display-xl text-[var(--color-fg)] max-w-5xl mx-auto" />
+          <Reveal delay={0.3} className="mt-7 text-[var(--color-fg-dim)] max-w-xl mx-auto text-lg">
+            Spin up your first screening in under a minute. No setup, no integrations, no nonsense.
+          </Reveal>
+          <Reveal delay={0.45} className="mt-10 flex flex-wrap gap-3 justify-center">
+            <Magnetic><Link to="/signup" className="btn-primary btn-lg">Start screening free <ArrowRight size={16}/></Link></Magnetic>
+            <Link to="/login" className="btn-ghost btn-lg">I have an account</Link>
+          </Reveal>
+        </div>
+      </div>
     </section>
   )
 }

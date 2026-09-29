@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { MessageCircle, Mail, ArrowRight, Send, AlertCircle, CheckCircle2, Clock } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useSeo } from '../lib/seo'
+import { Reveal, SplitHeading, Eyebrow, Magnetic } from '../components/motion/primitives'
 
 export default function Contact() {
   useSeo({
@@ -35,53 +36,49 @@ export default function Contact() {
   }
 
   return (
-    <section className="relative overflow-hidden">
-      <div aria-hidden className="absolute inset-0 -z-10 mesh-bg opacity-60" />
-      <div aria-hidden className="absolute inset-0 -z-10 grid-overlay opacity-30" />
+    <section className="relative overflow-hidden -mt-[76px] pt-[76px]">
+      <div className="aurora" aria-hidden><span/><span/><span/></div>
+      <div className="hairlines" aria-hidden />
 
-      <div className="max-w-7xl mx-auto px-5 pt-16 pb-24 grid lg:grid-cols-12 gap-10 items-start">
-        {/* Left column — copy + direct channels */}
-        <div className="lg:col-span-5 lg:sticky lg:top-24">
-          <span className="chip">Contact</span>
-          <h1 className="mt-6 text-4xl md:text-6xl font-semibold tracking-[-0.035em] leading-[1.05]">
-            We'd love to<br/>
-            <span className="text-[var(--color-primary-2)]">hear from you.</span>
-          </h1>
-          <p className="mt-5 text-[var(--color-fg-dim)] leading-relaxed max-w-[52ch]">
+      <div className="relative max-w-7xl mx-auto px-5 pt-16 pb-24 grid lg:grid-cols-12 gap-12 items-start">
+        {/* Left — copy + direct channels */}
+        <div className="lg:col-span-5 lg:sticky lg:top-28">
+          <Eyebrow n="@">Contact</Eyebrow>
+          <SplitHeading as="h1" text={'We\'d love to\n*hear from you.*'} className="display-xl mt-7 text-[var(--color-fg)]" />
+          <Reveal delay={0.3} className="mt-7 text-[var(--color-fg-dim)] leading-relaxed max-w-[46ch] text-lg">
             Questions about plans, custom builds, or your existing order? Drop us a note — we usually reply within a few hours.
-          </p>
+          </Reveal>
 
-          <div className="mt-8 space-y-3">
-            <a
-              href="https://wa.me/8801324419060"
-              target="_blank"
-              rel="noreferrer"
-              className="card card-lift p-5 flex items-center gap-4 group"
-            >
-              <div className="icon-badge shrink-0"><MessageCircle size={18}/></div>
-              <div className="flex-1">
-                <div className="text-sm font-semibold text-[var(--color-fg)] tracking-tight">WhatsApp</div>
-                <div className="text-xs text-[var(--color-muted)] font-mono">+880 1324 419 060</div>
-              </div>
-              <ArrowRight size={16} className="text-[var(--color-muted)] group-hover:text-[var(--color-primary-2)] transition"/>
-            </a>
-
-            <a
-              href="mailto:contact@hirebest.online"
-              className="card card-lift p-5 flex items-center gap-4 group"
-            >
-              <div className="icon-badge shrink-0"><Mail size={18}/></div>
-              <div className="flex-1">
-                <div className="text-sm font-semibold text-[var(--color-fg)] tracking-tight">Email</div>
-                <div className="text-xs text-[var(--color-muted)] font-mono">contact@hirebest.online</div>
-              </div>
-              <ArrowRight size={16} className="text-[var(--color-muted)] group-hover:text-[var(--color-primary-2)] transition"/>
-            </a>
+          <div className="mt-10 space-y-3">
+            {[
+              { href: 'https://wa.me/8801324419060', icon: MessageCircle, label: 'WhatsApp', sub: '+880 1324 419 060', ext: true },
+              { href: 'mailto:contact@hirebest.online', icon: Mail, label: 'Email', sub: 'contact@hirebest.online', ext: false },
+            ].map((c, i) => (
+              <Reveal key={c.label} delay={0.4 + i * 0.08}>
+                <a
+                  href={c.href}
+                  {...(c.ext ? { target: '_blank', rel: 'noreferrer' } : {})}
+                  className="group flex items-center gap-4 rounded-2xl border border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-card)_70%,transparent)] backdrop-blur p-5 hover:border-[color-mix(in_srgb,var(--color-primary)_45%,transparent)] transition"
+                >
+                  <span className="icon-badge shrink-0"><c.icon size={18}/></span>
+                  <span className="flex-1">
+                    <span className="block font-[family-name:var(--font-heading)] text-lg font-semibold tracking-[-0.03em] text-[var(--color-fg)]">{c.label}</span>
+                    <span className="block text-xs text-[var(--color-muted)] font-mono">{c.sub}</span>
+                  </span>
+                  <span className="w-10 h-10 rounded-full border border-[var(--color-border-strong)] flex items-center justify-center text-[var(--color-muted)] group-hover:bg-[var(--color-primary)] group-hover:border-transparent group-hover:text-white transition">
+                    <ArrowRight size={16} className="group-hover:-rotate-45 transition-transform duration-300"/>
+                  </span>
+                </a>
+              </Reveal>
+            ))}
           </div>
 
-          <div className="mt-6 flex items-center gap-2 text-xs text-[var(--color-muted)]">
-            <Clock size={12}/>
-            <span>Typical reply · under 4h during business hours (BDT)</span>
+          <div className="mt-6 flex items-center gap-2 text-xs text-[var(--color-muted)] font-mono">
+            <span className="relative flex w-2 h-2">
+              <span className="absolute inline-flex h-full w-full rounded-full bg-[var(--color-fit)] opacity-60 animate-ping" />
+              <span className="relative inline-flex w-2 h-2 rounded-full bg-[var(--color-fit)]" />
+            </span>
+            <Clock size={12}/> Typical reply · under 4h during business hours (BDT)
           </div>
         </div>
 
@@ -89,14 +86,14 @@ export default function Contact() {
         <div className="lg:col-span-7">
           <motion.form
             onSubmit={submit}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ type: 'spring', stiffness: 180, damping: 22 }}
-            className="card p-8 space-y-4"
+            initial={{ opacity: 0, y: 24, filter: 'blur(6px)' }}
+            animate={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+            transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
+            className="tile p-8 md:p-10 space-y-5"
           >
             <div>
-              <h2 className="text-xl font-semibold tracking-tight">Send a message</h2>
-              <p className="text-sm text-[var(--color-muted)] mt-1">All fields marked with * are required.</p>
+              <h2 className="display-md">Send a message</h2>
+              <p className="text-sm text-[var(--color-muted)] mt-2">All fields marked with * are required.</p>
             </div>
 
             <AnimatePresence>
@@ -105,7 +102,7 @@ export default function Contact() {
                   initial={{ opacity: 0, y: -8 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -8 }}
-                  className="rounded-lg border border-[var(--color-fit)]/40 bg-[color-mix(in_srgb,var(--color-fit)_10%,transparent)] text-[var(--color-fit)] p-4 text-sm flex items-start gap-2"
+                  className="rounded-2xl border border-[var(--color-fit)]/40 bg-[color-mix(in_srgb,var(--color-fit)_10%,transparent)] text-[var(--color-fit)] p-4 text-sm flex items-start gap-2"
                 >
                   <CheckCircle2 size={16} className="shrink-0 mt-0.5"/>
                   <div>
@@ -116,24 +113,24 @@ export default function Contact() {
               )}
             </AnimatePresence>
 
-            <div className="grid sm:grid-cols-2 gap-3">
+            <div className="grid sm:grid-cols-2 gap-4">
               <label className="block">
-                <span className="text-xs uppercase tracking-widest text-[var(--color-muted)] mb-1.5 block">Full name *</span>
+                <span className="text-[11px] font-mono uppercase tracking-[0.16em] text-[var(--color-muted)] mb-2 block">Full name *</span>
                 <input required placeholder="Priya Iyer" value={name} onChange={e => setName(e.target.value)} className="field" maxLength={200}/>
               </label>
               <label className="block">
-                <span className="text-xs uppercase tracking-widest text-[var(--color-muted)] mb-1.5 block">Work email *</span>
+                <span className="text-[11px] font-mono uppercase tracking-[0.16em] text-[var(--color-muted)] mb-2 block">Work email *</span>
                 <input required type="email" placeholder="priya@company.com" value={email} onChange={e => setEmail(e.target.value)} className="field" maxLength={200}/>
               </label>
             </div>
 
             <label className="block">
-              <span className="text-xs uppercase tracking-widest text-[var(--color-muted)] mb-1.5 block">Company</span>
+              <span className="text-[11px] font-mono uppercase tracking-[0.16em] text-[var(--color-muted)] mb-2 block">Company</span>
               <input placeholder="Optional" value={company} onChange={e => setCompany(e.target.value)} className="field" maxLength={200}/>
             </label>
 
             <label className="block">
-              <span className="text-xs uppercase tracking-widest text-[var(--color-muted)] mb-1.5 block">How can we help? *</span>
+              <span className="text-[11px] font-mono uppercase tracking-[0.16em] text-[var(--color-muted)] mb-2 block">How can we help? *</span>
               <textarea
                 required
                 placeholder="Tell us a bit about your team and what you're trying to figure out."
@@ -143,8 +140,8 @@ export default function Contact() {
                 className="field resize-y"
                 maxLength={5000}
               />
-              <div className="mt-1 flex items-center justify-between text-[10px] text-[var(--color-muted-2)]">
-                <span>Markdown supported. No brochures — just tell us what you're actually solving.</span>
+              <div className="mt-1.5 flex items-center justify-between text-[10px] text-[var(--color-muted-2)]">
+                <span>No brochures — just tell us what you're actually solving.</span>
                 <span className="font-mono tabular">{message.length}/5000</span>
               </div>
             </label>
@@ -162,11 +159,13 @@ export default function Contact() {
               )}
             </AnimatePresence>
 
-            <div className="flex items-center gap-3 pt-2">
-              <button type="submit" disabled={busy} className="btn-primary flex-1 sm:flex-none justify-center">
-                <Send size={14}/>{busy ? 'Sending…' : 'Send message'}
-              </button>
-              <Link to="/pricing" className="btn-ghost">See pricing <ArrowRight size={14}/></Link>
+            <div className="flex flex-wrap items-center gap-3 pt-2">
+              <Magnetic strength={0.2}>
+                <button type="submit" disabled={busy} className="btn-primary btn-lg justify-center">
+                  <Send size={15}/>{busy ? 'Sending…' : 'Send message'}
+                </button>
+              </Magnetic>
+              <Link to="/pricing" className="btn-ghost btn-lg">See pricing <ArrowRight size={15}/></Link>
             </div>
           </motion.form>
         </div>
