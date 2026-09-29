@@ -14,7 +14,7 @@
  * Result: Googlebot sees real <h1>, body copy, JSON-LD in static HTML.
  * React hydrates on client for interactivity.
  */
-import { writeFileSync, mkdirSync, statSync } from 'node:fs'
+import { writeFileSync, readFileSync, mkdirSync, statSync } from 'node:fs'
 import { createServer } from 'node:http'
 import { join, dirname, extname } from 'node:path'
 import { fileURLToPath } from 'node:url'
@@ -40,10 +40,24 @@ const ROUTES = [
   { path: '/blog/greenhouse-pricing-2026',        noindex: false },
   { path: '/blog/screen-100-cvs-in-38-seconds',  noindex: false },
   { path: '/blog/hirebest-vs-greenhouse-2026',   noindex: false },
+  { path: '/blog/marketing-manager-interview-questions', noindex: false },
+  { path: '/blog/software-engineer-interview-questions', noindex: false },
+  { path: '/blog/workable-pricing-2026',          noindex: false },
   { path: '/privacy-policy',                      noindex: true  },
   { path: '/terms-and-conditions',                noindex: true  },
   { path: '/refund-policy',                       noindex: true  },
 ]
+
+// Any URL in the sitemap that isn't listed above would ship without an
+// index.html and Vercel would serve it as a 404 — so snapshot it too.
+const sitemap = readFileSync(join(__dirname, '..', 'public', 'sitemap.xml'), 'utf-8')
+for (const [, loc] of sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)) {
+  const path = loc.replace(BASE, '') || '/'
+  if (!ROUTES.some(r => r.path === path)) {
+    console.log(`  + ${path} (from sitemap.xml)`)
+    ROUTES.push({ path, noindex: false })
+  }
+}
 
 const MIME = {
   '.html': 'text/html', '.js': 'application/javascript',
