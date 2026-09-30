@@ -11,7 +11,7 @@ export default function Privacy() {
   return (
     <LegalPage title="Privacy Policy" updated="Last updated: May 9, 2026">
       <h2>What we collect</h2>
-      <p>HireBest collects account information, uploaded job descriptions and resumes, usage analytics, and billing details. We do not store full card numbers.</p>
+      <p>HireBest collects account information, uploaded job descriptions and resumes, usage analytics, and billing details. We do not store full card numbers — payments are processed by Stripe, which handles card data under PCI DSS.</p>
       <h2>Our role</h2>
       <p>Recruiters control candidate data. HireBest acts as a processor on your behalf. You confirm you have lawful authorization to share CVs with the platform.</p>
       <h2>AI and third parties</h2>

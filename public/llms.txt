@@ -11,7 +11,7 @@
 - Free trial: 14 days on every paid plan, no credit card required
 - Free tier: 50 screenings, no credit card required
 - Hosting: Vercel + Supabase + OpenAI gpt-4o-mini
-- Payments: Lemon Squeezy (cards, no PayPal required)
+- Payments: Stripe (cards, Apple Pay, Google Pay)
 - Founded: 2024
 - Founder: Azmain Raihan
 - Contact: contact@hirebest.online | WhatsApp +880 1324 419 060
