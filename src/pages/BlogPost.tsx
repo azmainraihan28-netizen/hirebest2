@@ -7,6 +7,12 @@ import Breadcrumbs from '../components/Breadcrumbs'
 
 // Per-slug related links: contextual internal links shown after article
 const relatedLinks: Record<string, { label: string; href: string; desc: string }[]> = {
+  'greenhouse-vs-workable': [
+    { label: 'Greenhouse Pricing 2026', href: '/blog/greenhouse-pricing-2026', desc: 'Essential, Advanced, and Expert — and the per-seat trap.' },
+    { label: 'Workable Pricing 2026', href: '/blog/workable-pricing-2026', desc: 'What Workable really costs once add-ons and headcount bands kick in.' },
+    { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'A lower-cost Workable alternative for AI resume screening.' },
+    { label: 'HireBest vs Greenhouse', href: '/vs-greenhouse', desc: 'AI-first screening vs a full enterprise ATS.' },
+  ],
   'backend-developer-interview-questions': [
     { label: "50 Software Engineer Interview Questions", href: '/blog/software-engineer-interview-questions', desc: "The hub guide: fundamentals, coding, system design, behavioral, and motivation." },
     { label: "35 Frontend Developer Interview Questions", href: '/blog/frontend-developer-interview-questions', desc: "JavaScript, React, CSS, performance, and accessibility." },
@@ -39,7 +45,7 @@ const relatedLinks: Record<string, { label: string; href: string; desc: string }
     { label: '50 Software Engineer Interview Questions', href: '/blog/software-engineer-interview-questions', desc: 'The companion guide for engineering hires.' },
     { label: 'HireBest Free Interview Question Generator', href: '/tools/interview-questions', desc: 'Paste a JD, get role-specific questions in 30 seconds.' },
     { label: 'How to Screen 100 CVs in 38 Seconds', href: '/blog/screen-100-cvs-in-38-seconds', desc: 'The screening step before the interview loop — compressed into a coffee break.' },
-    { label: 'HireBest Pricing', href: '/pricing', desc: 'Transparent SaaS pricing — $400–$1,500/year with no demos.' },
+    { label: 'HireBest Pricing', href: '/pricing', desc: 'Transparent SaaS pricing — $49–$199/month, 14-day free trial.' },
   ],
   'software-engineer-interview-questions': [
     { label: "35 Backend Developer Interview Questions", href: '/blog/backend-developer-interview-questions', desc: "APIs, databases, concurrency, reliability, and backend system design." },
@@ -49,16 +55,18 @@ const relatedLinks: Record<string, { label: string; href: string; desc: string }
     { label: 'HireBest Free Interview Question Generator', href: '/tools/interview-questions', desc: 'Paste a JD, get role-specific questions tailored to the seniority and stack.' },
     { label: 'How to Screen 100 CVs in 38 Seconds', href: '/blog/screen-100-cvs-in-38-seconds', desc: 'The screening step before the interview loop — compressed into a coffee break.' },
     { label: 'Why "AI ATS" is the Wrong Way to Think About Hiring', href: '/blog/ai-ats-wrong-way-to-think', desc: 'The category label hides the real shift — what AI actually replaces in your hiring day.' },
-    { label: 'HireBest Pricing', href: '/pricing', desc: 'Transparent SaaS pricing — $400–$1,500/year with no demos.' },
+    { label: 'HireBest Pricing', href: '/pricing', desc: 'Transparent SaaS pricing — $49–$199/month, 14-day free trial.' },
   ],
   'workable-pricing-2026': [
+    { label: 'Greenhouse vs Workable (2026)', href: '/blog/greenhouse-vs-workable', desc: 'Pricing, pricing model, features, and which one fits your team.' },
     { label: 'HireBest vs Workable — full comparison', href: '/vs-workable', desc: 'Pricing, AI features, setup time, and who each tool is built for.' },
     { label: 'HireBest vs Greenhouse', href: '/vs-greenhouse', desc: 'How Greenhouse\'s $5,000–$14,000/year stacks up against HireBest\'s tiered pricing.' },
-    { label: 'HireBest vs Lever', href: '/vs-lever', desc: 'Lever starts at $5,000–$25,000+/year. HireBest at $400/year.' },
+    { label: 'HireBest vs Lever', href: '/vs-lever', desc: 'Lever starts at $5,000–$25,000+/year. HireBest from $49/month.' },
     { label: 'Greenhouse Pricing in 2026', href: '/blog/greenhouse-pricing-2026', desc: 'The companion post on what Greenhouse really costs.' },
-    { label: 'HireBest Pricing', href: '/pricing', desc: 'Transparent SaaS pricing — $400–$1,500/year with no demos.' },
+    { label: 'HireBest Pricing', href: '/pricing', desc: 'Transparent SaaS pricing — $49–$199/month, 14-day free trial.' },
   ],
   'greenhouse-pricing-2026': [
+    { label: 'Greenhouse vs Workable (2026)', href: '/blog/greenhouse-vs-workable', desc: 'Pricing, pricing model, features, and which one fits your team.' },
     { label: 'HireBest vs Greenhouse — full comparison', href: '/vs-greenhouse', desc: 'Pricing, AI features, setup time, and who each tool is built for.' },
     { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'How Workable\'s $299/month stacks up against HireBest\'s $49–199/month tiered pricing.' },
     { label: 'HireBest vs Lever', href: '/vs-lever', desc: 'Lever starts at $5,000–$25,000+/year. HireBest at $49/month.' },

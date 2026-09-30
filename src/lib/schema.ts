@@ -29,6 +29,7 @@ export const organization = () => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
   name: 'HireBest',
+  alternateName: ['Hire Best', 'HireBest.online'],
   url: 'https://hirebest.online',
   logo: 'https://hirebest.online/favicon-256.png',
   sameAs: [
@@ -124,6 +125,7 @@ export const websiteSchema = () => ({
   '@context': 'https://schema.org',
   '@type': 'WebSite',
   name: 'HireBest',
+  alternateName: ['Hire Best', 'HireBest.online'],
   url: 'https://hirebest.online',
   description: 'AI resume screener that scores 100 CVs in 38 seconds with JD-cited reasoning.',
   potentialAction: {

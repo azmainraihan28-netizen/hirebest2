@@ -9,6 +9,8 @@ type Row = { f: string; us: string; them: string }
 type Props = {
   competitor: string
   headline: string
+  /** Shorter, keyword-first <title>; defaults to the headline. */
+  seoTitle?: string
   intro: string
   forUs: string[]
   forCompetitor: string[]
@@ -26,8 +28,8 @@ const stagger: Variants = {
   show:   { opacity: 1, transition: { staggerChildren: 0.06, delayChildren: 0.04 } },
 }
 
-export default function VsPage({ competitor, headline, intro, forUs, forCompetitor, rows, cta, faqs }: Props) {
-  useSeo({ title: headline, description: intro })
+export default function VsPage({ competitor, headline, seoTitle, intro, forUs, forCompetitor, rows, cta, faqs }: Props) {
+  useSeo({ title: seoTitle ?? headline, description: intro })
   useSchema(`vs-${competitor.toLowerCase()}-faq`, faqs && faqs.length > 0 ? faqPage(faqs) : null)
 
   return (
