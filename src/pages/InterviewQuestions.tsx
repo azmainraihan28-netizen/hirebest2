@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Sparkles, MapPin, Briefcase, ArrowRight, Clock, FileText, Users } from 'lucide-react'
+import { Sparkles, MapPin, Briefcase, ArrowRight, Clock, FileText, Users, Shuffle } from 'lucide-react'
 import { useSeo } from '../lib/seo'
 import { useSchema, howTo, faqPage } from '../lib/schema'
 import Breadcrumbs from '../components/Breadcrumbs'
@@ -18,10 +18,12 @@ const howToSchema = howTo({
 })
 
 const faqs = [
-  { q: 'Is this interview question generator really free?', a: 'Yes. No signup, no credit card, no usage limit. Paste any job description and generate tailored interview questions as many times as you need.' },
+  { q: 'Is this interview question generator really free?', a: 'Yes. No signup and no credit card. Paste any job description and generate tailored interview questions — up to 20 generations per hour per person to keep the tool free for everyone.' },
   { q: 'What types of interview questions does the AI generate?', a: 'The generator produces a mix of behavioral, situational, and role-specific questions based on the skills, responsibilities, and requirements in your job description. Each question includes an ideal answer so you know what to listen for.' },
   { q: 'Can I use this for any role or industry?', a: 'Yes. The AI reads your specific job description and tailors questions accordingly — whether you are hiring a software engineer, marketing manager, product designer, data analyst, or any other role in any industry.' },
   { q: 'How is this different from a generic list of interview questions?', a: 'Generic lists give you the same 10 questions for every role. This tool reads your actual JD and generates questions that reference the specific skills, tools, and responsibilities you listed — so the interview is relevant to what the hire will actually do.' },
+  { q: 'Is there a random interview question generator?', a: 'Yes — use the "Random interview question" button on this page. It pulls a question from a bank of common behavioral, situational, and role-agnostic interview questions, each with what to listen for. It is handy for practice, warm-ups, or when you do not have a job description yet.' },
+  { q: 'How do I create good interview questions?', a: 'Start from the job description: list the 3–5 skills the role truly needs, then write one question that asks for past evidence of each ("Tell me about a time…") and one realistic scenario from the job. Decide in advance what a strong answer includes. The AI generator above does exactly this from your JD in seconds.' },
   { q: 'Do I need to create an account to use the interview question generator?', a: 'No. The tool works instantly with no signup. If you want to screen CVs against the same JD, HireBest offers a 14-day free trial for AI resume screening.' },
 ]
 
@@ -30,12 +32,43 @@ const faqSchema = faqPage(faqs)
 const popularRoles = [
   { title: '40 Marketing Manager Interview Questions', slug: 'marketing-manager-interview-questions', desc: 'Strategy, campaigns, analytics, leadership — with what to listen for.' },
   { title: '50 Software Engineer Interview Questions', slug: 'software-engineer-interview-questions', desc: 'Technical, behavioral, system design, situational — with scoring rubric.' },
+  { title: '35 Backend Developer Interview Questions', slug: 'backend-developer-interview-questions', desc: 'APIs, databases, concurrency, reliability, and system design.' },
+  { title: '35 Frontend Developer Interview Questions', slug: 'frontend-developer-interview-questions', desc: 'JavaScript, React, CSS, performance, and accessibility.' },
+  { title: '30 Behavioral Interview Questions for Software Engineers', slug: 'behavioral-interview-questions-for-software-engineers', desc: 'Ownership, conflict, failure — plus a scoring rubric.' },
+]
+
+// Role-agnostic bank for the random question button (no JD needed).
+const randomBank: { q: string; a: string; cat: string }[] = [
+  { cat: 'Behavioral', q: 'Tell me about a time you missed a deadline. What happened?', a: 'Listen for when they saw it coming and when they told people. Early warning is the skill.' },
+  { cat: 'Behavioral', q: 'Describe the hardest feedback you have received and what you changed.', a: 'A specific piece of feedback and a specific behaviour change. Defensiveness is a red flag.' },
+  { cat: 'Behavioral', q: 'Tell me about a time you disagreed with your manager.', a: 'Evidence over opinion, a respectful tone, and willingness to disagree and commit.' },
+  { cat: 'Behavioral', q: 'Walk me through a project you are proud of. What was your part?', a: 'Their personal contribution and a real outcome — not just what the team did.' },
+  { cat: 'Behavioral', q: 'Tell me about a mistake that had real consequences.', a: 'A real mistake owned plainly, plus what they do differently now.' },
+  { cat: 'Behavioral', q: 'Describe a time you had to learn something new very quickly.', a: 'How they learned, who they asked, and how they checked they got it right.' },
+  { cat: 'Behavioral', q: 'Tell me about a time you helped a struggling teammate.', a: 'Support that respected the teammate, rather than taking over their work.' },
+  { cat: 'Behavioral', q: 'Describe a time you had to deliver bad news to a stakeholder.', a: 'Delivered early and directly, with options or a plan attached.' },
+  { cat: 'Situational', q: 'You have three urgent requests from three managers and time for one. What do you do?', a: 'Clarifies real priority with the people involved instead of silently guessing.' },
+  { cat: 'Situational', q: 'You notice a colleague took credit for your work in a meeting. How do you handle it?', a: 'A calm, private conversation first; focus on the work, not the grudge.' },
+  { cat: 'Situational', q: 'Halfway through a project, the requirements change completely. What do you do?', a: 'Re-confirms goals, re-plans scope and timeline, and communicates the impact openly.' },
+  { cat: 'Situational', q: 'A customer is angry about something that was not your fault. How do you respond?', a: 'Acknowledges the frustration, owns the next step, and avoids blaming others.' },
+  { cat: 'Situational', q: 'You realise a report you already sent to leadership has an error. What now?', a: 'Corrects it quickly and transparently, with the impact explained.' },
+  { cat: 'Situational', q: 'Your first week: no one has time to onboard you. How do you get productive?', a: 'Self-directed learning, finding the right people, and shipping something small early.' },
+  { cat: 'Motivation', q: 'Why do you want this role, and why now?', a: 'Specific to the company and role, not a generic answer that fits any job.' },
+  { cat: 'Motivation', q: 'What kind of work gives you energy, and what drains you?', a: 'An honest answer you can compare with what the job really involves.' },
+  { cat: 'Motivation', q: 'Where do you want to be in three years?', a: 'Ambition that fits what this role can realistically offer.' },
+  { cat: 'Motivation', q: 'Why are you leaving your current job?', a: 'Honest reasons without bitterness, which this role actually addresses.' },
+  { cat: 'Motivation', q: 'What would make you leave this job in a year?', a: 'A candid answer tells you what to watch for as their manager.' },
+  { cat: 'Skills', q: 'Walk me through how you would approach your first 90 days in this role.', a: 'Learning before changing, early quick wins, and the right stakeholders named.' },
+  { cat: 'Skills', q: 'How do you decide what to work on first when everything feels important?', a: 'A clear method tied to impact and deadlines, not just whoever shouts loudest.' },
+  { cat: 'Skills', q: 'Tell me about a decision you made with incomplete information.', a: 'How they reduced risk and how they would reverse the decision if wrong.' },
+  { cat: 'Skills', q: 'How do you measure whether your work was successful?', a: 'Concrete outcomes and metrics rather than activity.' },
+  { cat: 'Skills', q: 'Explain something complex from your field as if I were new to it.', a: 'Plain language, a good analogy, and checking for understanding.' },
 ]
 
 export default function InterviewQuestions() {
   useSeo({
-    title: 'Free AI Interview Question Generator — Tailored to Any JD',
-    description: 'Free AI interview questions generator — paste any job description and get 5 tailored interview questions with ideal answers in seconds. No signup, no limit. Works for any role.',
+    title: 'AI Interview Questions Generator — Free, From Any Job Description',
+    description: 'Free AI interview question generator: paste a job description and get 5 tailored interview questions with ideal answers in seconds. Plus a random interview question generator. No signup.',
   })
   useSchema('tools-iq-howto', howToSchema)
   useSchema('tools-iq-faq', faqSchema)
@@ -45,21 +78,34 @@ export default function InterviewQuestions() {
   const [sen, setSen] = useState('')
   const [out, setOut] = useState<{ q: string; a: string }[] | null>(null)
   const [busy, setBusy] = useState(false)
+  const [err, setErr] = useState('')
+  const [rand, setRand] = useState<(typeof randomBank)[number] | null>(null)
 
-  const submit = (e: React.FormEvent) => {
+  const nextRandom = () => {
+    let pick = randomBank[Math.floor(Math.random() * randomBank.length)]
+    if (rand && pick.q === rand.q) pick = randomBank[(randomBank.indexOf(pick) + 1) % randomBank.length]
+    setRand(pick)
+  }
+
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!jd || !loc) return
     setBusy(true)
-    setTimeout(() => {
-      setOut([
-        { q: `Walk me through how you'd approach the first 90 days in this ${role || 'role'} based on what you saw in the JD.`, a: 'Strong answers reference concrete deliverables tied to JD priorities, a learning-vs-shipping split, and stakeholders they\'d engage in week one.' },
-        { q: 'What is a project where you delivered impact under similar constraints to what the JD describes?', a: 'Look for a measurable outcome, the constraint named explicitly, and what they\'d do differently knowing what they know now.' },
-        { q: `How do you think about the team culture and pace in ${loc}?`, a: 'Bonus points for understanding regional norms, async vs sync expectations, and a thoughtful comparison to prior environments.' },
-        { q: 'Which of the JD requirements feels furthest from your current strengths, and how would you close that gap?', a: 'Self-awareness + a concrete learning plan. Red flag: deflection or claiming no gaps exist.' },
-        { q: `Why this role, why now, and why us?`, a: 'Specific to your company\'s mission or product, not generic. Should connect their next career step to what you actually offer.' },
-      ])
+    setErr('')
+    try {
+      const r = await fetch('/api/chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: 'interview-questions', jd, location: loc, role, seniority: sen }),
+      })
+      const data = await r.json().catch(() => ({}))
+      if (!r.ok || !Array.isArray(data.questions)) throw new Error(data.error || 'Something went wrong. Please try again.')
+      setOut(data.questions)
+    } catch (e: any) {
+      setErr(e?.message ?? 'Something went wrong. Please try again.')
+    } finally {
       setBusy(false)
-    }, 800)
+    }
   }
 
   return (
@@ -67,8 +113,8 @@ export default function InterviewQuestions() {
       <Breadcrumbs trail={[{ name: 'Free Tools' }, { name: 'AI Interview Question Generator' }]} schemaId="tools-iq-bc"/>
       <section className="max-w-4xl mx-auto px-5 pt-10 pb-10 text-center">
         <span className="chip">Free Tool</span>
-        <h1 className="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight">Free AI <span className="gradient-text">Interview Question Generator</span></h1>
-        <p className="mt-4 text-lg text-[var(--color-muted)]">Paste any job description and get 5 tailored interview questions with ideal answers — in seconds. No signup required.</p>
+        <h1 className="mt-5 text-4xl md:text-5xl font-extrabold tracking-tight">Free AI <span className="gradient-text">Interview Questions Generator</span></h1>
+        <p className="mt-4 text-lg text-[var(--color-muted)]">Paste any job description and the AI writes 5 interview questions for that exact role — each with what a strong answer sounds like. No signup required.</p>
       </section>
 
       <section className="max-w-3xl mx-auto px-5 py-6">
@@ -94,8 +140,10 @@ export default function InterviewQuestions() {
           <button type="submit" disabled={busy} className="btn-primary w-full justify-center">{busy ? 'Generating…' : 'Generate 5 Questions'} <Sparkles size={16}/></button>
         </form>
 
+        {err && <p role="alert" className="mt-4 text-sm text-red-500">{err}</p>}
+
         {out && (
-          <div className="mt-8 space-y-4">
+          <div className="mt-8 space-y-4" aria-live="polite">
             {out.map((q, i) => (
               <div key={i} className="card p-6">
                 <div className="text-xs text-[var(--color-primary-2)] uppercase tracking-wider">Question {i+1}</div>
@@ -105,6 +153,25 @@ export default function InterviewQuestions() {
             ))}
           </div>
         )}
+      </section>
+
+      <section className="max-w-3xl mx-auto px-5 py-10">
+        <div className="card p-7">
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <div>
+              <h2 className="text-xl font-bold">Random interview question generator</h2>
+              <p className="mt-1 text-sm text-[var(--color-muted)]">No job description yet? Pull a random behavioral, situational, or motivation question — for practice or warm-ups.</p>
+            </div>
+            <button type="button" onClick={nextRandom} className="btn-ghost">{rand ? 'Another one' : 'Random question'} <Shuffle size={16}/></button>
+          </div>
+          {rand && (
+            <div className="mt-5 border-t border-[var(--color-border)] pt-5" aria-live="polite">
+              <div className="text-xs text-[var(--color-primary-2)] uppercase tracking-wider">{rand.cat}</div>
+              <p className="mt-2 font-semibold text-[var(--color-fg)]">{rand.q}</p>
+              <p className="mt-2 text-sm text-[var(--color-muted)]"><b className="text-[var(--color-primary-2)]">Listen for:</b> {rand.a}</p>
+            </div>
+          )}
+        </div>
       </section>
 
       <section className="max-w-5xl mx-auto px-5 py-16">
@@ -140,6 +207,21 @@ export default function InterviewQuestions() {
               <p className="text-sm text-[var(--color-muted)] mt-2">{c.d}</p>
             </div>
           ))}
+        </div>
+      </section>
+
+      <section className="max-w-3xl mx-auto px-5 py-12">
+        <h2 className="text-2xl font-bold mb-4">Interview question creation: how to write good questions yourself</h2>
+        <div className="space-y-4 text-[var(--color-muted)] leading-relaxed">
+          <p>The generator follows the same method a good interviewer uses. If you want to create interview questions by hand, work through these steps:</p>
+          <ol className="list-decimal pl-6 space-y-2">
+            <li><b className="text-[var(--color-fg)]">Pick 3–5 must-have skills</b> from the job description — the things the person truly cannot do the job without.</li>
+            <li><b className="text-[var(--color-fg)]">Ask for past evidence of each one.</b> "Tell me about a time you…" beats "How would you…" because it asks what they did, not what they know to say.</li>
+            <li><b className="text-[var(--color-fg)]">Add one realistic scenario</b> from the actual job, so you see how they think on something you care about.</li>
+            <li><b className="text-[var(--color-fg)]">Write down what a strong answer includes</b> before the interview, so every interviewer scores the same way.</li>
+            <li><b className="text-[var(--color-fg)]">Plan one follow-up per question</b> — "What did you personally do?" or "What would you change now?" is where the real signal is.</li>
+          </ol>
+          <p>Ask every candidate for the role the same core questions, and score answers on a simple 1–4 scale. Consistency is what makes interviews fair and predictive.</p>
         </div>
       </section>
 
