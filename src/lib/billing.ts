@@ -39,12 +39,12 @@ async function authedPost(path: string, body: unknown = {}): Promise<{ url: stri
 
 /** Returns the Stripe Checkout URL (or the billing portal if already subscribed). */
 export async function startCheckout(plan: PaidPlanKey, interval: BillingInterval): Promise<string> {
-  return (await authedPost('/api/stripe-checkout', { plan, interval })).url
+  return (await authedPost('/api/billing', { action: 'checkout', plan, interval })).url
 }
 
 /** Returns a Stripe customer-portal URL: card, plan switch, cancel, invoices. */
 export async function openBillingPortal(): Promise<string> {
-  return (await authedPost('/api/stripe-portal')).url
+  return (await authedPost('/api/billing', { action: 'portal' })).url
 }
 
 export async function listMySubscriptions(): Promise<Subscription[]> {
