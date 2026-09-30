@@ -7,6 +7,34 @@ import Breadcrumbs from '../components/Breadcrumbs'
 
 // Per-slug related links: contextual internal links shown after article
 const relatedLinks: Record<string, { label: string; href: string; desc: string }[]> = {
+  'backend-developer-interview-questions': [
+    { label: "50 Software Engineer Interview Questions", href: '/blog/software-engineer-interview-questions', desc: "The hub guide: fundamentals, coding, system design, behavioral, and motivation." },
+    { label: "35 Frontend Developer Interview Questions", href: '/blog/frontend-developer-interview-questions', desc: "JavaScript, React, CSS, performance, and accessibility." },
+    { label: "30 Behavioral Interview Questions for Software Engineers", href: '/blog/behavioral-interview-questions-for-software-engineers', desc: "Ownership, conflict, failure, and a rubric for scoring answers." },
+    { label: "How to Screen Software Engineer Resumes", href: '/blog/how-to-screen-software-engineer-resumes', desc: "A 7-step process for finding the right 10% of the CV pile." },
+    { label: "Free Interview Question Generator", href: '/tools/interview-questions', desc: "Paste a JD, get role-specific questions in 30 seconds." },
+  ],
+  'frontend-developer-interview-questions': [
+    { label: "50 Software Engineer Interview Questions", href: '/blog/software-engineer-interview-questions', desc: "The hub guide: fundamentals, coding, system design, behavioral, and motivation." },
+    { label: "35 Backend Developer Interview Questions", href: '/blog/backend-developer-interview-questions', desc: "APIs, databases, concurrency, reliability, and backend system design." },
+    { label: "30 Behavioral Interview Questions for Software Engineers", href: '/blog/behavioral-interview-questions-for-software-engineers', desc: "Ownership, conflict, failure, and a rubric for scoring answers." },
+    { label: "How to Screen Software Engineer Resumes", href: '/blog/how-to-screen-software-engineer-resumes', desc: "A 7-step process for finding the right 10% of the CV pile." },
+    { label: "Free Interview Question Generator", href: '/tools/interview-questions', desc: "Paste a JD, get role-specific questions in 30 seconds." },
+  ],
+  'behavioral-interview-questions-for-software-engineers': [
+    { label: "50 Software Engineer Interview Questions", href: '/blog/software-engineer-interview-questions', desc: "The hub guide: fundamentals, coding, system design, behavioral, and motivation." },
+    { label: "35 Backend Developer Interview Questions", href: '/blog/backend-developer-interview-questions', desc: "APIs, databases, concurrency, reliability, and backend system design." },
+    { label: "35 Frontend Developer Interview Questions", href: '/blog/frontend-developer-interview-questions', desc: "JavaScript, React, CSS, performance, and accessibility." },
+    { label: "How to Screen Software Engineer Resumes", href: '/blog/how-to-screen-software-engineer-resumes', desc: "A 7-step process for finding the right 10% of the CV pile." },
+    { label: "Free Interview Question Generator", href: '/tools/interview-questions', desc: "Paste a JD, get role-specific questions in 30 seconds." },
+  ],
+  'how-to-screen-software-engineer-resumes': [
+    { label: "50 Software Engineer Interview Questions", href: '/blog/software-engineer-interview-questions', desc: "The hub guide: fundamentals, coding, system design, behavioral, and motivation." },
+    { label: "35 Backend Developer Interview Questions", href: '/blog/backend-developer-interview-questions', desc: "APIs, databases, concurrency, reliability, and backend system design." },
+    { label: "35 Frontend Developer Interview Questions", href: '/blog/frontend-developer-interview-questions', desc: "JavaScript, React, CSS, performance, and accessibility." },
+    { label: "30 Behavioral Interview Questions for Software Engineers", href: '/blog/behavioral-interview-questions-for-software-engineers', desc: "Ownership, conflict, failure, and a rubric for scoring answers." },
+    { label: "Free Interview Question Generator", href: '/tools/interview-questions', desc: "Paste a JD, get role-specific questions in 30 seconds." },
+  ],
   'marketing-manager-interview-questions': [
     { label: '50 Software Engineer Interview Questions', href: '/blog/software-engineer-interview-questions', desc: 'The companion guide for engineering hires.' },
     { label: 'HireBest Free Interview Question Generator', href: '/tools/interview-questions', desc: 'Paste a JD, get role-specific questions in 30 seconds.' },
@@ -14,6 +42,10 @@ const relatedLinks: Record<string, { label: string; href: string; desc: string }
     { label: 'HireBest Pricing', href: '/pricing', desc: 'Transparent SaaS pricing — $400–$1,500/year with no demos.' },
   ],
   'software-engineer-interview-questions': [
+    { label: "35 Backend Developer Interview Questions", href: '/blog/backend-developer-interview-questions', desc: "APIs, databases, concurrency, reliability, and backend system design." },
+    { label: "35 Frontend Developer Interview Questions", href: '/blog/frontend-developer-interview-questions', desc: "JavaScript, React, CSS, performance, and accessibility." },
+    { label: "30 Behavioral Interview Questions for Software Engineers", href: '/blog/behavioral-interview-questions-for-software-engineers', desc: "Ownership, conflict, failure, and a rubric for scoring answers." },
+    { label: "How to Screen Software Engineer Resumes", href: '/blog/how-to-screen-software-engineer-resumes', desc: "A 7-step process for finding the right 10% of the CV pile." },
     { label: 'HireBest Free Interview Question Generator', href: '/tools/interview-questions', desc: 'Paste a JD, get role-specific questions tailored to the seniority and stack.' },
     { label: 'How to Screen 100 CVs in 38 Seconds', href: '/blog/screen-100-cvs-in-38-seconds', desc: 'The screening step before the interview loop — compressed into a coffee break.' },
     { label: 'Why "AI ATS" is the Wrong Way to Think About Hiring', href: '/blog/ai-ats-wrong-way-to-think', desc: 'The category label hides the real shift — what AI actually replaces in your hiring day.' },
