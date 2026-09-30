@@ -79,7 +79,14 @@ export const faqPage = (items: { q: string; a: string }[]) => ({
   })),
 })
 
-export const article = (p: { title: string; description: string; slug: string; date: string; author?: string }) => {
+// Posts store display dates ("Jun 17, 2026"); schema.org wants ISO 8601.
+const isoDate = (d: string) => {
+  const t = new Date(d)
+  if (isNaN(t.getTime())) return d
+  return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, '0')}-${String(t.getDate()).padStart(2, '0')}`
+}
+
+export const article = (p: { title: string; description: string; slug: string; date: string; author?: string; image?: string }) => {
   const authorName = p.author ?? 'HireBest Team'
   const isNamedPerson = authorName !== 'HireBest Team'
   return {
@@ -87,9 +94,9 @@ export const article = (p: { title: string; description: string; slug: string; d
     '@type': 'BlogPosting',
     headline: p.title,
     description: p.description,
-    datePublished: p.date,
-    dateModified: p.date,
-    image: 'https://hirebest.online/og-card.png',
+    datePublished: isoDate(p.date),
+    dateModified: isoDate(p.date),
+    image: `https://hirebest.online${p.image ?? '/og-card.png'}`,
     author: isNamedPerson
       ? { '@type': 'Person', name: authorName, url: 'https://hirebest.online/about' }
       : { '@type': 'Organization', name: 'HireBest', url: 'https://hirebest.online' },

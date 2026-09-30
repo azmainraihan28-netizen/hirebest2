@@ -6,6 +6,8 @@ export type Post = {
   date: string
   readTime: string
   author: string
+  /** Shorter <title> for search results; the H1 keeps the full `title`. */
+  seoTitle?: string
   coverImage?: string
   body: string[]
 }
@@ -19,8 +21,9 @@ export const posts: Post[] = [
     date: 'Jun 17, 2026',
     readTime: '10 min read',
     author: 'HireBest Team',
-    coverImage: '/marketing-manager-interview-questions-cover.png',
+    seoTitle: '40 Marketing Manager Interview Questions + What to Listen For',
     body: [
+      "> **Short answer:** The best marketing manager interview questions cover six areas — strategy, campaign execution, analytics, leadership, behavioral, and motivation. Ask 6–8 per loop, not all 40. In every answer, listen for specifics: real numbers, named channels, and what didn't work. Vague claims like \"we drove engagement\" are the biggest red flag.",
       "A great marketing manager isn't just someone with a polished portfolio and a long list of campaigns. The right hire knows how to set strategy, measure what matters, lead a team without micromanaging, and tell the difference between vanity metrics and revenue impact. This guide gives you 40 questions across six categories, plus exactly what to listen for in each answer.",
       "Want questions tailored to your specific JD — Senior B2B Demand Gen, Content Marketing Manager, Growth Lead? [Generate them in 30 seconds with HireBest's free Interview Question Generator](/tools/interview-questions).",
       "## How to use this guide",
@@ -105,8 +108,10 @@ export const posts: Post[] = [
     date: 'Jun 16, 2026',
     readTime: '12 min read',
     author: 'HireBest Team',
-    coverImage: '/software-engineer-interview-questions-cover.png',
+    seoTitle: '50 Software Engineer Interview Questions + What to Listen For',
+    coverImage: '/software-engineer-interview-questions-cover.webp',
     body: [
+      "> **Short answer:** The best software engineer interview questions mix five categories — technical fundamentals, coding, system design (mid-level and up), behavioral, and motivation. Ask 5–7 per round with strong follow-ups. Don't grade the textbook answer; listen for how the candidate reasons through trade-offs, asks clarifying questions, and handles being wrong.",
       "Hiring a strong software engineer in 2026 isn't about finding someone who can solve LeetCode hards in 12 minutes. It's about finding someone who can ship working code, debug under pressure, communicate trade-offs to non-engineers, and not break the team culture. This guide gives you 50 questions across five categories, plus exactly what to listen for in each answer so you can spot the difference between a memorized response and real engineering judgment.",
       "Use these as your starting point. If you want questions tailored to your specific JD — Senior Backend on Go, Junior Frontend on React, Mid-level DevOps on AWS — [generate them in 30 seconds with HireBest's free Interview Question Generator](/tools/interview-questions).",
       "## How to use this guide",
@@ -199,7 +204,8 @@ export const posts: Post[] = [
     date: 'Jun 15, 2026',
     readTime: '8 min read',
     author: 'HireBest Team',
-    coverImage: '/workable-pricing-cover.png',
+    seoTitle: 'Workable Pricing 2026: Real Costs, Add-Ons & Hidden Fees',
+    coverImage: '/workable-pricing-cover.webp',
     body: [
       "## The short version",
       "Workable publishes its base prices, which is rare in the ATS world. The catch is that the base price isn't the price most teams pay. Starter opens at $149/month on annual billing, Standard at $299/month, and Premier at $599/month — but once you add Video Interviews, SMS Texting, and account for a few new hires bumping you into a higher headcount band, the real number for a 75-person company on Standard lands closer to $477/month. Annual contracts also default to a 5–8% renewal bump unless you negotiate a cap on day one.",

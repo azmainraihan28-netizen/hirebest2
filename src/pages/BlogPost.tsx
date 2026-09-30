@@ -2,7 +2,7 @@ import { Link, useParams } from 'react-router-dom'
 import { getPost, posts } from '../lib/posts'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { useSeo } from '../lib/seo'
-import { useSchema, article } from '../lib/schema'
+import { useSchema, article, faqPage } from '../lib/schema'
 import Breadcrumbs from '../components/Breadcrumbs'
 
 // Per-slug related links: contextual internal links shown after article
@@ -52,6 +52,21 @@ const relatedLinks: Record<string, { label: string; href: string; desc: string }
   ],
 }
 
+const plain = (text: string) => text.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+
+// "### Question" + answer paragraph pairs under the post's FAQ heading, for FAQPage schema.
+function faqItems(body: string[]) {
+  const start = body.findIndex(p => /^## (Frequently asked questions|FAQ)/i.test(p))
+  if (start < 0) return []
+  const items: { q: string; a: string }[] = []
+  for (let i = start + 1; i < body.length && !body[i].startsWith('## '); i++) {
+    if (body[i].startsWith('### ') && body[i + 1] && !body[i + 1].startsWith('#')) {
+      items.push({ q: body[i].slice(4), a: plain(body[i + 1]) })
+    }
+  }
+  return items
+}
+
 function renderInline(text: string, key: string | number) {
   const parts = text.split(/(\*\*[^*]+\*\*|\[[^\]]+\]\([^)]+\))/g)
   return parts.map((part, j) => {
@@ -66,11 +81,14 @@ export default function BlogPost() {
   const { slug } = useParams()
   const post = getPost(slug || '')
   useSeo({
-    title: post?.title ?? 'Article not found',
+    title: post?.seoTitle ?? post?.title ?? 'Article not found',
     description: post?.excerpt ?? 'HireBest blog',
     canonical: post ? `https://hirebest.online/blog/${post.slug}` : undefined,
+    ogType: 'article',
   })
-  useSchema('post-article', post ? article({ title: post.title, description: post.excerpt, slug: post.slug, date: post.date, author: post.author }) : null)
+  useSchema('post-article', post ? article({ title: post.title, description: post.excerpt, slug: post.slug, date: post.date, author: post.author, image: post.coverImage }) : null)
+  const faqs = post ? faqItems(post.body) : []
+  useSchema('post-faq', faqs.length ? faqPage(faqs) : null)
   if (!post) return <div className="max-w-3xl mx-auto px-5 py-20"><h1 className="text-3xl font-bold">Not found</h1><Link to="/blog" className="btn-ghost mt-4">← Back to blog</Link></div>
 
   const related = relatedLinks[post.slug] ?? []
@@ -78,7 +96,7 @@ export default function BlogPost() {
 
   return (
     <>
-    <Breadcrumbs trail={[{ name: 'Blog', href: '/blog' }, { name: post.title }]} schemaId="post-breadcrumb"/>
+    <Breadcrumbs trail={[{ name: 'Blog', href: '/blog' }, { name: post.title, href: `/blog/${post.slug}` }]} schemaId="post-breadcrumb"/>
     <article className="max-w-3xl mx-auto px-5 pt-6 pb-16">
       <Link to="/blog" className="text-sm text-[var(--color-muted)] flex items-center gap-1 hover:text-[var(--color-fg)]"><ArrowLeft size={14}/>Back to blog</Link>
       <div className="mt-6 flex items-center gap-3 text-xs text-[var(--color-muted)]">
@@ -89,7 +107,7 @@ export default function BlogPost() {
       <p className="mt-4 text-lg text-[var(--color-muted)]">{post.excerpt}</p>
       {post.coverImage && (
         <div className="mt-7 overflow-hidden rounded-2xl border border-[var(--color-border)]">
-          <img src={post.coverImage} alt={post.title} className="w-full h-auto block" loading="eager"/>
+          <img src={post.coverImage} alt={post.title} width={1200} height={900} className="w-full h-auto block" loading="eager" fetchPriority="high"/>
         </div>
       )}
       <div className="mt-5 flex items-center gap-3">

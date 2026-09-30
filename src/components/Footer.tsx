@@ -20,6 +20,12 @@ const columns = [
     { href: '/blog', label: 'Blog' },
     { href: '/contact', label: 'Contact' },
   ] },
+  { title: 'Guides', links: [
+    { href: '/blog/software-engineer-interview-questions', label: 'Software engineer interview questions' },
+    { href: '/blog/marketing-manager-interview-questions', label: 'Marketing manager interview questions' },
+    { href: '/blog/workable-pricing-2026', label: 'Workable pricing 2026' },
+    { href: '/blog/greenhouse-pricing-2026', label: 'Greenhouse pricing 2026' },
+  ] },
 ]
 
 export default function Footer() {
@@ -67,7 +73,7 @@ export default function Footer() {
 
         {/* Link grid */}
         <div className="grid grid-cols-2 md:grid-cols-12 gap-10">
-          <div className="col-span-2 md:col-span-5">
+          <div className="col-span-2 md:col-span-3">
             <Logo />
             <p className="mt-4 text-sm text-[var(--color-fg-dim)] max-w-sm leading-relaxed">
               AI resume screener for hiring teams. Score 100 CVs in 38 seconds — with JD-cited reasoning.
