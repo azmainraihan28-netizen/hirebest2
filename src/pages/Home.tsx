@@ -49,9 +49,10 @@ const tiers = [
 ] as const
 
 const articles = [
-  { slug: 'screen-100-cvs-in-38-seconds', title: 'How to Screen 100 CVs in 38 Seconds',                 read: '6 min read', tag: 'Playbook' },
-  { slug: 'greenhouse-pricing-2026',      title: "Greenhouse Pricing in 2026: What's Really Going On", read: '8 min read', tag: 'Pricing' },
-  { slug: 'ai-ats-wrong-way-to-think',    title: "Why 'AI ATS' is the Wrong Way to Think About Hiring", read: '5 min read', tag: 'Opinion' },
+  { slug: 'software-engineer-interview-questions', title: '50 Software Engineer Interview Questions',  read: '12 min read', tag: 'Hiring guide' },
+  { slug: 'marketing-manager-interview-questions', title: '40 Marketing Manager Interview Questions',  read: '10 min read', tag: 'Hiring guide' },
+  { slug: 'workable-pricing-2026',                 title: 'Workable Pricing in 2026: What You Actually Pay', read: '8 min read', tag: 'Pricing' },
+  { slug: 'screen-100-cvs-in-38-seconds',          title: 'How to Screen 100 CVs in 38 Seconds',     read: '6 min read', tag: 'Playbook' },
 ]
 
 const trust = [

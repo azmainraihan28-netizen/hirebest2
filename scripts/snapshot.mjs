@@ -67,13 +67,21 @@ const MIME = {
   '.txt': 'text/plain', '.xml': 'application/xml', '.woff2': 'font/woff2',
 }
 
+const shell = readFileSync(join(distDir, 'index.html'))
+
 function startServer() {
   return new Promise((resolve) => {
     const server = createServer((req, res) => {
       let url = req.url.split('?')[0]
       let filePath = join(distDir, url)
-      if (!extname(url)) filePath = join(distDir, 'index.html')
-      try { statSync(filePath) } catch { filePath = join(distDir, 'index.html') }
+      if (!extname(url)) filePath = null
+      else try { statSync(filePath) } catch { filePath = null }
+      // SPA routes get the pristine Vite shell. dist/index.html is overwritten by
+      // the "/" snapshot, and serving that would leak the homepage's JSON-LD into every page.
+      if (!filePath) {
+        res.writeHead(200, { 'Content-Type': 'text/html' })
+        return res.end(shell)
+      }
       const mime = MIME[extname(filePath)] ?? 'application/octet-stream'
       res.writeHead(200, { 'Content-Type': mime })
       createReadStream(filePath).pipe(res)

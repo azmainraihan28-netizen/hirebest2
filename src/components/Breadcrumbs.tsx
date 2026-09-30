@@ -1,12 +1,19 @@
-import { Link } from 'react-router-dom'
+import { Link, useLocation } from 'react-router-dom'
 import { ChevronRight, Home } from 'lucide-react'
 import { useSchema, breadcrumb } from '../lib/schema'
 
 export type Crumb = { name: string; href?: string }
 
 export default function Breadcrumbs({ trail, schemaId = 'breadcrumb' }: { trail: Crumb[]; schemaId?: string }) {
+  const { pathname } = useLocation()
   const full = [{ name: 'Home', href: '/' }, ...trail]
-  useSchema(schemaId, breadcrumb(full.map(c => ({ name: c.name, url: `https://hirebest.online${c.href ?? ''}` }))))
+  // The last crumb is the current page (its URL is this page, not the homepage);
+  // a middle crumb with no page of its own has no URL to point at, so it stays out of the schema.
+  const schemaTrail = full.flatMap((c, i) => {
+    const href = c.href ?? (i === full.length - 1 ? pathname : null)
+    return href ? [{ name: c.name, url: `https://hirebest.online${href}` }] : []
+  })
+  useSchema(schemaId, breadcrumb(schemaTrail))
 
   return (
     <nav aria-label="Breadcrumb" className="relative z-10 max-w-7xl mx-auto px-5 pt-8">
