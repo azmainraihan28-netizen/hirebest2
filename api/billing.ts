@@ -1,11 +1,16 @@
-// Create a Stripe Checkout Session for a subscription.
-// Auth:     Authorization: Bearer <supabase access token>
-// POST body: { plan: 'basic' | 'advanced' | 'lifetime', interval: 'monthly' | 'annual' }
-// Returns:   { url: string }  — Stripe-hosted checkout page, or the billing
-//            portal if the user already has a live subscription (plan changes
-//            go through the portal so we never create a second subscription).
+// Stripe billing actions for the signed-in user. One route (not two) to stay
+// under the Vercel Hobby plan's 12-serverless-function limit.
+// Auth: Authorization: Bearer <supabase access token>
+//
+// POST { action: 'checkout', plan: 'basic' | 'advanced' | 'lifetime', interval: 'monthly' | 'annual' }
+//   → { url }  Stripe-hosted checkout page, or the billing portal if the user
+//              already has a live subscription (plan changes go through the
+//              portal so we never create a second subscription).
+// POST { action: 'portal' }
+//   → { url }  Stripe customer portal: card, plan switch, invoices, cancel.
 
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import type { SupabaseClient, User } from '@supabase/supabase-js'
 import {
   stripe, StripeError, serviceClient, authUser, getOrCreateCustomer,
   lookupKey, PAID_PLANS, TRIAL_DAYS, BASE_URL, type PaidPlan, type Interval,
@@ -14,14 +19,37 @@ import {
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { plan, interval } = (req.body ?? {}) as { plan?: string; interval?: string }
-  if (!plan || !PAID_PLANS.includes(plan as PaidPlan)) return res.status(400).json({ error: 'Invalid plan' })
-  const iv: Interval = interval === 'monthly' ? 'monthly' : 'annual'
-
   const supa = serviceClient()
   if (!supa) return res.status(500).json({ error: 'Server not configured' })
   const user = await authUser(req, supa)
-  if (!user) return res.status(401).json({ error: 'Please sign in to subscribe' })
+  if (!user) return res.status(401).json({ error: 'Please sign in first' })
+
+  const { action } = (req.body ?? {}) as { action?: string }
+  if (action === 'checkout') return checkout(req, res, supa, user)
+  if (action === 'portal') return portal(res, supa, user)
+  return res.status(400).json({ error: 'Invalid action' })
+}
+
+async function portal(res: VercelResponse, supa: SupabaseClient, user: User) {
+  const { data } = await supa.from('billing_customers').select('stripe_customer_id').eq('user_id', user.id).maybeSingle()
+  if (!data?.stripe_customer_id) return res.status(404).json({ error: 'No billing account yet — pick a plan first.' })
+
+  try {
+    const session = await stripe('POST', '/billing_portal/sessions', {
+      customer: data.stripe_customer_id,
+      return_url: `${BASE_URL}/dashboard/orders`,
+    })
+    return res.status(200).json({ url: session.url })
+  } catch (e: any) {
+    console.error('[billing:portal]', e)
+    return res.status(500).json({ error: e?.message ?? 'Could not open billing portal' })
+  }
+}
+
+async function checkout(req: VercelRequest, res: VercelResponse, supa: SupabaseClient, user: User) {
+  const { plan, interval } = (req.body ?? {}) as { plan?: string; interval?: string }
+  if (!plan || !PAID_PLANS.includes(plan as PaidPlan)) return res.status(400).json({ error: 'Invalid plan' })
+  const iv: Interval = interval === 'monthly' ? 'monthly' : 'annual'
 
   try {
     const customer = await getOrCreateCustomer(supa, user)
@@ -66,7 +94,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
     return res.status(200).json({ url: session.url })
   } catch (e: any) {
-    console.error('[stripe-checkout]', e)
+    console.error('[billing:checkout]', e)
     const status = e instanceof StripeError && e.status < 500 ? 502 : 500
     return res.status(status).json({ error: e?.message ?? 'Checkout failed' })
   }
