@@ -176,14 +176,15 @@ export default function Pricing() {
           <SplitHeading text={'Compare *every* feature.'} className="display-lg mt-6 text-[var(--color-fg)]" />
         </div>
 
+        <p className="md:hidden -mt-4 mb-4 text-xs text-[var(--color-muted)]">Swipe sideways to compare all four plans →</p>
         <Reveal>
           <div className="tile overflow-x-auto">
-            <table className="w-full text-sm min-w-[44rem]">
+            <table className="w-full text-sm min-w-[40rem]">
               <thead>
                 <tr className="border-b border-[var(--color-border)]">
-                  <th className="text-left p-5 text-[11px] font-mono uppercase tracking-[0.16em] text-[var(--color-muted)] font-medium">Feature</th>
+                  <th className="sticky left-0 z-10 bg-[var(--color-bg-2)] md:bg-transparent md:static text-left p-3 md:p-5 text-[11px] font-mono uppercase tracking-[0.16em] text-[var(--color-muted)] font-medium">Feature</th>
                   {tiers.map(t => (
-                    <th key={t.name} className={`text-center p-5 ${t.popular ? 'bg-[color-mix(in_srgb,var(--color-primary)_7%,transparent)]' : ''}`}>
+                    <th key={t.name} className={`text-center p-3 md:p-5 ${t.popular ? 'bg-[color-mix(in_srgb,var(--color-primary)_7%,transparent)]' : ''}`}>
                       <div className={`font-[family-name:var(--font-heading)] text-base font-semibold tracking-[-0.03em] ${t.popular ? 'text-[var(--color-primary-2)]' : 'text-[var(--color-fg)]'}`}>{t.name}</div>
                       <div className="text-[10px] font-mono uppercase tracking-widest text-[var(--color-muted)] font-normal mt-1">
                         {t.monthly !== null ? `$${t.monthly}/mo` : 'Custom'}
@@ -195,9 +196,9 @@ export default function Pricing() {
               <tbody>
                 {matrix.map(row => (
                   <tr key={row.f} className="border-b border-[var(--color-border)] last:border-0 hover:bg-[color-mix(in_srgb,var(--color-fg)_2.5%,transparent)] transition">
-                    <td className="px-5 py-4 text-[var(--color-fg-dim)]">{row.f}</td>
+                    <td className="sticky left-0 z-10 bg-[var(--color-bg-2)] md:bg-transparent md:static px-3 md:px-5 py-3 md:py-4 text-[var(--color-fg-dim)] max-w-[9.5rem] md:max-w-none">{row.f}</td>
                     {row.v.map((v, i) => (
-                      <td key={i} className={`text-center px-5 py-4 ${tiers[i].popular ? 'bg-[color-mix(in_srgb,var(--color-primary)_5%,transparent)]' : ''}`}>
+                      <td key={i} className={`text-center px-3 md:px-5 py-3 md:py-4 ${tiers[i].popular ? 'bg-[color-mix(in_srgb,var(--color-primary)_5%,transparent)]' : ''}`}>
                         {typeof v === 'boolean'
                           ? (v
                             ? <span className="inline-flex w-6 h-6 rounded-full items-center justify-center bg-[color-mix(in_srgb,var(--color-primary)_16%,transparent)] text-[var(--color-primary-2)]"><Check size={13}/></span>

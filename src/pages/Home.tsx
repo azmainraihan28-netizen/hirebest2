@@ -6,14 +6,14 @@ import {
 import { useRef, useState, memo, useEffect } from 'react'
 import {
   motion, AnimatePresence, useScroll, useTransform, useMotionValue, useAnimationFrame,
-  useReducedMotion, useSpring, type MotionValue,
+  useReducedMotion, useSpring, useInView, type MotionValue,
 } from 'framer-motion'
 import { useSeo } from '../lib/seo'
 import { useSchema, organization, softwareApplication, faqPage, websiteSchema } from '../lib/schema'
 import { formatPlanLimit } from '../lib/plans'
 import SaaSBrowserReviews from '../components/SaaSBrowserReviews'
 import {
-  Reveal, SplitHeading, ScrollWords, Magnetic, CountUp, VelocityMarquee, Eyebrow, Spotlight,
+  Reveal, SplitHeading, ScrollWords, Magnetic, CountUp, VelocityMarquee, Eyebrow, Spotlight, useLiteMotion,
 } from '../components/motion/primitives'
 
 // ─────────────────────────────────────────────────────────────────────
@@ -212,8 +212,11 @@ const ScannerDevice = memo(function ScannerDevice() {
   const reduce = useReducedMotion()
   const t = useMotionValue(reduce ? 1 : 0)
   const H = 360 // scan travel in px
+  const boxRef = useRef<HTMLDivElement>(null)
+  // Pause the per-frame clock once the device scrolls out of view.
+  const onScreen = useInView(boxRef)
   useAnimationFrame(time => {
-    if (reduce) return
+    if (reduce || !onScreen) return
     t.set((time % 4200) / 4200)
   })
   const beamY = useTransform(t, [0, 0.9], [0, H])
@@ -229,7 +232,7 @@ const ScannerDevice = memo(function ScannerDevice() {
   ]
 
   return (
-    <div className="relative mx-auto w-full max-w-[440px] aspect-[5/6]" aria-label="HireBest reading a CV">
+    <div ref={boxRef} className="relative mx-auto w-full max-w-[440px] aspect-[5/6]" aria-label="HireBest reading a CV">
       {/* back sheets */}
       <div className="absolute inset-0 translate-x-6 translate-y-6 rotate-[5deg] rounded-[1.6rem] border border-[var(--color-border)] bg-[var(--color-card)] opacity-50" />
       <div className="absolute inset-0 translate-x-3 translate-y-3 rotate-[2.5deg] rounded-[1.6rem] border border-[var(--color-border)] bg-[var(--color-card)] opacity-75" />
@@ -364,7 +367,7 @@ function WordBand() {
 // ─────────────────────────────────────────────────────────────────────
 function Manifesto() {
   return (
-    <section className="max-w-6xl mx-auto px-5 py-28 md:py-40">
+    <section className="max-w-6xl mx-auto px-5 py-16 md:py-40">
       <Eyebrow n="01">Why HireBest</Eyebrow>
       <ScrollWords
         className="mt-10 font-[family-name:var(--font-heading)] text-[clamp(1.9rem,4.6vw,4rem)] leading-[1.08] tracking-[-0.04em] font-semibold text-[var(--color-fg)]"
@@ -392,7 +395,7 @@ function Manifesto() {
 // ─────────────────────────────────────────────────────────────────────
 function Features() {
   return (
-    <section id="features" className="max-w-7xl mx-auto px-5 py-24 md:py-32 scroll-mt-24">
+    <section id="features" className="max-w-7xl mx-auto px-5 py-16 md:py-32 scroll-mt-24">
       <div className="grid lg:grid-cols-12 gap-8 items-end mb-14">
         <div className="lg:col-span-8">
           <Eyebrow n="02">Product</Eyebrow>
@@ -617,9 +620,31 @@ const steps = [
 function HowItWorks() {
   const ref = useRef<HTMLDivElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
+  const lite = useLiteMotion()
+  if (lite) {
+    // Sticky 82vh cards leave screens of empty space on a phone; stack them instead.
+    return (
+      <section id="how-it-works" className="relative scroll-mt-24">
+        <div className="max-w-7xl mx-auto px-5 pt-16">
+          <Eyebrow n="03">How it works</Eyebrow>
+          <SplitHeading text={'From inbox chaos to\nshortlist in *three* steps.'} className="display-lg mt-6 text-[var(--color-fg)]" />
+        </div>
+        <div className="max-w-7xl mx-auto px-5 pt-8 pb-6 space-y-4">
+          {steps.map((s, i) => (
+            <Reveal key={s.n} className="stack-card relative overflow-hidden p-6">
+              <span className="numeral text-[4.5rem]">{s.n}</span>
+              <h3 className="mt-2 display-md text-[var(--color-fg)]">{s.title}</h3>
+              <p className="mt-3 text-[var(--color-fg-dim)] leading-relaxed">{s.desc}</p>
+              <div className="mt-6 flex justify-center"><StepVisual i={i} /></div>
+            </Reveal>
+          ))}
+        </div>
+      </section>
+    )
+  }
   return (
     <section id="how-it-works" className="relative scroll-mt-24">
-      <div className="max-w-7xl mx-auto px-5 pt-24 md:pt-32">
+      <div className="max-w-7xl mx-auto px-5 pt-16 md:pt-32">
         <Eyebrow n="03">How it works</Eyebrow>
         <SplitHeading text={'From inbox chaos to\nshortlist in *three* steps.'} className="display-lg mt-6 text-[var(--color-fg)]" />
       </div>
@@ -702,11 +727,11 @@ function StepVisual({ i }: { i: number }) {
 // ─────────────────────────────────────────────────────────────────────
 function Stats() {
   return (
-    <section className="max-w-7xl mx-auto px-5 py-20 md:py-28">
+    <section className="max-w-7xl mx-auto px-5 py-14 md:py-28">
       <div className="grid grid-cols-2 lg:grid-cols-4 border-t border-[var(--color-border)]">
         {stats.map((s, i) => (
           <Reveal key={s.label} delay={i * 0.08} className={`pt-8 pb-4 pr-6 ${i > 0 ? 'lg:border-l lg:pl-8' : ''} ${i % 2 === 1 ? 'border-l pl-6 lg:pl-8' : ''} border-[var(--color-border)]`}>
-            <div className="font-[family-name:var(--font-heading)] font-bold tracking-[-0.06em] leading-none text-[clamp(2.75rem,5.4vw,5rem)] text-[var(--color-fg)] tabular">
+            <div className="font-[family-name:var(--font-heading)] font-bold tracking-[-0.06em] leading-none text-[clamp(2.1rem,9vw,5rem)] text-[var(--color-fg)] tabular">
               <CountUp value={s.n} />
             </div>
             <div className="mt-4 text-xs font-mono uppercase tracking-[0.16em] text-[var(--color-muted)]">{s.label}</div>
@@ -732,7 +757,7 @@ function SavingsCalculator() {
   const savedText = useTransform(savedSpring, v => `$${Math.round(v).toLocaleString()}`)
 
   return (
-    <section className="max-w-7xl mx-auto px-5 py-24 md:py-32">
+    <section className="max-w-7xl mx-auto px-5 py-16 md:py-32">
       <div className="grid lg:grid-cols-12 gap-8 items-end mb-12">
         <div className="lg:col-span-7">
           <Eyebrow n="04">ROI</Eyebrow>
@@ -858,7 +883,7 @@ function FAQBlock() {
   const all = [...faqs, ...pricingFaqs]
   const [open, setOpen] = useState<number | null>(0)
   return (
-    <section className="max-w-7xl mx-auto px-5 py-24 md:py-32 grid lg:grid-cols-12 gap-10">
+    <section className="max-w-7xl mx-auto px-5 py-16 md:py-32 grid lg:grid-cols-12 gap-10">
       <div className="lg:col-span-5">
         <div className="lg:sticky lg:top-28">
           <Eyebrow n="05">FAQ</Eyebrow>

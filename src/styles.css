@@ -1066,7 +1066,29 @@ html { scroll-behavior: smooth; }
   .price-digits { font-family: var(--font-heading); font-weight: 700; letter-spacing: -0.05em; line-height: 1; }
 
   @media (prefers-reduced-motion: reduce) {
-    .grain, .aurora > span, .scan-loop, .ring-glow::after { animation: none !important; }
+    .grain, .aurora > span, .scan-loop, .ring-glow::after, .marquee-lite { animation: none !important; }
     .site .btn-primary::after { display: none; }
+  }
+
+  /* CSS-only marquee used on phones/touch instead of the JS velocity marquee. */
+  .marquee-lite { animation: scroll 38s linear infinite; will-change: transform; }
+
+  /* ── Phones, tablets, touch screens ──────────────────────────────────
+     Full-screen noise, 90px blurs, backdrop blurs and never-ending paint
+     animations are what made scrolling janky on mobile GPUs. Keep the look,
+     drop the per-frame cost. Must match LITE_QUERY in motion/primitives. */
+  @media (max-width: 1023px), (pointer: coarse) {
+    .grain { display: none; }
+    .aurora > span { animation: none; filter: blur(48px); mix-blend-mode: normal; }
+    .ring-glow::after { animation: none; }
+    .nav-pill {
+      backdrop-filter: none; -webkit-backdrop-filter: none;
+      background: color-mix(in srgb, var(--color-bg-2) 94%, transparent);
+    }
+    .site-header, .slide-tabs, .topbar, .site .btn-ghost {
+      backdrop-filter: none; -webkit-backdrop-filter: none;
+    }
+    .site .btn-primary::after { display: none; }
+    .spotlight::before { display: none; }
   }
 }

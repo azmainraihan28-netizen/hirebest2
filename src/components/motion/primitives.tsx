@@ -11,6 +11,25 @@ import {
 
 const EASE = [0.22, 1, 0.36, 1] as const
 
+const LITE_QUERY = '(max-width: 1023px), (pointer: coarse)'
+
+/**
+ * True on phones, tablets and touch screens (or with reduced motion). Scroll-linked,
+ * per-word and blur animations are the main source of jank there, so the
+ * primitives below fall back to a plain render or a cheap fade.
+ */
+export function useLiteMotion() {
+  const reduce = useReducedMotion()
+  const [lite, setLite] = useState(() => typeof window !== 'undefined' && window.matchMedia(LITE_QUERY).matches)
+  useEffect(() => {
+    const m = window.matchMedia(LITE_QUERY)
+    const on = () => setLite(m.matches)
+    m.addEventListener('change', on)
+    return () => m.removeEventListener('change', on)
+  }, [])
+  return lite || !!reduce
+}
+
 /** Fade + rise once when the element scrolls into view. */
 export function Reveal({
   children, delay = 0, y = 24, className = '', as = 'div', amount = 0.25,
@@ -19,12 +38,18 @@ export function Reveal({
   as?: 'div' | 'section' | 'li' | 'span' | 'p'; amount?: number
 }) {
   const reduce = useReducedMotion()
+  const lite = useLiteMotion()
   const M = motion[as] as typeof motion.div
+  if (lite) {
+    // No entrance animation on phones: content is simply there when you scroll to it.
+    const Tag = as
+    return <Tag className={className}>{children}</Tag>
+  }
   return (
     <M
       className={className}
-      initial={reduce ? false : { opacity: 0, y, filter: 'blur(6px)' }}
-      whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+      initial={reduce ? false : { opacity: 0, y }}
+      whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount }}
       transition={{ duration: 0.9, ease: EASE, delay }}
     >
@@ -41,11 +66,29 @@ export function SplitHeading({
   text, className = '', delay = 0, as = 'h2', once = true,
 }: { text: string; className?: string; delay?: number; as?: 'h1' | 'h2' | 'h3'; once?: boolean }) {
   const reduce = useReducedMotion()
+  const lite = useLiteMotion()
   const ref = useRef<HTMLHeadingElement>(null)
   const inView = useInView(ref, { once, amount: 0.4 })
   const Tag = as
   const lines = text.split('\n').map(tokenize)
   let idx = 0
+  if (lite) {
+    return (
+      <Tag className={className}>
+        {lines.map((line, li) => (
+          <span key={li} className="md:block">
+            {li > 0 && <span className="md:hidden"> </span>}
+            {line.map(({ word, accent }, wi) => (
+              <span key={wi}>
+                <span className={accent ? 'accent-serif' : ''}>{word}</span>
+                {wi < line.length - 1 && ' '}
+              </span>
+            ))}
+          </span>
+        ))}
+      </Tag>
+    )
+  }
   return (
     <Tag ref={ref} className={className} aria-label={text.replace(/\*/g, '').replace(/\n/g, ' ')}>
       {lines.map((line, li) => (
@@ -77,6 +120,21 @@ export function SplitHeading({
  * The signature "manifesto" effect.
  */
 export function ScrollWords({ text, className = '' }: { text: string; className?: string }) {
+  if (useLiteMotion()) {
+    return (
+      <p className={className}>
+        {tokenize(text).map((w, i) => (
+          <span key={i}>
+            <span className={w.accent ? 'accent-serif text-[var(--color-primary-2)]' : ''}>{w.word}</span>{' '}
+          </span>
+        ))}
+      </p>
+    )
+  }
+  return <ScrollWordsAnimated text={text} className={className} />
+}
+
+function ScrollWordsAnimated({ text, className }: { text: string; className: string }) {
   const ref = useRef<HTMLParagraphElement>(null)
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start 0.85', 'end 0.35'] })
   const words = tokenize(text)
@@ -185,6 +243,21 @@ export function CountUp({ value, className = '' }: { value: string; className?: 
  * scroll fast and the band leans and races, then settles back.
  */
 export function VelocityMarquee({ children, baseSpeed = 40, className = '' }: { children: ReactNode; baseSpeed?: number; className?: string }) {
+  if (useLiteMotion()) {
+    // Compositor-only CSS animation: no per-frame JS, no scroll-velocity skew.
+    return (
+      <div className={`overflow-hidden ${className}`}>
+        <div className="flex w-max marquee-lite">
+          <div className="flex shrink-0">{children}</div>
+          <div className="flex shrink-0" aria-hidden>{children}</div>
+        </div>
+      </div>
+    )
+  }
+  return <VelocityMarqueeAnimated baseSpeed={baseSpeed} className={className}>{children}</VelocityMarqueeAnimated>
+}
+
+function VelocityMarqueeAnimated({ children, baseSpeed, className }: { children: ReactNode; baseSpeed: number; className: string }) {
   const reduce = useReducedMotion()
   const { scrollY } = useScroll()
   const velocity = useVelocity(scrollY)
@@ -217,6 +290,10 @@ export function VelocityMarquee({ children, baseSpeed = 40, className = '' }: { 
 
 /** Thin progress bar pinned to the top of the viewport. */
 export function ScrollProgress() {
+  return useLiteMotion() ? null : <ScrollProgressBar />
+}
+
+function ScrollProgressBar() {
   const { scrollYProgress } = useScroll()
   const scaleX = useSpring(scrollYProgress, { stiffness: 200, damping: 30, restDelta: 0.001 })
   return <motion.div aria-hidden className="scroll-progress" style={{ scaleX }} />
