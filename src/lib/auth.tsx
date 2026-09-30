@@ -1,6 +1,10 @@
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
-import { supabase, type Profile } from './supabase'
+import type { Profile } from './supabase'
+
+// Loaded on demand so the Supabase SDK (the biggest dependency) stays out of the
+// bundle every marketing page downloads before it can render.
+const sb = () => import('./supabase').then(m => m.supabase)
 
 type AuthCtx = {
   session: Session | null
@@ -22,19 +26,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session)
-      setLoading(false)
+    let cancelled = false
+    let unsubscribe = () => {}
+    sb().then(supabase => {
+      if (cancelled) return
+      supabase.auth.getSession().then(({ data }) => {
+        if (cancelled) return
+        setSession(data.session)
+        setLoading(false)
+      })
+      const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
+        setSession(s)
+      })
+      unsubscribe = () => sub.subscription.unsubscribe()
     })
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
-      setSession(s)
-    })
-    return () => sub.subscription.unsubscribe()
+    return () => { cancelled = true; unsubscribe() }
   }, [])
 
   useEffect(() => {
     if (!session?.user) { setProfile(null); return }
-    supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
+    sb().then(supabase => supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle())
       .then(({ data }) => setProfile((data as Profile | null) ?? null))
   }, [session?.user?.id])
 
@@ -44,17 +55,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     profile,
     loading,
     signInWithGoogle: async () => {
-      await supabase.auth.signInWithOAuth({
+      await (await sb()).auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo: `${window.location.origin}/auth/callback` },
       })
     },
     signInWithEmail: async (email, password) => {
-      const { error } = await supabase.auth.signInWithPassword({ email, password })
+      const { error } = await (await sb()).auth.signInWithPassword({ email, password })
       return { error: error?.message ?? null }
     },
     signUpWithEmail: async (email, password, fullName) => {
-      const { error } = await supabase.auth.signUp({
+      const { error } = await (await sb()).auth.signUp({
         email, password,
         options: {
           data: { full_name: fullName ?? '' },
@@ -63,10 +74,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       })
       return { error: error?.message ?? null }
     },
-    signOut: async () => { await supabase.auth.signOut() },
+    signOut: async () => { await (await sb()).auth.signOut() },
     refreshProfile: async () => {
       if (!session?.user) return
-      const { data } = await supabase.from('profiles').select('*').eq('id', session.user.id).maybeSingle()
+      const { data } = await (await sb()).from('profiles').select('*').eq('id', session.user.id).maybeSingle()
       setProfile((data as Profile | null) ?? null)
     },
   }

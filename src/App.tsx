@@ -2,12 +2,13 @@ import { lazy, Suspense } from 'react'
 import { Routes, Route } from 'react-router-dom'
 import { Analytics as VercelAnalytics } from '@vercel/analytics/react'
 import Layout from './components/Layout'
-import ProtectedRoute from './components/ProtectedRoute'
 
 // Eager: always needed
 import Home from './pages/Home'
 
 // Lazy: split per route
+// ProtectedRoute pulls in the Supabase SDK (org/admin lookups); only signed-in routes need it.
+const ProtectedRoute    = lazy(() => import('./components/ProtectedRoute'))
 const Pricing           = lazy(() => import('./pages/Pricing'))
 const Analytics         = lazy(() => import('./pages/Analytics'))
 const Blog              = lazy(() => import('./pages/Blog'))
