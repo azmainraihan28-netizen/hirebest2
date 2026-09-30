@@ -75,7 +75,7 @@ export default function Pricing() {
     return { price: `$${perMonth}`, per: '/ mo, billed annually' }
   }
 
-  const ctaHref = (t: Tier) => (t.plan === 'retainer' ? '/contact' : `/checkout?plan=${t.plan}`)
+  const ctaHref = (t: Tier) => (t.plan === 'retainer' ? '/contact' : `/checkout?plan=${t.plan}&interval=${billing}`)
 
   return (
     <>
