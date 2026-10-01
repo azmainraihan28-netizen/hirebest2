@@ -2,6 +2,7 @@ import { Outlet } from 'react-router-dom'
 import { createContext, useContext, useState } from 'react'
 import DashboardSidebar from './DashboardSidebar'
 import CommandPalette from './CommandPalette'
+import LimitWatcher from './LimitWatcher'
 
 type Ctx = { open: boolean; setOpen: (v: boolean) => void }
 const SidebarCtx = createContext<Ctx>({ open: false, setOpen: () => {} })
@@ -17,6 +18,7 @@ export default function DashboardLayout() {
           <Outlet />
         </div>
         <CommandPalette />
+        <LimitWatcher />
       </div>
     </SidebarCtx.Provider>
   )

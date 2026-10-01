@@ -1,9 +1,10 @@
+import { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { X, Sparkles, Check, ArrowRight } from 'lucide-react'
 import type { QuotaState } from '../lib/quota'
 import { PLAN_ENTITLEMENTS, PLAN_NAMES, PLAN_RANK, FEATURE_PLAN, type Feature, type PlanTier } from '../lib/plans'
 
-export type UpgradeReason = 'quota-exceeded' | 'quota-warning' | 'inactive' | 'job-slots' | 'batch-cap' | 'feature'
+export type UpgradeReason = 'quota-exceeded' | 'quota-near' | 'quota-warning' | 'inactive' | 'job-slots' | 'batch-cap' | 'seats' | 'feature'
 
 type Props = {
   reason: UpgradeReason
@@ -24,27 +25,38 @@ export default function UpgradeModal({ reason, quota, attemptedCount, feature, f
   const used = quota?.used ?? 0
   const limit = quota?.limit ?? 0
 
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [onClose])
+
   // Smallest plan that solves the problem.
   let target: PlanTier = NEXT[plan]
   if (reason === 'feature' && feature) target = FEATURE_PLAN[feature]
   if (reason === 'batch-cap') target = (['advanced', 'retainer'] as PlanTier[]).find(p => PLAN_RANK[p] > PLAN_RANK[plan]) ?? 'retainer'
   if (reason === 'job-slots') target = (['basic', 'advanced', 'lifetime'] as PlanTier[]).find(p => PLAN_RANK[p] > PLAN_RANK[plan] && PLAN_ENTITLEMENTS[p].jobSlots > (quota?.jobSlots ?? 0)) ?? 'lifetime'
+  if (reason === 'seats') target = (['advanced', 'lifetime', 'retainer'] as PlanTier[]).find(p => PLAN_RANK[p] > PLAN_RANK[plan] && PLAN_ENTITLEMENTS[p].seats > (quota?.seats ?? 1)) ?? 'retainer'
   const t = PLAN_ENTITLEMENTS[target]
 
   const titles: Record<UpgradeReason, string> = {
-    'quota-exceeded': 'Monthly CV limit reached',
+    'quota-exceeded': plan === 'free' ? `You've used all ${fmt(limit)} free CVs this month` : 'Monthly CV limit reached',
+    'quota-near': `${Math.max(0, limit - used)} CV${limit - used === 1 ? '' : 's'} left this month`,
     'quota-warning': 'This batch is over your monthly limit',
     'inactive': 'Your account is suspended',
     'job-slots': 'All your active job slots are in use',
     'batch-cap': 'That’s more CVs than one batch allows',
+    'seats': 'Every seat on your plan is taken',
     'feature': `${featureLabel ?? 'This feature'} is on the ${PLAN_NAMES[target]} plan`,
   }
   const bodies: Record<UpgradeReason, string> = {
     'quota-exceeded': `You've screened ${used} of ${fmt(limit)} CVs on the ${PLAN_NAMES[plan]} plan this month. Your allowance resets on ${resetDate(quota?.resetsOn)}, or upgrade for more now.`,
+    'quota-near': `You've screened ${used} of ${fmt(limit)} CVs on the ${PLAN_NAMES[plan]} plan this month. Upgrade now so screening doesn't stop mid-hire.`,
     'quota-warning': `You've screened ${used} of ${fmt(limit)} CVs this month${attemptedCount ? `, and this batch of ${attemptedCount} would go ${used + attemptedCount - limit} over` : ''}. Remove some CVs or upgrade.`,
     'inactive': 'Your account has been suspended. Contact support to reactivate.',
     'job-slots': `The ${PLAN_NAMES[plan]} plan includes ${fmt(quota?.jobSlots ?? 0)} active job${quota?.jobSlots === 1 ? '' : 's'}. Archive a finished job from its results page, add these CVs to an existing job, or upgrade.`,
     'batch-cap': `The ${PLAN_NAMES[plan]} plan screens up to ${quota?.batchCap ?? 50} CVs per batch. We kept the first ${quota?.batchCap ?? 50}.`,
+    'seats': `The ${PLAN_NAMES[plan]} plan includes ${fmt(quota?.seats ?? 1)} user${quota?.seats === 1 ? '' : 's'}, counting pending invites. Remove a member or revoke an invite, or upgrade for more seats.`,
     'feature': `Upgrade to ${PLAN_NAMES[target]} to unlock it.`,
   }
   const perks = [
