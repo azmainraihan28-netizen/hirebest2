@@ -9,6 +9,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
 import { createClient } from '@supabase/supabase-js'
 import { sendEmail } from './_lib/notify.js'
+import { getQuota, planAtLeast } from './_lib/entitlements.js'
 
 type Body = {
   candidateId?: string
@@ -59,15 +60,20 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   if (candidate.status_email_sent) return res.status(200).json({ ok: true, skipped: 'already sent' })
 
+  // Custom branding (Growth plan and up): sign the email with the caller's company name.
+  const { data: brandRow } = await supa.from('profiles').select('brand_name').eq('id', caller.id).maybeSingle()
+  const quota = await getQuota(supa, caller.id)
+  const company = quota && planAtLeast(quota.plan, 'advanced') ? (brandRow?.brand_name as string | null)?.trim() : ''
+  const signoff = company ? `\n\nBest regards,\nThe ${company} hiring team` : ''
   const greeting = name ? name.split(' ')[0] : 'there'
   const { subject, text } = status === 'shortlisted'
     ? {
-        subject: 'You have been shortlisted — next steps',
-        text: `Hi ${greeting},\n\nGreat news — you've been shortlisted for the next stage of our hiring process. Our team will be in touch shortly to schedule an interview.\n\nThanks for your interest!`,
+        subject: company ? `${company}: you have been shortlisted — next steps` : 'You have been shortlisted — next steps',
+        text: `Hi ${greeting},\n\nGreat news — you've been shortlisted for the next stage of our hiring process${company ? ` at ${company}` : ''}. Our team will be in touch shortly to schedule an interview.\n\nThanks for your interest!${signoff}`,
       }
     : {
-        subject: 'Update on your application',
-        text: `Hi ${greeting},\n\nThank you for taking the time to apply. After careful review, we've decided to move forward with other candidates for this role.\n\nWe appreciate your interest and wish you the best in your search.`,
+        subject: company ? `${company}: update on your application` : 'Update on your application',
+        text: `Hi ${greeting},\n\nThank you for taking the time to apply${company ? ` to ${company}` : ''}. After careful review, we've decided to move forward with other candidates for this role.\n\nWe appreciate your interest and wish you the best in your search.${signoff}`,
       }
 
   const result = await sendEmail({ to: email, subject, text })

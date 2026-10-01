@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Clock, Sparkles, TrendingUp, Target, Zap, Award, FileText, ArrowUpRight } from 'lucide-react'
 import DashboardTopBar from '../../components/dashboard/DashboardTopBar'
+import PlanGate from '../../components/PlanGate'
 import { SkeletonStats, Skeleton } from '../../components/Skeleton'
 import { listScreeningsWithStats, listCandidatesIn, type Candidate, type ScreeningStats } from '../../lib/screenings'
 
@@ -13,7 +14,16 @@ const MINUTES_SAVED_PER_CV = 7
 type Range = 7 | 30 | 90 | 'All'
 const RANGES: Range[] = [7, 30, 90, 'All']
 
+// Analytics dashboard / hiring analytics are Team-plan features (see /pricing).
 export default function DashAnalytics() {
+  return (
+    <PlanGate feature="analytics" title="The analytics dashboard">
+      <DashAnalyticsView />
+    </PlanGate>
+  )
+}
+
+function DashAnalyticsView() {
   const [loading, setLoading] = useState(true)
   const [all, setAll] = useState<Candidate[]>([])
   const [screenings, setScreenings] = useState<ScreeningStats[]>([])

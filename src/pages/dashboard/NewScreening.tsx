@@ -7,7 +7,8 @@ import {
 import DashboardTopBar from '../../components/dashboard/DashboardTopBar'
 import UpgradeModal from '../../components/UpgradeModal'
 import { parseFile, pAll, type ParsedCV } from '../../lib/parsers'
-import { createScreening, insertCandidate, inferScreeningName } from '../../lib/screenings'
+import { createScreening, insertCandidate, inferScreeningName, listScreenings, scoreCv, notifyScreeningComplete, type Screening } from '../../lib/screenings'
+import { FEATURE_PLAN, planAtLeast } from '../../lib/plans'
 import { loadQuota, type QuotaState } from '../../lib/quota'
 import { useAuth } from '../../lib/auth'
 import { useCurrentOrg } from '../../hooks/useCurrentOrg'
@@ -20,7 +21,8 @@ const ACCEPT_MIME = new Set([
   'image/jpeg',
 ])
 const ACCEPT_EXT = /\.(pdf|docx|png|jpe?g)$/i
-const HARD_BATCH_CAP = 50
+/** Used until the plan's own cap has loaded (Starter/Free = 50, Growth/Team = 200, Enterprise = 500). */
+const DEFAULT_BATCH_CAP = 50
 /** Rough wall-clock per CV with 4 parallel scoring calls — used for the ETA hint. */
 const SECONDS_PER_CV = 3
 
@@ -41,12 +43,26 @@ export default function NewScreening() {
   const [progress, setProgress] = useState({ done: 0, total: 0, label: '' })
   const [err, setErr] = useState<string | null>(null)
   const [quota, setQuota] = useState<QuotaState | null>(null)
-  const [upgradeReason, setUpgradeReason] = useState<'quota-exceeded' | 'quota-warning' | 'inactive' | null>(null)
+  const [upgradeReason, setUpgradeReason] = useState<'quota-exceeded' | 'quota-warning' | 'inactive' | 'job-slots' | 'batch-cap' | null>(null)
+  const [jobs, setJobs] = useState<Screening[]>([])
+  const [jobId, setJobId] = useState('') // '' = new job
   const fileInput = useRef<HTMLInputElement | null>(null)
+  const batchCap = quota?.batchCap ?? DEFAULT_BATCH_CAP
 
   useEffect(() => {
     if (profile) loadQuota(profile).then(setQuota)
   }, [profile])
+
+  // Active jobs this user can add CVs to (adding to a job doesn't use a new job slot).
+  useEffect(() => {
+    listScreenings(100).then(list => setJobs(list.filter(j => !j.archived_at && (j.org_id ?? null) === (currentOrgId ?? null))))
+  }, [currentOrgId])
+
+  const pickJob = (id: string) => {
+    setJobId(id)
+    const job = jobs.find(j => j.id === id)
+    if (job) { setJd(job.jd); setName(job.name) }
+  }
 
   // Block suspended accounts immediately
   useEffect(() => {
@@ -62,7 +78,13 @@ export default function NewScreening() {
     } else {
       setErr(null)
     }
-    if (allowed.length > 0) setFiles(f => [...f, ...allowed].slice(0, HARD_BATCH_CAP))
+    if (allowed.length > 0) {
+      setFiles(f => {
+        const next = [...f, ...allowed]
+        if (next.length > batchCap) setUpgradeReason('batch-cap')
+        return next.slice(0, batchCap)
+      })
+    }
   }
   const removeFile = (i: number) => setFiles(f => f.filter((_, idx) => idx !== i))
 
@@ -88,22 +110,25 @@ export default function NewScreening() {
     if (!jd.trim()) return setErr('Add a job description.')
     if (files.length === 0) return setErr('Add at least one CV.')
 
-    // Quota check (defense in client; webhook + RLS already protect data)
+    // Friendly early checks — /api/score and the database enforce the same limits.
     if (quota && !quota.unlimited) {
       if (quota.remaining === 0) return setUpgradeReason('quota-exceeded')
       if (files.length > quota.remaining) return setUpgradeReason('quota-warning')
     }
+    if (!jobId && quota && quota.activeJobs >= quota.jobSlots) return setUpgradeReason('job-slots')
 
     setBusy(true)
     setProgress({ done: 0, total: files.length, label: name.trim() ? 'Parsing files…' : 'Naming screening…' })
     let screeningName = name.trim()
-    if (!screeningName) {
+    if (!screeningName && !jobId) {
       const inferred = await inferScreeningName(jd)
       screeningName = inferred || `Screening ${new Date().toLocaleString()}`
     }
     setProgress({ done: 0, total: files.length, label: 'Parsing files…' })
     try {
-      const screening = await createScreening(screeningName, jd, currentOrgId)
+      const screening = jobId
+        ? jobs.find(j => j.id === jobId)!
+        : await createScreening(screeningName, jd, currentOrgId)
       if (!screening) throw new Error('Could not create screening (check auth).')
 
       const parsed: ParsedCV[] = []
@@ -116,16 +141,13 @@ export default function NewScreening() {
       let done = 0
       await pAll(parsed, 4, async (p) => {
         const cv = p.kind === 'text' ? { text: p.text } : { imageBase64: p.imageBase64, mimeType: p.mimeType }
-        const res = await fetch('/api/score', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ jd, fileName: p.fileName, cv }),
-        })
-        if (!res.ok) {
-          const t = await res.text()
-          throw new Error(`Score failed for ${p.fileName}: ${t.slice(0, 150)}`)
+        let data: any
+        try {
+          data = await scoreCv({ jd: screening.jd, fileName: p.fileName, cv })
+        } catch (e: any) {
+          if (e?.code === 'QUOTA_EXCEEDED') throw e
+          throw new Error(`Score failed for ${p.fileName}: ${String(e?.message ?? '').slice(0, 150)}`)
         }
-        const data = await res.json()
         await insertCandidate({
           screening_id: screening.id,
           file_name: p.fileName,
@@ -144,9 +166,13 @@ export default function NewScreening() {
         setProgress(p => ({ ...p, done }))
       })
 
+      // Team plan: email a Fit/Maybe/Skip summary to the owner and teammates (fire and forget).
+      if (quota && planAtLeast(quota.plan, FEATURE_PLAN.emailNotifications)) notifyScreeningComplete(screening.id)
       nav(`/dashboard/results/${screening.id}`)
     } catch (e: any) {
-      setErr(e.message ?? 'Something went wrong')
+      if (e?.code === 'QUOTA_EXCEEDED') setUpgradeReason('quota-exceeded')
+      else if (e?.code === 'JOB_SLOTS_FULL') setUpgradeReason('job-slots')
+      else setErr(e.message ?? 'Something went wrong')
     } finally {
       setBusy(false)
       if (profile) loadQuota(profile).then(setQuota)
@@ -187,6 +213,15 @@ export default function NewScreening() {
               className="field mt-2"
             />
           </div>
+          {jobs.length > 0 && (
+            <div className="md:w-64">
+              <label htmlFor="screening-job" className="eyebrow">Job</label>
+              <select id="screening-job" value={jobId} onChange={e => pickJob(e.target.value)} className="field mt-2">
+                <option value="">New job{quota && isFinite(quota.jobSlots) ? ` (${quota.activeJobs}/${quota.jobSlots} slots used)` : ''}</option>
+                {jobs.map(j => <option key={j.id} value={j.id}>Add CVs to: {j.name}</option>)}
+              </select>
+            </div>
+          )}
           {orgs.length > 0 && (
             <div className="md:w-56">
               <label htmlFor="screening-folder" className="eyebrow flex items-center gap-1.5"><FolderKanban size={11}/>Workspace</label>
@@ -226,6 +261,7 @@ export default function NewScreening() {
             <div className="p-4 flex-1 flex flex-col">
               <textarea
                 value={jd}
+                readOnly={!!jobId}
                 onChange={e => setJd(e.target.value)}
                 rows={15}
                 placeholder="Paste the full job description here — responsibilities, must-have skills, seniority, tools…"
@@ -246,13 +282,13 @@ export default function NewScreening() {
             <div className="panel-head">
               <div>
                 <div className="panel-title">Candidate CVs</div>
-                <div className="panel-sub">Up to {HARD_BATCH_CAP} files per batch · PDF, DOCX, PNG, JPG</div>
+                <div className="panel-sub">Up to {batchCap} files per batch · PDF, DOCX, PNG, JPG</div>
               </div>
               <div className="flex items-center gap-2">
                 {files.length > 0 && (
                   <button onClick={() => setFiles([])} className="icon-btn tt" data-tip="Remove all"><Trash2 size={14}/></button>
                 )}
-                <span className="text-xs text-[var(--color-muted)] tabular">{files.length}/{HARD_BATCH_CAP}</span>
+                <span className="text-xs text-[var(--color-muted)] tabular">{files.length}/{batchCap}</span>
               </div>
             </div>
 
@@ -342,8 +378,7 @@ export default function NewScreening() {
       {upgradeReason && (
         <UpgradeModal
           reason={upgradeReason}
-          used={quota?.used}
-          limit={quota?.limit === Infinity ? 0 : (quota?.limit ?? 0)}
+          quota={quota}
           attemptedCount={files.length}
           onClose={() => setUpgradeReason(null)}
         />

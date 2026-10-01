@@ -25,4 +25,10 @@ export type Profile = {
   active: boolean
   avatar_url: string | null
   created_at: string
+  // Custom branding (Growth plan and up) — used on PDF reports and outreach drafts.
+  brand_name?: string | null
+  brand_logo_url?: string | null
+  brand_color?: string | null
+  /** Email me when a screening finishes (Team plan and up). */
+  notify_screening_complete?: boolean
 }

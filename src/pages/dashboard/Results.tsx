@@ -2,14 +2,19 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import {
   Search, Download, Mail, Plus, GitCompare, FileDown, X, ChevronDown,
-  Briefcase, Users, SlidersHorizontal,
+  Briefcase, Users, SlidersHorizontal, Archive, ArchiveRestore, PenLine,
 } from 'lucide-react'
 import DashboardTopBar from '../../components/dashboard/DashboardTopBar'
 import CandidateRow from '../../components/dashboard/CandidateRow'
 import InterviewQsModal from '../../components/dashboard/InterviewQsModal'
 import CompareModal from '../../components/dashboard/CompareModal'
+import OutreachModal from '../../components/dashboard/OutreachModal'
+import UpgradeModal from '../../components/UpgradeModal'
+import { useAuth } from '../../lib/auth'
+import { loadQuota, type QuotaState } from '../../lib/quota'
+import { FEATURE_PLAN, planAtLeast, type Feature } from '../../lib/plans'
 import { SkeletonRow, Skeleton } from '../../components/Skeleton'
-import { getScreening, listCandidates, countMyCandidates, type Candidate, type Screening } from '../../lib/screenings'
+import { getScreening, listCandidates, setScreeningArchived, type Candidate, type Screening } from '../../lib/screenings'
 import { pdf } from '@react-pdf/renderer'
 import { computeReportStats, ScreeningReportDocument } from '../../lib/reportPdf'
 
@@ -38,16 +43,44 @@ export default function Results() {
   const [used, setUsed] = useState(0)
   const [reportBusy, setReportBusy] = useState(false)
   const [jdOpen, setJdOpen] = useState(false)
+  const [outreachOpen, setOutreachOpen] = useState(false)
+  const [quota, setQuota] = useState<QuotaState | null>(null)
+  const [locked, setLocked] = useState<{ feature: Feature; label: string } | null>(null)
+  const [archiveBusy, setArchiveBusy] = useState(false)
+  const { profile } = useAuth()
   const searchRef = useRef<HTMLInputElement | null>(null)
 
   useEffect(() => {
     if (!id) return
     setLoading(true)
     setSel(new Set())
-    Promise.all([getScreening(id), listCandidates(id), countMyCandidates()]).then(([s, c, u]) => {
-      setScreening(s); setCands(c); setUsed(u); setLoading(false)
+    Promise.all([getScreening(id), listCandidates(id)]).then(([s, c]) => {
+      setScreening(s); setCands(c); setLoading(false)
     })
   }, [id])
+
+  useEffect(() => {
+    if (profile) loadQuota(profile).then(q => { setQuota(q); setUsed(q.used) })
+  }, [profile])
+
+  /** Run `fn` if the plan includes `feature`, otherwise show what unlocks it. */
+  const gated = (feature: Feature, label: string, fn: () => void) => {
+    if (quota && !planAtLeast(quota.plan, FEATURE_PLAN[feature])) return setLocked({ feature, label })
+    fn()
+  }
+
+  const toggleArchive = async () => {
+    if (!screening || archiveBusy) return
+    setArchiveBusy(true)
+    try {
+      const archived = !screening.archived_at
+      await setScreeningArchived(screening.id, archived)
+      setScreening({ ...screening, archived_at: archived ? new Date().toISOString() : null })
+      if (profile) loadQuota(profile).then(setQuota)
+    } catch (e: any) {
+      alert(e?.message ?? 'Could not update this job')
+    } finally { setArchiveBusy(false) }
+  }
 
   // "/" focuses search, like every tool a recruiter already lives in.
   useEffect(() => {
@@ -149,6 +182,9 @@ export default function Results() {
             stats={stats}
             aiSummary={aiSummary}
             candidates={filtered}
+            brand={quota && planAtLeast(quota.plan, FEATURE_PLAN.branding)
+              ? { name: profile?.brand_name, logoUrl: profile?.brand_logo_url, color: profile?.brand_color }
+              : null}
           />
         ).toBlob()
       } catch (e: any) {
@@ -184,11 +220,16 @@ export default function Results() {
     window.location.href = `mailto:?bcc=${emails}&subject=Interview opportunity`
   }
 
-  const openCompare = () => {
+  const openCompare = () => gated('compare', 'Side-by-side compare', () => {
     if (sel.size < 2) return alert('Select at least 2 candidates to compare.')
     if (sel.size > 4) return alert('Compare up to 4 candidates at a time.')
     setCompareOpen(true)
-  }
+  })
+
+  const openOutreach = () => gated('outreachDrafts', 'Outreach email drafts', () => {
+    if (sel.size === 0) return alert('Select the candidates you want to write to.')
+    setOutreachOpen(true)
+  })
 
   if (loading) return (
     <>
@@ -220,7 +261,18 @@ export default function Results() {
         subtitle={`${counts.All} CVs · ${counts.Fit} fit · avg ${avgScore}/100 · ${new Date(screening.created_at).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}`}
         used={used}
         actions={
-          <button onClick={() => nav('/dashboard/new')} className="btn-primary h-8 px-3 text-xs"><Plus size={13}/><span className="hidden sm:inline">New</span></button>
+          <div className="flex items-center gap-1.5">
+            <button
+              onClick={toggleArchive}
+              disabled={archiveBusy}
+              className="btn-ghost h-8 px-3 text-xs tt"
+              data-tip={screening.archived_at ? 'Re-open this job (uses an active job slot)' : 'Archive this job to free an active job slot'}
+            >
+              {screening.archived_at ? <ArchiveRestore size={13}/> : <Archive size={13}/>}
+              <span className="hidden sm:inline">{screening.archived_at ? 'Re-open' : 'Archive'}</span>
+            </button>
+            <button onClick={() => nav('/dashboard/new')} className="btn-primary h-8 px-3 text-xs"><Plus size={13}/><span className="hidden sm:inline">New</span></button>
+          </div>
         }
       />
 
@@ -307,6 +359,7 @@ export default function Results() {
               <button onClick={downloadPdfReport} disabled={reportBusy} className="icon-btn tt" data-tip={reportBusy ? 'Building report…' : 'PDF report'}><FileDown size={15}/></button>
               <button onClick={openCompare} className="icon-btn tt" data-tip="Compare selected"><GitCompare size={15}/></button>
               <button onClick={emailSelected} className="icon-btn tt" data-tip="Email selected"><Mail size={15}/></button>
+              <button onClick={openOutreach} className="icon-btn tt" data-tip="Outreach drafts"><PenLine size={15}/></button>
             </div>
           </div>
 
@@ -374,6 +427,7 @@ export default function Results() {
             <span className="w-px h-5 bg-[var(--color-border)]"/>
             <button onClick={openCompare} className="btn-ghost text-xs"><GitCompare size={12}/>Compare</button>
             <button onClick={emailSelected} className="btn-ghost text-xs"><Mail size={12}/>Email</button>
+            <button onClick={openOutreach} className="btn-ghost text-xs"><PenLine size={12}/>Drafts</button>
             <button onClick={() => setSel(new Set())} className="icon-btn" aria-label="Clear selection"><X size={14}/></button>
           </div>
         </div>
@@ -382,6 +436,17 @@ export default function Results() {
       {openQs && <InterviewQsModal candidate={openQs} jd={screening.jd} onClose={() => setOpenQs(null)}/>}
       {compareOpen && (
         <CompareModal candidates={cands.filter(c => sel.has(c.id))} onClose={() => setCompareOpen(false)}/>
+      )}
+      {outreachOpen && (
+        <OutreachModal
+          candidates={cands.filter(c => sel.has(c.id))}
+          role={screening.name}
+          company={profile?.brand_name?.trim() ?? ''}
+          onClose={() => setOutreachOpen(false)}
+        />
+      )}
+      {locked && (
+        <UpgradeModal reason="feature" feature={locked.feature} featureLabel={locked.label} quota={quota} onClose={() => setLocked(null)}/>
       )}
     </>
   )

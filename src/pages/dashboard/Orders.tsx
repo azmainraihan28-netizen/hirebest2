@@ -96,7 +96,7 @@ export default function Orders() {
               <div className="eyebrow">Current plan</div>
               <h2 className="text-2xl font-semibold tracking-[-0.03em] mt-1.5">{planLabel}</h2>
               {!active && profile?.plan === 'free' && (
-                <p className="text-sm text-[var(--color-muted)] mt-2">50 free screenings included. Upgrade for unlimited.</p>
+                <p className="text-sm text-[var(--color-muted)] mt-2">The free plan includes 50 CVs a month. Paid plans include 150, 500, 2,000 or unlimited CVs a month.</p>
               )}
             </div>
             <div className="flex gap-2 flex-wrap">
