@@ -80,7 +80,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const used = (memberCount ?? 0) + (inviteCount ?? 0)
     if (seatLimit > 0 && used >= seatLimit) {
       return res.status(403).json({
-        error: `Seat limit reached (${used}/${seatLimit}). Ask a super admin to raise this organization's seat limit before inviting more members.`,
+        error: `Seat limit reached (${used}/${seatLimit}). Upgrade the team owner's plan for more seats (Growth 3 users, Team 10, Enterprise unlimited), or remove a member first.`,
       })
     }
 

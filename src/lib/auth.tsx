@@ -12,6 +12,8 @@ type AuthCtx = {
   profile: Profile | null
   loading: boolean
   signInWithGoogle: () => Promise<void>
+  /** Enterprise SAML SSO, routed by the user's work-email domain. */
+  signInWithSSO: (email: string) => Promise<{ error: string | null }>
   signInWithEmail: (email: string, password: string) => Promise<{ error: string | null }>
   signUpWithEmail: (email: string, password: string, fullName?: string) => Promise<{ error: string | null }>
   signOut: () => Promise<void>
@@ -59,6 +61,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         provider: 'google',
         options: { redirectTo: `${window.location.origin}/auth/callback` },
       })
+    },
+    signInWithSSO: async (email) => {
+      const domain = email.split('@')[1]?.trim().toLowerCase()
+      if (!domain) return { error: 'Enter your work email.' }
+      const { data, error } = await (await sb()).auth.signInWithSSO({
+        domain,
+        options: { redirectTo: `${window.location.origin}/auth/callback` },
+      })
+      if (error) {
+        return { error: /not found|no sso provider/i.test(error.message)
+          ? `SSO isn't set up for ${domain} yet. Ask your HireBest account manager, or sign in another way.`
+          : error.message }
+      }
+      if (data?.url) window.location.href = data.url
+      return { error: null }
     },
     signInWithEmail: async (email, password) => {
       const { error } = await (await sb()).auth.signInWithPassword({ email, password })

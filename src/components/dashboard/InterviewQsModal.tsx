@@ -1,7 +1,7 @@
 import { X, Sparkles, RefreshCw, Copy, Check } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import type { Candidate, InterviewQuestion } from '../../lib/screenings'
-import { regenerateQuestions } from '../../lib/screenings'
+import { regenerateQuestions, scoreCv } from '../../lib/screenings'
 
 /** Tags that probe a weakness get the accent treatment; the rest stay neutral. */
 const ACCENT_TAGS = new Set(['Skill Gap', 'Strength Validation'])
@@ -34,18 +34,14 @@ export default function InterviewQsModal({ candidate, jd, onClose }: { candidate
   const regen = async () => {
     setBusy(true)
     try {
-      const res = await fetch('/api/score', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ jd, fileName: candidate.file_name, cv: { text: `${candidate.name ?? ''}\n${candidate.email ?? ''}\nSkills: ${(candidate.skills ?? []).join(', ')}\nExperience: ${candidate.experience_years ?? '?'} years\n\nStrengths: ${(candidate.strengths ?? []).join('; ')}\nGaps: ${(candidate.gaps ?? []).join('; ')}` } }),
-      })
-      if (res.ok) {
-        const data = await res.json()
-        if (Array.isArray(data.questions)) {
-          setQs(data.questions)
-          await regenerateQuestions(candidate.id, data.questions)
-        }
+      // Regenerating questions for a CV that was already screened isn't charged.
+      const data = await scoreCv({ jd, fileName: candidate.file_name, purpose: 'questions', cv: { text: `${candidate.name ?? ''}\n${candidate.email ?? ''}\nSkills: ${(candidate.skills ?? []).join(', ')}\nExperience: ${candidate.experience_years ?? '?'} years\n\nStrengths: ${(candidate.strengths ?? []).join('; ')}\nGaps: ${(candidate.gaps ?? []).join('; ')}` } })
+      if (Array.isArray(data.questions)) {
+        setQs(data.questions)
+        await regenerateQuestions(candidate.id, data.questions)
       }
+    } catch {
+      // keep the current questions
     } finally { setBusy(false) }
   }
 

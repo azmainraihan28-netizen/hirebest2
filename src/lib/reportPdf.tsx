@@ -1,4 +1,4 @@
-import { Document, Page, Text, View, StyleSheet, Svg, Rect } from '@react-pdf/renderer'
+import { Document, Page, Text, View, StyleSheet, Svg, Rect, Image } from '@react-pdf/renderer'
 import type { Candidate } from './screenings'
 
 const styles = StyleSheet.create({
@@ -74,15 +74,23 @@ export function computeReportStats(candidates: Candidate[]): ReportStats {
   }
 }
 
+/** Custom branding (Growth plan and up). Without it the report is HireBest-branded. */
+export type ReportBrand = { name?: string | null; logoUrl?: string | null; color?: string | null }
+
+const HEX = /^#[0-9a-f]{6}$/i
+
 export function ScreeningReportDocument({
-  screeningName, generatedAt, stats, aiSummary, candidates,
+  screeningName, generatedAt, stats, aiSummary, candidates, brand,
 }: {
   screeningName: string
   generatedAt: string
   stats: ReportStats
   aiSummary: string
   candidates: Candidate[]
+  brand?: ReportBrand | null
 }) {
+  const accent = brand?.color && HEX.test(brand.color) ? brand.color : '#2f7bff'
+  const by = brand?.name?.trim() || 'HireBest'
   const maxBucket = Math.max(1, ...stats.scoreBuckets)
   const donutTotal = Math.max(1, stats.fit + stats.maybe + stats.skip)
   const barWidth = 300
@@ -93,8 +101,10 @@ export function ScreeningReportDocument({
   return (
     <Document>
       <Page size="A4" style={styles.page}>
+        {brand?.logoUrl ? <Image src={brand.logoUrl} style={{ height: 28, marginBottom: 10, objectFit: 'contain', alignSelf: 'flex-start' }} /> : null}
+        <View style={{ height: 3, width: 48, backgroundColor: accent, marginBottom: 8 }} />
         <Text style={styles.title}>{screeningName}</Text>
-        <Text style={styles.subtitle}>Screening report · generated {generatedAt} · HireBest</Text>
+        <Text style={styles.subtitle}>Screening report · generated {generatedAt} · {by}</Text>
 
         <View style={styles.statRow}>
           <View style={styles.statBox}><Text style={styles.statLabel}>Total CVs</Text><Text style={styles.statValue}>{stats.total}</Text></View>
@@ -112,7 +122,7 @@ export function ScreeningReportDocument({
             <View key={i} style={styles.bucketCol}>
               <Text style={styles.bucketValue}>{n}</Text>
               <Svg width={28} height={Math.max(4, (n / maxBucket) * 60)} viewBox="0 0 28 60" style={{ marginTop: 'auto' }}>
-                <Rect x={0} y={0} width={28} height={60} fill="#2f7bff" opacity={0.55 + i * 0.09} />
+                <Rect x={0} y={0} width={28} height={60} fill={accent} opacity={0.55 + i * 0.09} />
               </Svg>
               <Text style={styles.bucketLabel}>{stats.bucketLabels[i]}</Text>
             </View>

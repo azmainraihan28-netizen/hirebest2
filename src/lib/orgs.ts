@@ -167,3 +167,14 @@ export async function acceptInvite(token: string): Promise<string> {
   if (error) throw error
   return data as string
 }
+
+/**
+ * Create the caller's own team (Growth plan and above). Seats follow the
+ * owner's plan: Growth 3, Team 10, Enterprise unlimited. The caller becomes
+ * the team's admin and can invite members from Admin → My organization.
+ */
+export async function createMyTeam(name: string): Promise<string> {
+  const { data, error } = await supabase.rpc('create_my_team', { team_name: name })
+  if (error) throw new Error(error.message)
+  return data as string
+}

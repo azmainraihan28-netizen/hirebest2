@@ -74,7 +74,7 @@ export default function OrgMembersPanel() {
                 : 'border-[var(--color-border)] bg-[color-mix(in_srgb,var(--color-fg)_5%,transparent)] text-[var(--color-muted)]'
             }`}>
               <Users size={11}/>
-              <span className="tabular-nums font-medium">{seats.used}/{seats.seatLimit}</span>
+              <span className="tabular-nums font-medium">{seats.used}/{seats.seatLimit >= 1000000 ? '∞' : seats.seatLimit}</span>
               <span>seats used</span>
             </div>
           )}
@@ -83,7 +83,7 @@ export default function OrgMembersPanel() {
         {ok && <div className="text-xs text-green-300">{ok}</div>}
         {seats && seats.seatLimit > 0 && seats.remaining === 0 && (
           <div className="text-xs text-amber-300">
-            You've filled every seat this organization has. Ask a super admin to raise the seat limit before inviting more members.
+            You've filled every seat on your plan. Upgrade for more seats (Growth 3 users, Team 10, Enterprise unlimited) or remove a member first.
           </div>
         )}
         <div className="flex gap-2">

@@ -28,6 +28,8 @@ export type Screening = {
   name: string
   jd: string
   created_at: string
+  /** Archived jobs don't use one of the plan's active job slots. */
+  archived_at?: string | null
 }
 
 export type InterviewQuestion = {
@@ -130,8 +132,20 @@ export async function createScreening(name: string, jd: string, orgId?: string |
   const { data, error } = await supabase.from('screenings').insert({
     user_id: user.id, name, jd, org_id: orgId ?? null,
   }).select('*').single()
-  if (error) { console.error(error); return null }
+  if (error) {
+    // The DB enforces the plan's active job slots (migration 013).
+    const e = new Error(error.message.replace(/^JOB_SLOTS_FULL:\s*/, '')) as Error & { code?: string }
+    if (error.message.startsWith('JOB_SLOTS_FULL')) e.code = 'JOB_SLOTS_FULL'
+    throw e
+  }
   return data as Screening
+}
+
+/** Archive (or re-open) a job. Archiving frees one of the plan's active job slots. */
+export async function setScreeningArchived(id: string, archived: boolean): Promise<void> {
+  const { error } = await supabase.from('screenings')
+    .update({ archived_at: archived ? new Date().toISOString() : null }).eq('id', id)
+  if (error) throw new Error(error.message.replace(/^JOB_SLOTS_FULL:\s*/, ''))
 }
 
 export async function inferScreeningName(jd: string, timeoutMs = 6000): Promise<string> {
@@ -184,13 +198,39 @@ export async function insertCandidate(c: Omit<Candidate, 'id' | 'created_at' | '
 }
 
 /** Candidates the signed-in user screened (their own screenings only) — this is the quota meter. */
-export async function countMyCandidates(): Promise<number> {
+/** The signed-in user's screened CVs, optionally only those since `sinceIso`. */
+export async function countMyCandidates(sinceIso?: string): Promise<number> {
   const { data: { user } } = await supabase.auth.getUser()
   if (!user) return 0
-  const { count } = await supabase.from('candidates')
+  let q = supabase.from('candidates')
     .select('screenings!inner(user_id)', { count: 'exact', head: true })
     .eq('screenings.user_id', user.id)
+  if (sinceIso) q = q.gte('created_at', sinceIso)
+  const { count } = await q
   return count ?? 0
+}
+
+/**
+ * Score one CV with /api/score. The call is authenticated so the server can
+ * check and record it against the account's monthly CV allowance.
+ */
+export async function scoreCv(body: { jd: string; fileName?: string | null; cv: { text?: string; imageBase64?: string; mimeType?: string }; purpose?: 'score' | 'questions' }) {
+  const { data: { session } } = await supabase.auth.getSession()
+  const res = await fetch('/api/score', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+    },
+    body: JSON.stringify(body),
+  })
+  const data = await res.json().catch(() => ({} as any))
+  if (!res.ok) {
+    const err = new Error(data?.error || `Scoring failed (${res.status})`) as Error & { code?: string }
+    err.code = data?.code
+    throw err
+  }
+  return data
 }
 
 export async function regenerateQuestions(candidateId: string, questions: InterviewQuestion[]) {
@@ -228,4 +268,18 @@ export async function deleteScreening(id: string) {
   const scope = await myScope()
   if (!scope) return
   await supabase.from('screenings').delete().eq('id', id).or(scopeFilter(scope))
+}
+
+/** Ask the server to email the screening summary (Team plan feature; the server re-checks the plan). */
+export async function notifyScreeningComplete(screeningId: string): Promise<void> {
+  try {
+    const { data: { session } } = await supabase.auth.getSession()
+    if (!session?.access_token) return
+    await fetch('/api/notify-signup', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${session.access_token}` },
+      body: JSON.stringify({ kind: 'screening-complete', screeningId }),
+      keepalive: true,
+    })
+  } catch { /* best effort */ }
 }

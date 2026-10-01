@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { Camera, Trash2, Loader2 } from 'lucide-react'
 import { useAuth } from '../lib/auth'
 import { supabase } from '../lib/supabase'
+import PlanSettings from '../components/account/PlanSettings'
 
 const MAX_BYTES = 3 * 1024 * 1024 // 3 MB
 const ACCEPTED = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
@@ -131,6 +132,8 @@ export default function Account() {
         <Row label="Role" value={profile?.role ?? 'user'} />
         <Row label="Signed up" value={user?.created_at ? new Date(user.created_at).toLocaleDateString() : '—'} />
       </div>
+
+      <PlanSettings />
 
       <button onClick={signOut} className="btn-ghost mt-6">Sign out</button>
     </section>

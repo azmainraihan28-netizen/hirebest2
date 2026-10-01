@@ -1,4 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node'
+import { serviceClient } from './_lib/stripe.js'
+import { resolveCaller, getQuota, overQuota, recordUsage, planAtLeast, warnNearLimit } from './_lib/entitlements.js'
 
 const SYSTEM = `You are a senior technical recruiter scoring a single candidate CV against a job description.
 
@@ -32,12 +34,14 @@ type Body = {
   jd?: string
   fileName?: string
   cv?: { text?: string; imageBase64?: string; mimeType?: string }
+  /** 'questions' = regenerate interview questions for a CV already screened; not charged. */
+  purpose?: 'score' | 'questions'
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' })
 
-  const { jd, fileName, cv } = (req.body ?? {}) as Body
+  const { jd, fileName, cv, purpose } = (req.body ?? {}) as Body
   if (!jd) return res.status(400).json({ error: 'Missing jd' })
   if (!cv || (!cv.text && !cv.imageBase64)) return res.status(400).json({ error: 'Missing cv.text or cv.imageBase64' })
   if (jd.length > 30000) return res.status(413).json({ error: 'JD too large (30k char limit)' })
@@ -45,6 +49,25 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
 
   const apiKey = process.env.OPENAI_API_KEY
   if (!apiKey) return res.status(500).json({ error: 'Server not configured: OPENAI_API_KEY missing' })
+
+  // Every call is tied to an account (session or Team-plan API key) and counted
+  // against that account's monthly CV allowance — server-side, so it can't be skipped.
+  const supa = serviceClient()
+  if (!supa) return res.status(500).json({ error: 'Server not configured: Supabase service role missing' })
+  const caller = await resolveCaller(req, supa)
+  if (!caller) return res.status(401).json({ error: 'Sign in, or pass a valid x-api-key header.' })
+  const quota = await getQuota(supa, caller.userId)
+  if (quota && !quota.active) return res.status(403).json({ error: 'Account suspended.', code: 'INACTIVE' })
+  if (caller.via === 'api_key' && quota && !planAtLeast(quota.plan, 'lifetime')) {
+    return res.status(403).json({ error: 'API access is included in the Team plan and above.', code: 'PLAN_REQUIRED' })
+  }
+  const charge = purpose !== 'questions'
+  if (charge && overQuota(quota)) {
+    return res.status(402).json({
+      error: `Monthly CV limit reached (${quota!.used}/${quota!.cv_limit}). It resets on ${quota!.period_end.slice(0, 10)}.`,
+      code: 'QUOTA_EXCEEDED', used: quota!.used, limit: quota!.cv_limit,
+    })
+  }
 
   // Build user message content (text or vision)
   const userText = `JOB DESCRIPTION:\n${jd}\n\n---\n\n${cv.text ? `CANDIDATE CV (text):\n${cv.text}` : `CANDIDATE CV is in the attached image. Filename: ${fileName ?? 'cv.png'}`}`
@@ -80,6 +103,10 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     try { parsed = JSON.parse(content) } catch { return res.status(502).json({ error: 'Model returned invalid JSON', raw: content }) }
 
     const score = clamp(Math.round(Number(parsed.score) || 0), 0, 100)
+    // Uncharged question regeneration returns only the questions, so it can't be used as free scoring.
+    if (!charge) return res.status(200).json({ questions: normalizeQuestions(parsed.questions) })
+    await recordUsage(supa, caller.userId, quota, caller.via === 'api_key' ? 'api' : 'app')
+    await warnNearLimit(supa, caller, quota)
     return res.status(200).json({
       name: nonEmpty(parsed.name) ?? null,
       email: nonEmpty(parsed.email) ?? null,
