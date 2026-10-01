@@ -5,7 +5,8 @@ import {
   CheckCircle2, Image as ImageIcon, Clock,
 } from 'lucide-react'
 import DashboardTopBar from '../../components/dashboard/DashboardTopBar'
-import UpgradeModal from '../../components/UpgradeModal'
+import UpgradeModal, { type UpgradeReason } from '../../components/UpgradeModal'
+import { notifyQuotaChanged } from '../../components/dashboard/LimitWatcher'
 import { parseFile, pAll, type ParsedCV } from '../../lib/parsers'
 import { createScreening, insertCandidate, inferScreeningName, listScreenings, scoreCv, notifyScreeningComplete, type Screening } from '../../lib/screenings'
 import { FEATURE_PLAN, planAtLeast } from '../../lib/plans'
@@ -43,7 +44,7 @@ export default function NewScreening() {
   const [progress, setProgress] = useState({ done: 0, total: 0, label: '' })
   const [err, setErr] = useState<string | null>(null)
   const [quota, setQuota] = useState<QuotaState | null>(null)
-  const [upgradeReason, setUpgradeReason] = useState<'quota-exceeded' | 'quota-warning' | 'inactive' | 'job-slots' | 'batch-cap' | null>(null)
+  const [upgradeReason, setUpgradeReason] = useState<UpgradeReason | null>(null)
   const [jobs, setJobs] = useState<Screening[]>([])
   const [jobId, setJobId] = useState('') // '' = new job
   const fileInput = useRef<HTMLInputElement | null>(null)
@@ -69,6 +70,12 @@ export default function NewScreening() {
     if (profile && profile.active === false) setUpgradeReason('inactive')
   }, [profile])
 
+  // Out of CVs for the month: say so on arrival, not after they've pasted a JD.
+  const outOfCvs = !!quota && !quota.unlimited && quota.remaining === 0
+  useEffect(() => {
+    if (outOfCvs && profile?.active !== false) setUpgradeReason(r => r ?? 'quota-exceeded')
+  }, [outOfCvs, profile])
+
   const addFiles = (incoming: FileList | File[]) => {
     const arr = Array.from(incoming)
     const allowed = arr.filter(isAllowedResumeFile)
@@ -78,6 +85,7 @@ export default function NewScreening() {
     } else {
       setErr(null)
     }
+    if (allowed.length > 0 && outOfCvs) return setUpgradeReason('quota-exceeded')
     if (allowed.length > 0) {
       setFiles(f => {
         const next = [...f, ...allowed]
@@ -145,7 +153,7 @@ export default function NewScreening() {
         try {
           data = await scoreCv({ jd: screening.jd, fileName: p.fileName, cv })
         } catch (e: any) {
-          if (e?.code === 'QUOTA_EXCEEDED') throw e
+          if (e?.code === 'QUOTA_EXCEEDED' || e?.code === 'INACTIVE') throw e
           throw new Error(`Score failed for ${p.fileName}: ${String(e?.message ?? '').slice(0, 150)}`)
         }
         await insertCandidate({
@@ -172,10 +180,12 @@ export default function NewScreening() {
     } catch (e: any) {
       if (e?.code === 'QUOTA_EXCEEDED') setUpgradeReason('quota-exceeded')
       else if (e?.code === 'JOB_SLOTS_FULL') setUpgradeReason('job-slots')
+      else if (e?.code === 'INACTIVE') setUpgradeReason('inactive')
       else setErr(e.message ?? 'Something went wrong')
     } finally {
       setBusy(false)
       if (profile) loadQuota(profile).then(setQuota)
+      notifyQuotaChanged()
     }
   }
 

@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Mail, X, Send, Users } from 'lucide-react'
+import UpgradeModal from '../UpgradeModal'
+import { useQuota } from '../PlanGate'
 import { getMyOrgs, listMembers, listPendingInvites, inviteMember, revokeInvite, removeMember, getOrgSeatUsage, type MyOrg, type OrgMember, type OrgInvite, type OrgSeatUsage } from '../../lib/orgs'
 
 export default function OrgMembersPanel() {
@@ -13,6 +15,9 @@ export default function OrgMembersPanel() {
   const [sending, setSending] = useState(false)
   const [err, setErr] = useState<string | null>(null)
   const [ok, setOk] = useState<string | null>(null)
+  const [seatPopup, setSeatPopup] = useState(false)
+  const quota = useQuota()
+  const seatFull = !!seats && seats.seatLimit > 0 && seats.remaining === 0
 
   useEffect(() => {
     getMyOrgs().then(list => {
@@ -39,6 +44,7 @@ export default function OrgMembersPanel() {
   const invite = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!orgId || !email.trim()) return
+    if (seatFull) return setSeatPopup(true)
     setErr(null); setOk(null); setSending(true)
     try {
       await inviteMember(orgId, email.trim())
@@ -46,7 +52,9 @@ export default function OrgMembersPanel() {
       setEmail('')
       await reload(orgId)
     } catch (e: any) {
-      setErr(e?.message ?? 'Invite failed')
+      const msg: string = e?.message ?? 'Invite failed'
+      if (/seat/i.test(msg)) setSeatPopup(true)
+      setErr(msg)
     } finally { setSending(false) }
   }
 
@@ -88,14 +96,9 @@ export default function OrgMembersPanel() {
         )}
         <div className="flex gap-2">
           <input value={email} onChange={e => setEmail(e.target.value)} type="email" placeholder="teammate@example.com" className="field flex-1"/>
-          {(() => {
-            const seatFull = !!seats && seats.seatLimit > 0 && seats.remaining === 0
-            return (
-              <button disabled={sending || seatFull} className="btn-primary text-xs disabled:opacity-50 disabled:cursor-not-allowed">
-                <Send size={12}/>{sending ? 'Sending…' : 'Invite'}
-              </button>
-            )
-          })()}
+          <button disabled={sending} className="btn-primary text-xs disabled:opacity-50 disabled:cursor-not-allowed">
+            <Send size={12}/>{sending ? 'Sending…' : 'Invite'}
+          </button>
         </div>
       </form>
 
@@ -140,6 +143,14 @@ export default function OrgMembersPanel() {
             ))}
           </div>
         </div>
+      )}
+
+      {seatPopup && (
+        <UpgradeModal
+          reason="seats"
+          quota={quota && seats ? { ...quota, seats: seats.seatLimit >= 1000000 ? Infinity : seats.seatLimit } : quota}
+          onClose={() => setSeatPopup(false)}
+        />
       )}
     </div>
   )
