@@ -171,7 +171,7 @@ function Hero() {
               <img alt="Hirebest.online — Score 100 CVs in 38 Seconds | Product Hunt" width={180} height={39} src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1175830&theme=light&t=1781854290026"/>
             </a>
             <a href="https://www.shipit.buzz/products/hirebest?ref=badge" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition">
-              <img src="https://www.shipit.buzz/api/products/hirebest/badge?theme=light" alt="Featured on Shipit" height={39} style={{ height: 39 }}/>
+              <span className="inline-flex items-center h-[39px] px-3 rounded-lg border border-[var(--color-border-strong)] text-xs font-medium text-[var(--color-fg-dim)]">Featured on Shipit</span>
             </a>
           </Reveal>
         </motion.div>
@@ -905,17 +905,12 @@ function FAQBlock() {
                   <Plus size={16}/>
                 </span>
               </button>
-              <AnimatePresence initial={false}>
-                {isOpen && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.45, ease: EASE }}
-                    className="overflow-hidden"
-                  >
-                    <p className="pb-6 pl-10 pr-12 text-[var(--color-fg-dim)] leading-relaxed">{it.a}</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {/* Always in the DOM (and the prerendered HTML) so every answer is crawlable; collapsed with CSS. */}
+              <div className={`grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`} aria-hidden={!isOpen}>
+                <div className="overflow-hidden">
+                  <p className="pb-6 pl-10 pr-12 text-[var(--color-fg-dim)] leading-relaxed">{it.a}</p>
+                </div>
+              </div>
             </div>
           )
         })}

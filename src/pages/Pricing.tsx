@@ -240,13 +240,12 @@ export default function Pricing() {
                     <Plus size={16}/>
                   </span>
                 </button>
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }} className="overflow-hidden">
-                      <p className="pb-6 pl-10 pr-12 text-[var(--color-fg-dim)] leading-relaxed">{it.a}</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {/* Always in the DOM (and the prerendered HTML) so every answer is crawlable; collapsed with CSS. */}
+                <div className={`grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`} aria-hidden={!isOpen}>
+                  <div className="overflow-hidden">
+                    <p className="pb-6 pl-10 pr-12 text-[var(--color-fg-dim)] leading-relaxed">{it.a}</p>
+                  </div>
+                </div>
               </div>
             )
           })}
