@@ -19,7 +19,7 @@ export function useSeo({
   title,
   description = DEFAULT_DESC,
   canonical,
-  ogImage = '/og-card.png',
+  ogImage = '/og-card.jpg',
   ogImageAlt = DEFAULT_ALT,
   ogType = 'website',
   noindex = false,

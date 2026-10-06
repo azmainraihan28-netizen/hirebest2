@@ -4,7 +4,7 @@
  *
  * Reads dist/index.html and writes one HTML file per public marketing route
  * with route-specific <title>, meta description, OG, Twitter, canonical.
- * Legal pages get noindex injected.
+ * Routes marked noindex (none today) get a robots noindex tag injected.
  * The React bundle still hydrates on load, so this is "meta-level prerender" —
  * it solves the audit issue of every route sharing identical homepage meta,
  * without refactoring routing.
@@ -25,7 +25,7 @@ const routes = [
   {
     path: '/about',
     title: 'About HireBest — Founder Story, Mission, and Team',
-    description: 'HireBest was built by a founder who spent 4 hours screening 200 CVs for one role. Now 100 CVs take 38 seconds. Meet the team behind the AI resume screener.',
+    description: 'HireBest was built by a founder who spent 4 hours screening 200 CVs for one role. Now 100 CVs take 38 seconds. Meet the founder behind the AI resume screener.',
     imageAlt: 'About HireBest — Founder story and company mission',
     type: 'website',
   },
@@ -93,16 +93,9 @@ const routes = [
     type: 'article',
   },
   {
-    path: '/blog/hirebest-vs-greenhouse-2026',
-    title: 'HireBest vs Greenhouse (2026): Which is Right for Your Team? · HireBest',
-    description: 'A direct comparison on pricing, AI features, and setup time — and which type of team belongs on each platform.',
-    imageAlt: 'HireBest vs Greenhouse 2026 — side-by-side comparison article',
-    type: 'article',
-  },
-  {
     path: '/blog/greenhouse-pricing-2026',
     title: "Greenhouse Pricing in 2026: What's Really Going On · HireBest",
-    description: 'Public benchmarks, leaked quotes, and procurement reports — what an annual Greenhouse contract actually costs SMEs in 2026.',
+    description: 'Public benchmarks, buyer-reported quotes, and procurement reports — what an annual Greenhouse contract actually costs SMEs in 2026.',
     imageAlt: "Greenhouse pricing 2026 — what an annual contract really costs SMEs",
     type: 'article',
   },
@@ -119,7 +112,6 @@ const routes = [
     description: 'How HireBest handles your data: account info, uploaded CVs, AI processors, encryption, and your GDPR/CCPA rights.',
     imageAlt: 'HireBest privacy policy',
     type: 'website',
-    noindex: true,
   },
   {
     path: '/terms-and-conditions',
@@ -127,7 +119,6 @@ const routes = [
     description: 'Terms governing use of HireBest. AI outputs are decision-support, not final hiring decisions; human review is required.',
     imageAlt: 'HireBest terms and conditions',
     type: 'website',
-    noindex: true,
   },
   {
     path: '/refund-policy',
@@ -135,7 +126,6 @@ const routes = [
     description: '7-day full refund on one-time plans; monthly retainer cancellable anytime. Submit requests to contact@hirebest.online.',
     imageAlt: 'HireBest refund policy — 7-day full refund on one-time plans',
     type: 'website',
-    noindex: true,
   },
 ]
 

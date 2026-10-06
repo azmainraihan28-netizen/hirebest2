@@ -35,17 +35,35 @@
     <meta name="twitter:image:alt" content="HireBest — AI Resume Screener" />
 
     <link rel="canonical" href="https://hirebest.online/" />
-    <meta name="google-site-verification" content="google241098c56ba98e7f" />
 
-    <script src="https://assets.saasbrowser.com/widgets/collection.min.js" data-profile="3dfba172-0f6a-44b8-9c4b-583f067ac147" data-mode="light" data-position="left" async></script>
-
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-8P5CKBXGM2"></script>
+    <script>
+      // Apply the saved theme before first paint (ThemeProvider takes over after hydration).
+      try { if (localStorage.getItem('hb-theme') === 'light') document.documentElement.setAttribute('data-theme', 'light') } catch (e) {}
+    </script>
+    <!-- Google tag (gtag.js) and the SaaS Browser review widget load once the
+         page is idle, so they don't compete with the first paint. Events queue
+         in dataLayer until gtag.js arrives. -->
     <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
       gtag('config', 'G-8P5CKBXGM2');
+      (function () {
+        function add(src, attrs) {
+          var s = document.createElement('script'); s.async = true; s.src = src;
+          for (var k in attrs) s.setAttribute(k, attrs[k]);
+          document.head.appendChild(s);
+        }
+        function load() {
+          add('https://www.googletagmanager.com/gtag/js?id=G-8P5CKBXGM2', {});
+          add('https://assets.saasbrowser.com/widgets/collection.min.js', {
+            'data-profile': '3dfba172-0f6a-44b8-9c4b-583f067ac147', 'data-mode': 'light', 'data-position': 'left'
+          });
+        }
+        if (window.__PRERENDER__) return; // keep these tags out of the prerendered HTML
+        if ('requestIdleCallback' in window) requestIdleCallback(load, { timeout: 3000 });
+        else window.addEventListener('load', function () { setTimeout(load, 1500); });
+      })();
     </script>
   </head>
   <body>

@@ -8,7 +8,7 @@ import Breadcrumbs from '../components/Breadcrumbs'
 // Per-slug related links: contextual internal links shown after article
 const relatedLinks: Record<string, { label: string; href: string; desc: string }[]> = {
   'greenhouse-vs-workable': [
-    { label: 'Greenhouse Pricing 2026', href: '/blog/greenhouse-pricing-2026', desc: 'Essential, Advanced, and Expert — and the per-seat trap.' },
+    { label: 'Greenhouse Pricing 2026', href: '/blog/greenhouse-pricing-2026', desc: 'Core, Plus, and Pro — and the per-seat trap.' },
     { label: 'Workable Pricing 2026', href: '/blog/workable-pricing-2026', desc: 'What Workable really costs once add-ons and headcount bands kick in.' },
     { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'A lower-cost Workable alternative for AI resume screening.' },
     { label: 'HireBest vs Greenhouse', href: '/vs-greenhouse', desc: 'AI-first screening vs a full enterprise ATS.' },
@@ -84,12 +84,6 @@ const relatedLinks: Record<string, { label: string; href: string; desc: string }
     { label: 'HireBest vs Greenhouse', href: '/vs-greenhouse', desc: 'See how HireBest speed compares to Greenhouse\'s individual pipeline review.' },
     { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'Workable vs HireBest on AI screening speed and pricing.' },
   ],
-  'hirebest-vs-greenhouse-2026': [
-    { label: 'HireBest vs Greenhouse — deep dive', href: '/vs-greenhouse', desc: 'Full pricing breakdown, AI scoring, and contract terms.' },
-    { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'Another popular ATS compared on price and AI features.' },
-    { label: 'HireBest vs Lever', href: '/vs-lever', desc: 'Lever\'s CRM-first approach vs HireBest\'s screening focus.' },
-    { label: 'Greenhouse Pricing in 2026', href: '/blog/greenhouse-pricing-2026', desc: 'What an annual Greenhouse contract actually costs SMEs.' },
-  ],
 }
 
 const plain = (text: string) => text.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
@@ -153,7 +147,7 @@ export default function BlogPost() {
       <div className="mt-5 flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-2)] flex items-center justify-center text-xs font-bold text-white">AR</div>
         <div>
-          <div className="text-sm font-medium text-[var(--color-fg)]">{post.author}</div>
+          <Link to="/about#azmain" className="text-sm font-medium text-[var(--color-fg)] hover:text-[var(--color-primary-2)]">By {post.author}</Link>
           <div className="text-xs text-[var(--color-muted)]">Founder, HireBest</div>
         </div>
       </div>

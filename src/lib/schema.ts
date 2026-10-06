@@ -28,6 +28,7 @@ export function useSchema(id: string, schema: SchemaBlock | SchemaBlock[] | null
 export const organization = () => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
+  '@id': 'https://hirebest.online/#org',
   name: 'HireBest',
   alternateName: ['Hire Best', 'HireBest.online'],
   url: 'https://hirebest.online',
@@ -60,7 +61,7 @@ export const softwareApplication = () => ({
     offerCount: 4,
   },
   featureList: [
-    'Bulk CV screening (up to 50+ at once)',
+    'Bulk CV screening (up to 200 CVs per batch; 500 on Enterprise)',
     'JD-cited match reasoning',
     'Missing-skill detection',
     'Auto-generated interview questions',
@@ -97,12 +98,14 @@ export const article = (p: { title: string; description: string; slug: string; d
     description: p.description,
     datePublished: isoDate(p.date),
     dateModified: isoDate(p.date),
-    image: `https://hirebest.online${p.image ?? '/og-card.png'}`,
+    image: `https://hirebest.online${p.image ?? '/og-card.jpg'}`,
     author: isNamedPerson
-      ? { '@type': 'Person', name: authorName, url: 'https://hirebest.online/about' }
+      ? { '@type': 'Person', name: authorName, url: 'https://hirebest.online/about',
+          ...(authorName === 'Azmain Raihan' ? { '@id': 'https://hirebest.online/about#azmain' } : {}) }
       : { '@type': 'Organization', name: 'HireBest', url: 'https://hirebest.online' },
     publisher: {
       '@type': 'Organization',
+      '@id': 'https://hirebest.online/#org',
       name: 'HireBest',
       logo: { '@type': 'ImageObject', url: 'https://hirebest.online/favicon-256.png' },
     },

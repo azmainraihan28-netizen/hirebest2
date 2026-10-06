@@ -90,7 +90,7 @@ export default function Footer() {
                 <img alt="Hirebest.online — Score 100 CVs in 38 Seconds | Product Hunt" width={180} height={39} src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1175830&theme=light&t=1781854290026"/>
               </a>
               <a href="https://www.shipit.buzz/products/hirebest?ref=badge" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition">
-                <img src="https://www.shipit.buzz/api/products/hirebest/badge?theme=light" alt="Featured on Shipit" height={39} style={{ height: 39 }}/>
+                <span className="inline-flex items-center h-[39px] px-3 rounded-lg border border-[var(--color-border-strong)] text-xs font-medium text-[var(--color-fg-dim)]">Featured on Shipit</span>
               </a>
             </div>
           </div>

@@ -7,7 +7,7 @@ const faqs = [
   },
   {
     q: 'How much does Workable cost?',
-    a: 'Workable Starter is $149/month on annual billing (up to 50 employees, 2 active jobs), Standard is $299/month, and Premier is $599/month, with pay-as-you-go at $99 per role. Prices rise with headcount, and add-ons like video interviews and SMS are extra — a typical Standard setup costs about $5,800 in year one.',
+    a: 'For the smallest company-size band (1–20 employees), Workable lists Standard at $299/month (about $3,588/year), Premier at $599/month and Enterprise at $719/month. Prices rise with headcount, and add-ons like video interviews and SMS are extra — a typical Standard setup costs about $5,800 in year one.',
   },
   {
     q: 'How does HireBest differ from Workable for resume screening?',
@@ -15,7 +15,7 @@ const faqs = [
   },
   {
     q: 'Is HireBest cheaper than Workable?',
-    a: 'Yes. Workable Standard is $299/month (~$3,588/year) before add-ons, and Starter ($149/month) is limited to 2 active jobs. HireBest plans start at $49/month (Starter) with the popular Growth tier at $99/month ($840/year billed annually). No per-job-posting fees, no annual lock-in — cancel anytime.',
+    a: 'Yes. Workable Standard is $299/month (~$3,588/year) before add-ons. HireBest plans start at $49/month (Starter) with the popular Growth tier at $99/month ($840/year billed annually). No per-job-posting fees, no annual lock-in — cancel anytime.',
   },
   {
     q: 'Does HireBest replace Workable entirely?',
@@ -29,12 +29,12 @@ export default function VsWorkable() {
       competitor="Workable"
       headline="HireBest vs Workable: Which AI Resume Screener Wins in 2026?"
       seoTitle="Workable Alternative for AI Resume Screening — HireBest vs Workable"
-      intro="Looking for a Workable alternative? Workable costs $149–$599/month (Standard is $299/month, about $3,588/year before add-ons). HireBest starts at $49/month with a 14-day free trial. Here's how the two actually differ."
+      intro="Looking for a Workable alternative? Workable costs $299–$719/month for its smallest company-size band (Standard is $299/month, about $3,588/year before add-ons). HireBest starts at $49/month with a 14-day free trial. Here's how the two actually differ."
       forCompetitor={["Mid-market HR teams wanting a full ATS + careers page", "UK/AU markets needing job-board syndication", "Teams that already use pipeline management daily"]}
       forUs={["Teams whose actual blocker is a CV pile they can't read fast enough", "Smaller orgs (10–500) prioritizing AI depth over full ATS features", "Buyers who want transparent SaaS pricing without per-job-posting fees"]}
       rows={[
-        { f: 'Starting price', us: '$49/month', them: '$149/month Starter (2 jobs); $299/month Standard' },
-        { f: 'Free trial', us: '14 days, no credit card', them: '15 days, credit card required after' },
+        { f: 'Starting price', us: '$49/month', them: '$299/month Standard (1–20 employees)' },
+        { f: 'Free trial', us: '14 days, no credit card', them: '15 days, no credit card required' },
         { f: 'AI scoring', us: '0–100 with JD-cited reasoning', them: 'Semantic match, limited reasoning' },
         { f: 'Per-job limits', us: 'Unlimited active jobs on Team plan', them: 'Yes on lower tiers' },
         { f: 'Setup time', us: 'Same day', them: '1–7 days' },

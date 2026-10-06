@@ -13,7 +13,7 @@ import { useSchema, organization, softwareApplication, faqPage, websiteSchema } 
 import { formatPlanLimit } from '../lib/plans'
 import SaaSBrowserReviews from '../components/SaaSBrowserReviews'
 import {
-  Reveal, SplitHeading, ScrollWords, Magnetic, CountUp, VelocityMarquee, Eyebrow, Spotlight, useLiteMotion,
+  Reveal, SplitHeading, StaticLines, ScrollWords, Magnetic, CountUp, VelocityMarquee, Eyebrow, Spotlight, useLiteMotion, isPrerendering,
 } from '../components/motion/primitives'
 
 // ─────────────────────────────────────────────────────────────────────
@@ -35,7 +35,7 @@ const faqs = [
 ]
 
 const pricingFaqs = [
-  { q: 'Is there a free trial?',         a: 'Yes — 14 days free on the Growth plan. No credit card required to start.' },
+  { q: 'Is there a free trial?',         a: 'Yes — 14 days free on every paid plan (Starter, Growth and Team). No credit card required to start. There is also a free plan with 50 CVs a month.' },
   { q: 'Can I switch monthly ↔ annual?', a: 'Yes. Upgrade to annual anytime and save ~29% compared to monthly billing.' },
   { q: 'What if I exceed my CV limit?',  a: 'We notify you before you hit the cap. Upgrade mid-cycle (prorated) — no surprise overage fees.' },
   { q: 'Can I cancel anytime?',          a: 'Yes — one-click cancel from your dashboard. Monthly plans end at cycle close; annual gets prorated refunds within 30 days.' },
@@ -43,7 +43,7 @@ const pricingFaqs = [
 
 const tiers = [
   { plan: 'basic',    name: 'Starter',    subtitle: 'Solo recruiters & consultants',  price: '$49',    per: '/mo', billing: '14-day free trial. Annual $420/yr — save 29%.',   cta: 'Start free trial',   features: ['3 active job slots', `${formatPlanLimit('basic')} CVs / month`, '1 user', 'AI scoring with cited reasoning', 'Interview question generation', 'CSV export'] },
-  { plan: 'advanced', name: 'Growth',     subtitle: 'Small HR teams & startups',      price: '$99',    per: '/mo', billing: '14-day free trial. Annual $840/yr — save 29%.',   cta: 'Start 14-day trial', features: ['10 active job slots', `${formatPlanLimit('advanced')} CVs / month`, '3 users', 'Everything in Starter', 'Bulk upload (100+ PDFs)', 'Custom branding', 'Side-by-side compare', 'Priority email support'], popular: true },
+  { plan: 'advanced', name: 'Growth',     subtitle: 'Small HR teams & startups',      price: '$99',    per: '/mo', billing: '14-day free trial. Annual $840/yr — save 29%.',   cta: 'Start 14-day trial', features: ['10 active job slots', `${formatPlanLimit('advanced')} CVs / month`, '3 users', 'Everything in Starter', 'Bulk upload, 200 CVs per batch', 'Custom branding', 'Side-by-side compare', 'Priority email support'], popular: true },
   { plan: 'lifetime', name: 'Team',       subtitle: 'HR departments & agencies',      price: '$199',   per: '/mo', billing: '14-day free trial. Annual $1,680/yr — save 30%.', cta: 'Start free trial',   features: ['Unlimited job slots', `${formatPlanLimit('lifetime')} CVs / month`, '10 users', 'Everything in Growth', 'Analytics dashboard', 'API access', 'Role-based permissions', 'Priority Slack support'] },
   { plan: 'retainer', name: 'Enterprise', subtitle: '500+ companies & enterprise HR', price: 'Custom', per: '',    billing: 'Volume-based custom quote',                       cta: 'Talk to sales',      features: [`${formatPlanLimit('retainer')} CVs / users`, 'Everything in Team', 'Custom ATS integration', 'SSO', 'SLA guarantee', 'Dedicated CSM', 'On-premise option', 'Quarterly reviews'] },
 ] as const
@@ -64,8 +64,10 @@ const trust = [
 const EASE = [0.22, 1, 0.36, 1] as const
 
 function useMediaQuery(q: string) {
-  const [match, setMatch] = useState(() => typeof window !== 'undefined' && window.matchMedia(q).matches)
+  // false on the first render so it matches the prerendered HTML; real value after mount.
+  const [match, setMatch] = useState(false)
   useEffect(() => {
+    if (isPrerendering()) return
     const m = window.matchMedia(q)
     const on = () => setMatch(m.matches)
     on()
@@ -130,50 +132,48 @@ function Hero() {
 
       <div className="relative max-w-7xl mx-auto px-5 pt-14 md:pt-24 pb-20 md:pb-28 grid lg:grid-cols-12 gap-12 lg:gap-8 items-center min-h-[calc(100svh-76px)]">
         <motion.div style={parallax ? { y: copyY, opacity: copyOpacity } : undefined} className="lg:col-span-7 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: EASE }}
+          {/* Above the fold: static on purpose (no entrance animation), so the
+              prerendered hero is the final hero and paints immediately. */}
+          <div
             className="inline-flex items-center gap-2.5 rounded-full border border-[var(--color-border-strong)] bg-[color-mix(in_srgb,var(--color-card)_70%,transparent)] backdrop-blur pl-1.5 pr-4 py-1.5 text-xs text-[var(--color-fg-dim)]"
           >
-            <span className="rounded-full bg-[var(--color-primary)] text-[var(--color-primary-ink)] px-2 py-0.5 text-[10px] font-semibold tracking-wide">NEW</span>
-            AI resume screener with cited reasoning
-          </motion.div>
+            <span className="rounded-full bg-[var(--color-primary)] text-[var(--color-primary-ink)] px-2 py-0.5 text-[10px] font-semibold tracking-wide">AI</span>
+            <h1 className="font-normal">AI resume screener: score 100 CVs in 38 seconds</h1>
+          </div>
 
-          <SplitHeading
-            as="h1"
+          <StaticLines
+            as="p"
             text={'Read 100 CVs\n*before* your\ncoffee cools.'}
             className="display-hero mt-7 text-[var(--color-fg)]"
-            delay={0.1}
           />
 
-          <Reveal delay={0.55} className="mt-8 max-w-[46ch] text-[var(--color-fg-dim)] text-base md:text-lg leading-relaxed">
+          <div className="mt-8 max-w-[46ch] text-[var(--color-fg-dim)] text-base md:text-lg leading-relaxed">
             HireBest scores every CV against your job description in <b className="text-[var(--color-fg)] font-semibold">38 seconds</b>,
             flags the missing skills, and drafts the interview questions — with reasoning you can check.
-          </Reveal>
+          </div>
 
-          <Reveal delay={0.7} className="mt-9 flex flex-wrap items-center gap-3">
+          <div className="mt-9 flex flex-wrap items-center gap-3">
             <Magnetic>
               <Link to="/signup" className="btn-primary btn-lg">Start screening free <ArrowRight size={16}/></Link>
             </Magnetic>
             <a href="#how-it-works" className="btn-ghost btn-lg">See how it works</a>
-          </Reveal>
+          </div>
 
-          <Reveal delay={0.85} className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs text-[var(--color-muted)] font-mono uppercase tracking-[0.12em]">
-            {['No credit card', 'PDF · DOCX · PNG · JPG', 'Bulk 200+ CVs'].map(t => (
+          <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs text-[var(--color-muted)] font-mono uppercase tracking-[0.12em]">
+            {['No credit card', 'PDF · DOCX · PNG · JPG', 'Up to 200 CVs per batch'].map(t => (
               <span key={t} className="inline-flex items-center gap-2"><Check size={12} className="text-[var(--color-primary-2)]"/>{t}</span>
             ))}
-          </Reveal>
+          </div>
 
-          <Reveal delay={1} className="mt-10 flex flex-wrap items-center gap-4">
+          <div className="mt-10 flex flex-wrap items-center gap-4">
             <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[var(--color-muted-2)]">Featured on</span>
             <a href="https://www.producthunt.com/products/hirebest-online?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-hirebest-online" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition">
               <img alt="Hirebest.online — Score 100 CVs in 38 Seconds | Product Hunt" width={180} height={39} src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1175830&theme=light&t=1781854290026"/>
             </a>
             <a href="https://www.shipit.buzz/products/hirebest?ref=badge" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition">
-              <img src="https://www.shipit.buzz/api/products/hirebest/badge?theme=light" alt="Featured on Shipit" height={39} style={{ height: 39 }}/>
+              <span className="inline-flex items-center h-[39px] px-3 rounded-lg border border-[var(--color-border-strong)] text-xs font-medium text-[var(--color-fg-dim)]">Featured on Shipit</span>
             </a>
-          </Reveal>
+          </div>
         </motion.div>
 
         <motion.div
@@ -210,13 +210,15 @@ function Hero() {
  */
 const ScannerDevice = memo(function ScannerDevice() {
   const reduce = useReducedMotion()
-  const t = useMotionValue(reduce ? 1 : 0)
+  // Starts at 0 everywhere so the first render matches the prerendered HTML.
+  const t = useMotionValue(0)
+  useEffect(() => { if (reduce) t.set(1) }, [reduce, t])
   const H = 360 // scan travel in px
   const boxRef = useRef<HTMLDivElement>(null)
   // Pause the per-frame clock once the device scrolls out of view.
   const onScreen = useInView(boxRef)
   useAnimationFrame(time => {
-    if (reduce || !onScreen) return
+    if (reduce || !onScreen || isPrerendering()) return
     t.set((time % 4200) / 4200)
   })
   const beamY = useTransform(t, [0, 0.9], [0, H])
@@ -399,7 +401,7 @@ function Features() {
       <div className="grid lg:grid-cols-12 gap-8 items-end mb-14">
         <div className="lg:col-span-8">
           <Eyebrow n="02">Product</Eyebrow>
-          <SplitHeading text={'Everything a recruiter\n*wishes* an ATS did.'} className="display-lg mt-6 text-[var(--color-fg)]" />
+          <SplitHeading text={'AI resume screening\n*recruiters* actually use.'} className="display-lg mt-6 text-[var(--color-fg)]" />
         </div>
         <Reveal className="lg:col-span-4 text-[var(--color-fg-dim)] leading-relaxed">
           Built for the moment between “send me CVs” and “schedule the interview.”
@@ -412,7 +414,7 @@ function Features() {
           desc="Each candidate gets a 0–100 match score with written reasoning that cites the JD — agree, override, or push back.">
           <ScoringDemo />
         </Tile>
-        <Tile className="md:col-span-2" delay={0.06} icon={FileStack} title="Bulk by design" desc="Drop 200 CVs at once. PDF, DOCX, PNG, JPG — scanned ones too.">
+        <Tile className="md:col-span-2" delay={0.06} icon={FileStack} title="Bulk by design" desc="Drop up to 200 CVs in one batch (500 on Enterprise). PDF, DOCX, PNG, JPG — scanned ones too.">
           <BulkDemo />
         </Tile>
         <Tile className="md:col-span-2" delay={0.12} icon={Lock} title="Private & yours" desc="Auth, row-level security and per-user isolation by default.">
@@ -457,7 +459,7 @@ function useLoop(ms: number) {
   const reduce = useReducedMotion()
   const [tick, setTick] = useState(0)
   useEffect(() => {
-    if (reduce) return
+    if (reduce || isPrerendering()) return // prerendered HTML keeps the first frame
     const id = setInterval(() => setTick(t => t + 1), ms)
     return () => clearInterval(id)
   }, [ms, reduce])
@@ -627,7 +629,7 @@ function HowItWorks() {
       <section id="how-it-works" className="relative scroll-mt-24">
         <div className="max-w-7xl mx-auto px-5 pt-16">
           <Eyebrow n="03">How it works</Eyebrow>
-          <SplitHeading text={'From inbox chaos to\nshortlist in *three* steps.'} className="display-lg mt-6 text-[var(--color-fg)]" />
+          <SplitHeading text={'How AI CV screening works:\n*three* steps.'} className="display-lg mt-6 text-[var(--color-fg)]" />
         </div>
         <div className="max-w-7xl mx-auto px-5 pt-8 pb-6 space-y-4">
           {steps.map((s, i) => (
@@ -646,7 +648,7 @@ function HowItWorks() {
     <section id="how-it-works" className="relative scroll-mt-24">
       <div className="max-w-7xl mx-auto px-5 pt-16 md:pt-32">
         <Eyebrow n="03">How it works</Eyebrow>
-        <SplitHeading text={'From inbox chaos to\nshortlist in *three* steps.'} className="display-lg mt-6 text-[var(--color-fg)]" />
+        <SplitHeading text={'How AI CV screening works:\n*three* steps.'} className="display-lg mt-6 text-[var(--color-fg)]" />
       </div>
       <div ref={ref} className="relative max-w-7xl mx-auto px-5 pb-10" style={{ height: `${(steps.length - 1) * 85 + 90}vh` }}>
         {steps.map((s, i) => (
@@ -761,7 +763,7 @@ function SavingsCalculator() {
       <div className="grid lg:grid-cols-12 gap-8 items-end mb-12">
         <div className="lg:col-span-7">
           <Eyebrow n="04">ROI</Eyebrow>
-          <SplitHeading text={'Simple pricing.\n*No* per-seat tax.'} className="display-lg mt-6 text-[var(--color-fg)]" />
+          <SplitHeading text={'Plans from $49/month.\n*No* per-seat tax.'} className="display-lg mt-6 text-[var(--color-fg)]" />
         </div>
         <Reveal className="lg:col-span-5 text-[var(--color-fg-dim)] leading-relaxed">
           14-day free trial — no credit card required. Save ~29% with annual billing. Move the sliders to see what you'd get back.
@@ -887,7 +889,7 @@ function FAQBlock() {
       <div className="lg:col-span-5">
         <div className="lg:sticky lg:top-28">
           <Eyebrow n="05">FAQ</Eyebrow>
-          <SplitHeading text={'Questions,\n*answered.*'} className="display-lg mt-6 text-[var(--color-fg)]" />
+          <SplitHeading text={'AI resume screening,\n*answered.*'} className="display-lg mt-6 text-[var(--color-fg)]" />
           <p className="mt-6 text-[var(--color-fg-dim)] max-w-sm">Something else? <Link to="/contact" className="text-[var(--color-primary-2)] u-link">Talk to us</Link> — we usually reply within a few hours.</p>
         </div>
       </div>
@@ -905,17 +907,12 @@ function FAQBlock() {
                   <Plus size={16}/>
                 </span>
               </button>
-              <AnimatePresence initial={false}>
-                {isOpen && (
-                  <motion.div
-                    initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }}
-                    transition={{ duration: 0.45, ease: EASE }}
-                    className="overflow-hidden"
-                  >
-                    <p className="pb-6 pl-10 pr-12 text-[var(--color-fg-dim)] leading-relaxed">{it.a}</p>
-                  </motion.div>
-                )}
-              </AnimatePresence>
+              {/* Always in the DOM (and the prerendered HTML) so every answer is crawlable; collapsed with CSS. */}
+              <div className={`grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`} aria-hidden={!isOpen}>
+                <div className="overflow-hidden">
+                  <p className="pb-6 pl-10 pr-12 text-[var(--color-fg-dim)] leading-relaxed">{it.a}</p>
+                </div>
+              </div>
             </div>
           )
         })}

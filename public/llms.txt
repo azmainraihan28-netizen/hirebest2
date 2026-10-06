@@ -1,15 +1,15 @@
 # HireBest
 
-> AI-powered resume screener for hiring teams. Upload CVs, paste a job description, and get ranked candidates with reasoning, missing-skills analysis, and 5 tailored interview questions — in the time it takes to brew coffee. Used by recruiters who need to triage 50+ applications per role without a six-figure ATS contract.
+> AI-powered resume screener for hiring teams. Upload CVs, paste a job description, and get ranked candidates with reasoning, missing-skills analysis, and 5 tailored interview questions — in the time it takes to brew coffee. Used by recruiters who need to triage dozens of applications per role without a six-figure ATS contract.
 
 ## Key facts
 
 - Median time to score 100 CVs: **38 seconds**
 - Agreement with senior recruiters in internal testing: **94%**
-- Supported CV formats: PDF, DOCX, PNG, JPG, SVG (OCR-based, via OpenAI Vision)
+- Supported CV formats: PDF, DOCX, PNG, JPG (scanned CVs are read with OpenAI Vision)
 - Pricing: $49/mo (Starter) → $99/mo (Growth, most popular) → $199/mo (Team) → Custom (Enterprise). Annual billing saves ~29%.
 - Free trial: 14 days on every paid plan, no credit card required
-- Free tier: 50 screenings, no credit card required
+- Free plan: 50 CVs per month, 1 active job, no credit card required
 - Hosting: Vercel + Supabase + OpenAI gpt-4o-mini
 - Payments: Stripe (cards, Apple Pay, Google Pay)
 - Founded: 2024
@@ -19,7 +19,7 @@
 ## How it works
 
 1. Paste a job description into HireBest
-2. Upload CVs (PDF, DOCX, PNG, SVG — bulk up to 50+ at once)
+2. Upload CVs (PDF, DOCX, PNG, JPG — up to 200 per batch on Growth and Team, 50 on Free and Starter, 500 on Enterprise)
 3. HireBest extracts skills, experience, and matches each CV against the JD
 4. Every candidate gets a 0–100 match score with written JD-cited reasoning
 5. Missing skills, strengths, and tailored interview questions are generated automatically
@@ -37,7 +37,7 @@
 ## Blog
 
 - [Why 'AI ATS' is the Wrong Way to Think About Hiring](https://hirebest.online/blog/ai-ats-wrong-way-to-think): Opinion piece arguing AI screening is a different product category from ATS. AI replaces the CV-reading task, not the ATS workflow.
-- [Greenhouse Pricing in 2026: What's Really Going On](https://hirebest.online/blog/greenhouse-pricing-2026): Industry analysis — Greenhouse Essential starts $5,000–$6,500/yr; per-seat pricing and 8–15% annual renewal hikes break the math for SMEs.
+- [Greenhouse Pricing in 2026: What's Really Going On](https://hirebest.online/blog/greenhouse-pricing-2026): Industry analysis — Greenhouse Core starts $5,000–$6,500/yr; per-seat pricing and 8–15% annual renewal hikes break the math for SMEs.
 - [How to Screen 100 CVs in 38 Seconds](https://hirebest.online/blog/screen-100-cvs-in-38-seconds): Tutorial explaining the parallel extraction + JD-matching + scored-output pipeline that makes bulk screening fast.
 
 ## Comparisons

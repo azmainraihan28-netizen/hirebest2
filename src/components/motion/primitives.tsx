@@ -18,12 +18,20 @@ const LITE_QUERY = '(max-width: 1023px), (pointer: coarse)'
  * per-word and blur animations are the main source of jank there, so the
  * primitives below fall back to a plain render or a cheap fade.
  */
+/** True while scripts/snapshot.mjs renders the page into static HTML. */
+export const isPrerendering = () =>
+  typeof window !== 'undefined' && !!(window as unknown as { __PRERENDER__?: boolean }).__PRERENDER__
+
 export function useLiteMotion() {
   const reduce = useReducedMotion()
-  const [lite, setLite] = useState(() => typeof window !== 'undefined' && window.matchMedia(LITE_QUERY).matches)
+  // Start lite on every device so the first render matches the prerendered
+  // HTML (main.tsx hydrates it); desktops switch to full motion after mount.
+  const [lite, setLite] = useState(true)
   useEffect(() => {
+    if (isPrerendering()) return
     const m = window.matchMedia(LITE_QUERY)
     const on = () => setLite(m.matches)
+    on()
     m.addEventListener('change', on)
     return () => m.removeEventListener('change', on)
   }, [])
@@ -58,13 +66,34 @@ export function Reveal({
   )
 }
 
+/** SplitHeading's text with the same line breaks and *accent* words, without any animation. */
+export function StaticLines({ text, className = '', as = 'h2' }: { text: string; className?: string; as?: 'h1' | 'h2' | 'h3' | 'p' }) {
+  const Tag = as
+  const lines = text.split('\n').map(tokenize)
+  return (
+    <Tag className={className}>
+      {lines.map((line, li) => (
+        <span key={li} className="md:block">
+          {li > 0 && <span className="md:hidden"> </span>}
+          {line.map(({ word, accent }, wi) => (
+            <span key={wi}>
+              <span className={accent ? 'accent-serif' : ''}>{word}</span>
+              {wi < line.length - 1 && ' '}
+            </span>
+          ))}
+        </span>
+      ))}
+    </Tag>
+  )
+}
+
 /**
  * Headline that rises word-by-word from behind a mask. Pass plain text; wrap
  * words to accent in `*asterisks*` to render them in the serif italic accent.
  */
 export function SplitHeading({
   text, className = '', delay = 0, as = 'h2', once = true,
-}: { text: string; className?: string; delay?: number; as?: 'h1' | 'h2' | 'h3'; once?: boolean }) {
+}: { text: string; className?: string; delay?: number; as?: 'h1' | 'h2' | 'h3' | 'p'; once?: boolean }) {
   const reduce = useReducedMotion()
   const lite = useLiteMotion()
   const ref = useRef<HTMLHeadingElement>(null)
@@ -72,23 +101,7 @@ export function SplitHeading({
   const Tag = as
   const lines = text.split('\n').map(tokenize)
   let idx = 0
-  if (lite) {
-    return (
-      <Tag className={className}>
-        {lines.map((line, li) => (
-          <span key={li} className="md:block">
-            {li > 0 && <span className="md:hidden"> </span>}
-            {line.map(({ word, accent }, wi) => (
-              <span key={wi}>
-                <span className={accent ? 'accent-serif' : ''}>{word}</span>
-                {wi < line.length - 1 && ' '}
-              </span>
-            ))}
-          </span>
-        ))}
-      </Tag>
-    )
-  }
+  if (lite) return <StaticLines text={text} className={className} as={as} />
   return (
     <Tag ref={ref} className={className} aria-label={text.replace(/\*/g, '').replace(/\n/g, ' ')}>
       {lines.map((line, li) => (
@@ -206,36 +219,13 @@ export function Magnetic({ children, strength = 0.35, className = '' }: { childr
   )
 }
 
-/** Number that counts up when scrolled into view. Keeps any suffix ("s", "%", "+"). */
+/**
+ * A stat such as "38s", "94%" or "10,000+". It used to count up from 0 on
+ * scroll, but the prerendered HTML then said "0s" / "0%" to search engines and
+ * no-JS readers, so it now always renders the real value.
+ */
 export function CountUp({ value, className = '' }: { value: string; className?: string }) {
-  const ref = useRef<HTMLSpanElement>(null)
-  const inView = useInView(ref, { once: true, amount: 0.6 })
-  const reduce = useReducedMotion()
-  const clean = value.replace(/,/g, '')
-  const match = clean.match(/^(\d+(?:\.\d+)?)(.*)$/)
-  const target = match ? parseFloat(match[1]) : 0
-  const suffix = match ? match[2] : ''
-  const decimals = match && match[1].includes('.') ? match[1].split('.')[1].length : 0
-  const [n, setN] = useState(reduce ? target : 0)
-
-  useEffect(() => {
-    if (!inView || reduce || !match) return
-    const dur = 1800
-    const t0 = performance.now()
-    let raf = 0
-    const tick = (now: number) => {
-      const t = Math.min((now - t0) / dur, 1)
-      setN(target * (1 - Math.pow(1 - t, 4)))
-      if (t < 1) raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView])
-
-  if (!match) return <span className={className}>{value}</span>
-  const shown = decimals ? n.toFixed(decimals) : Math.round(n).toLocaleString()
-  return <span ref={ref} className={className}>{shown}{suffix}</span>
+  return <span className={className}>{value}</span>
 }
 
 /**

@@ -9,7 +9,8 @@ import { formatPlanLimit } from '../lib/plans'
 import { Reveal, SplitHeading, Eyebrow, Spotlight, Magnetic } from '../components/motion/primitives'
 
 const pricingFaqs = [
-  { q: 'Is there a free trial?',                                    a: 'Yes — 14 days free on the Growth plan. No credit card required to start. Cancel anytime during the trial without being charged.' },
+  { q: 'Is there a free trial?',                                    a: 'Yes — 14 days free on every paid plan (Starter, Growth and Team). No credit card required to start. Cancel anytime during the trial without being charged.' },
+  { q: 'Is there a free plan?',                                     a: 'Yes. The free plan screens 50 CVs a month on 1 active job, with no credit card. Upgrade when you need more CVs, jobs or users.' },
   { q: 'Can I switch between monthly and annual?',                  a: 'Yes. You can upgrade from monthly to annual at any time and lock in two months free. Annual plans save ~29% compared to paying monthly.' },
   { q: 'What counts as an "active job slot"?',                      a: 'Any open role you are actively screening candidates for. Closed or paused jobs free up a slot. You can archive old jobs to stay within your limit.' },
   { q: 'What happens if I exceed my monthly CV limit?',             a: 'We will notify you before you hit the cap. You can upgrade mid-cycle (prorated) or wait until next month — no overage fees, no surprise charges.' },
@@ -31,7 +32,7 @@ type Tier = {
 
 const tiers: Tier[] = [
   { plan: 'basic',    name: 'Starter',    subtitle: 'Solo recruiters & consultants',       best: 'Freelance recruiters, solo HR, hiring consultants',                monthly: 49,   annual: 420,  cta: 'Start free trial',   features: ['3 active job slots', `${formatPlanLimit('basic')} CVs / month`, '1 user', 'AI scoring with cited reasoning', 'Interview question generation', 'CSV export'] },
-  { plan: 'advanced', name: 'Growth',     subtitle: 'Small HR teams & startups',           best: 'Small HR teams, startups, growing SMBs (5–50 employees)',           monthly: 99,   annual: 840,  popular: true, cta: 'Start 14-day trial', features: ['10 active job slots', `${formatPlanLimit('advanced')} CVs / month`, '3 users', 'Everything in Starter', 'Bulk upload (100+ PDFs)', 'Custom branding (logo, colors)', 'Screening history per JD', 'Side-by-side candidate compare', 'Outreach email drafts', 'Priority email support'] },
+  { plan: 'advanced', name: 'Growth',     subtitle: 'Small HR teams & startups',           best: 'Small HR teams, startups, growing SMBs (5–50 employees)',           monthly: 99,   annual: 840,  popular: true, cta: 'Start 14-day trial', features: ['10 active job slots', `${formatPlanLimit('advanced')} CVs / month`, '3 users', 'Everything in Starter', 'Bulk upload, 200 CVs per batch', 'Custom branding (logo, colors)', 'Screening history per JD', 'Side-by-side candidate compare', 'Outreach email drafts', 'Priority email support'] },
   { plan: 'lifetime', name: 'Team',       subtitle: 'HR departments & staffing agencies',  best: 'HR departments, staffing agencies, 50–500 employee companies',      monthly: 199,  annual: 1680, cta: 'Start free trial',   features: ['Unlimited active job slots', `${formatPlanLimit('lifetime')} CVs / month`, '10 users', 'Everything in Growth', 'Analytics dashboard', 'API access', 'Role-based permissions', 'Email notifications', 'Hiring analytics', 'Priority Slack support'] },
   { plan: 'retainer', name: 'Enterprise', subtitle: '500+ companies & enterprise HR',      best: '500+ employee companies, staffing firms, enterprise HR',            monthly: null, annual: null, cta: 'Talk to sales',      features: [`${formatPlanLimit('retainer')} CVs / month`, 'Unlimited users', 'Everything in Team', 'Custom ATS / database integration', 'SSO (Single Sign-On)', 'SLA guarantee', 'Dedicated CSM', 'Custom workflow per team', 'On-premise deployment', 'Quarterly business reviews'] },
 ]
@@ -43,7 +44,7 @@ const matrix = [
   { f: 'AI scoring with cited reasoning',     v: [true, true, true, true] },
   { f: 'Interview question generation',        v: [true, true, true, true] },
   { f: 'CSV export',                           v: [true, true, true, true] },
-  { f: 'Bulk upload (100+ PDFs)',             v: [false, true, true, true] },
+  { f: 'CVs per upload batch',                v: ['50', '200', '200', '500'] },
   { f: 'Custom branding',                      v: [false, true, true, true] },
   { f: 'Screening history per JD',            v: [false, true, true, true] },
   { f: 'Side-by-side compare',                v: [false, true, true, true] },
@@ -86,7 +87,7 @@ export default function Pricing() {
         <Breadcrumbs trail={[{ name: 'Pricing' }]} schemaId="pricing-breadcrumb"/>
         <div className="relative max-w-7xl mx-auto px-5 pt-14 pb-14 text-center">
           <Eyebrow n="$">Pricing</Eyebrow>
-          <SplitHeading as="h1" text={'Simple pricing.\n*No* per-seat tax.'} className="display-xl mt-7 text-[var(--color-fg)]" />
+          <SplitHeading as="h1" text={'AI resume screener pricing.\n*No* per-seat tax.'} className="display-xl mt-7 text-[var(--color-fg)]" />
           <Reveal delay={0.35} className="mt-7 text-[var(--color-fg-dim)] max-w-2xl mx-auto text-lg">
             Start with a 14-day free trial — no credit card. Switch monthly ↔ annual anytime. Save ~29% with annual billing.
           </Reveal>
@@ -173,7 +174,7 @@ export default function Pricing() {
       <section className="max-w-7xl mx-auto px-5 py-24">
         <div className="mb-10">
           <Eyebrow n="01">Comparison</Eyebrow>
-          <SplitHeading text={'Compare *every* feature.'} className="display-lg mt-6 text-[var(--color-fg)]" />
+          <SplitHeading text={'Compare *every* plan.'} className="display-lg mt-6 text-[var(--color-fg)]" />
         </div>
 
         <p className="md:hidden -mt-4 mb-4 text-xs text-[var(--color-muted)]">Swipe sideways to compare all four plans →</p>
@@ -239,13 +240,12 @@ export default function Pricing() {
                     <Plus size={16}/>
                   </span>
                 </button>
-                <AnimatePresence initial={false}>
-                  {isOpen && (
-                    <motion.div initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }} className="overflow-hidden">
-                      <p className="pb-6 pl-10 pr-12 text-[var(--color-fg-dim)] leading-relaxed">{it.a}</p>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
+                {/* Always in the DOM (and the prerendered HTML) so every answer is crawlable; collapsed with CSS. */}
+                <div className={`grid transition-[grid-template-rows,opacity] duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${isOpen ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`} aria-hidden={!isOpen}>
+                  <div className="overflow-hidden">
+                    <p className="pb-6 pl-10 pr-12 text-[var(--color-fg-dim)] leading-relaxed">{it.a}</p>
+                  </div>
+                </div>
               </div>
             )
           })}

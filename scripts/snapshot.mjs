@@ -39,13 +39,12 @@ const ROUTES = [
   { path: '/blog/ai-ats-wrong-way-to-think',      noindex: false },
   { path: '/blog/greenhouse-pricing-2026',        noindex: false },
   { path: '/blog/screen-100-cvs-in-38-seconds',  noindex: false },
-  { path: '/blog/hirebest-vs-greenhouse-2026',   noindex: false },
   { path: '/blog/marketing-manager-interview-questions', noindex: false },
   { path: '/blog/software-engineer-interview-questions', noindex: false },
   { path: '/blog/workable-pricing-2026',          noindex: false },
-  { path: '/privacy-policy',                      noindex: true  },
-  { path: '/terms-and-conditions',                noindex: true  },
-  { path: '/refund-policy',                       noindex: true  },
+  { path: '/privacy-policy',                      noindex: false },
+  { path: '/terms-and-conditions',                noindex: false },
+  { path: '/refund-policy',                       noindex: false },
 ]
 
 // Any URL in the sitemap that isn't listed above would ship without an
@@ -124,6 +123,9 @@ async function run() {
 
   const page = await browser.newPage()
   await page.setViewport({ width: 1280, height: 800 })
+  // Lets the app render its first-paint state (lite motion, no media-query
+  // switches) so the HTML matches what the browser hydrates.
+  await page.evaluateOnNewDocument(() => { window.__PRERENDER__ = true })
   page.on('console', () => {})
   page.on('pageerror', () => {})
 
@@ -152,6 +154,27 @@ async function run() {
       await capture(route.path)
       await new Promise(r => setTimeout(r, 600))
 
+      // App wraps every route in one <Suspense>. React's own server render
+      // marks such a boundary with <!--$--> … <!--/$-->; hydrateRoot (main.tsx)
+      // needs those markers to adopt this HTML instead of re-rendering it.
+      await page.evaluate(() => {
+        const root = document.getElementById('root')
+        if (!root || !root.firstChild) return
+        // React renders `By {name}` as two adjacent text nodes; serialised HTML
+        // would merge them. Its server renderer separates them with <!-- -->,
+        // which is what hydration expects, so do the same.
+        const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT)
+        const texts = []
+        while (walker.nextNode()) texts.push(walker.currentNode)
+        for (const node of texts) {
+          if (node.previousSibling && node.previousSibling.nodeType === Node.TEXT_NODE) {
+            node.parentNode.insertBefore(document.createComment(' '), node)
+          }
+        }
+        root.setAttribute('data-path', location.pathname) // main.tsx hydrates only on this path
+        root.insertBefore(document.createComment('$'), root.firstChild)
+        root.appendChild(document.createComment('/$'))
+      })
       let html = await page.content()
       html = html.replaceAll(`http://localhost:${PORT}`, BASE)
 

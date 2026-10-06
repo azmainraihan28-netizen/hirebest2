@@ -6,7 +6,6 @@ export default function Refund() {
     title: 'Refund Policy · HireBest',
     description: '14-day free trial on all paid plans. Monthly plans cancellable anytime. Annual plans get prorated refunds within 30 days. Submit requests to contact@hirebest.online.',
     canonical: 'https://hirebest.online/refund-policy',
-    noindex: true,
   })
   return (
     <LegalPage title="Refund Policy" updated="Last updated: May 9, 2026">

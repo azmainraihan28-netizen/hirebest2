@@ -10,10 +10,12 @@ import { Reveal, SplitHeading, ScrollWords, Eyebrow, CountUp, Spotlight } from '
 const founderSchema = {
   '@context': 'https://schema.org',
   '@type': 'Person',
+  '@id': 'https://hirebest.online/about#azmain',
   name: 'Azmain Raihan',
   jobTitle: 'Founder & CEO',
   worksFor: {
     '@type': 'Organization',
+    '@id': 'https://hirebest.online/#org',
     name: 'HireBest',
     url: 'https://hirebest.online',
   },
@@ -38,7 +40,7 @@ const timeline = [
 export default function About() {
   useSeo({
     title: 'About HireBest — Founder Story, Mission, and Team',
-    description: 'HireBest was built by a founder who spent 4 hours screening 200 CVs for one role. Now 100 CVs take 38 seconds. Meet the team behind the AI resume screener.',
+    description: 'HireBest was built by a founder who spent 4 hours screening 200 CVs for one role. Now 100 CVs take 38 seconds. Meet the founder behind the AI resume screener.',
     canonical: 'https://hirebest.online/about',
   })
   useSchema('about-org', organization())
@@ -53,7 +55,7 @@ export default function About() {
         <Breadcrumbs trail={[{ name: 'About' }]} schemaId="about-bc" />
         <div className="relative max-w-7xl mx-auto px-5 pt-14 pb-24 grid lg:grid-cols-12 gap-10 items-end">
           <div className="lg:col-span-9">
-            <Eyebrow n="HB">Our story</Eyebrow>
+            <Eyebrow n="HB">About HireBest</Eyebrow>
             <SplitHeading
               as="h1"
               text={'Built by someone who\nspent *4 hours reading*\nthe wrong CVs.'}
@@ -70,7 +72,7 @@ export default function About() {
       </section>
 
       {/* ── Founder ─────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-5 py-16 grid lg:grid-cols-12 gap-10">
+      <section id="azmain" className="max-w-7xl mx-auto px-5 py-16 grid lg:grid-cols-12 gap-10">
         <Reveal className="lg:col-span-4">
           <div className="lg:sticky lg:top-28">
             <div className="relative w-full max-w-[18rem] aspect-square rounded-[2rem] overflow-hidden border border-[var(--color-border-strong)] bg-gradient-to-br from-[var(--color-primary)] to-[color-mix(in_srgb,var(--color-primary)_40%,var(--color-bg))] flex items-end p-6">
