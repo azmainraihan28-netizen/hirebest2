@@ -6,7 +6,6 @@ export default function Terms() {
     title: 'Terms & Conditions · HireBest',
     description: 'Terms governing use of HireBest. AI outputs are decision-support, not final hiring decisions; human review is required.',
     canonical: 'https://hirebest.online/terms-and-conditions',
-    noindex: true,
   })
   return (
     <LegalPage title="Terms & Conditions" updated="Last updated: May 9, 2026">

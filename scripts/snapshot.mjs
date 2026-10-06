@@ -42,9 +42,9 @@ const ROUTES = [
   { path: '/blog/marketing-manager-interview-questions', noindex: false },
   { path: '/blog/software-engineer-interview-questions', noindex: false },
   { path: '/blog/workable-pricing-2026',          noindex: false },
-  { path: '/privacy-policy',                      noindex: true  },
-  { path: '/terms-and-conditions',                noindex: true  },
-  { path: '/refund-policy',                       noindex: true  },
+  { path: '/privacy-policy',                      noindex: false },
+  { path: '/terms-and-conditions',                noindex: false },
+  { path: '/refund-policy',                       noindex: false },
 ]
 
 // Any URL in the sitemap that isn't listed above would ship without an

@@ -4,7 +4,7 @@
  *
  * Reads dist/index.html and writes one HTML file per public marketing route
  * with route-specific <title>, meta description, OG, Twitter, canonical.
- * Legal pages get noindex injected.
+ * Routes marked noindex (none today) get a robots noindex tag injected.
  * The React bundle still hydrates on load, so this is "meta-level prerender" —
  * it solves the audit issue of every route sharing identical homepage meta,
  * without refactoring routing.
@@ -112,7 +112,6 @@ const routes = [
     description: 'How HireBest handles your data: account info, uploaded CVs, AI processors, encryption, and your GDPR/CCPA rights.',
     imageAlt: 'HireBest privacy policy',
     type: 'website',
-    noindex: true,
   },
   {
     path: '/terms-and-conditions',
@@ -120,7 +119,6 @@ const routes = [
     description: 'Terms governing use of HireBest. AI outputs are decision-support, not final hiring decisions; human review is required.',
     imageAlt: 'HireBest terms and conditions',
     type: 'website',
-    noindex: true,
   },
   {
     path: '/refund-policy',
@@ -128,7 +126,6 @@ const routes = [
     description: '7-day full refund on one-time plans; monthly retainer cancellable anytime. Submit requests to contact@hirebest.online.',
     imageAlt: 'HireBest refund policy — 7-day full refund on one-time plans',
     type: 'website',
-    noindex: true,
   },
 ]
 

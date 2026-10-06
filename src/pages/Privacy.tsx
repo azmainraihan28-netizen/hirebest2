@@ -6,7 +6,6 @@ export default function Privacy() {
     title: 'Privacy Policy · HireBest',
     description: 'How HireBest handles your data: account info, uploaded CVs, AI processors, encryption, and your GDPR/CCPA rights.',
     canonical: 'https://hirebest.online/privacy-policy',
-    noindex: true,
   })
   return (
     <LegalPage title="Privacy Policy" updated="Last updated: May 9, 2026">
