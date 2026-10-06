@@ -13,7 +13,7 @@ import { useSchema, organization, softwareApplication, faqPage, websiteSchema } 
 import { formatPlanLimit } from '../lib/plans'
 import SaaSBrowserReviews from '../components/SaaSBrowserReviews'
 import {
-  Reveal, SplitHeading, ScrollWords, Magnetic, CountUp, VelocityMarquee, Eyebrow, Spotlight, useLiteMotion,
+  Reveal, SplitHeading, StaticLines, ScrollWords, Magnetic, CountUp, VelocityMarquee, Eyebrow, Spotlight, useLiteMotion, isPrerendering,
 } from '../components/motion/primitives'
 
 // ─────────────────────────────────────────────────────────────────────
@@ -64,8 +64,10 @@ const trust = [
 const EASE = [0.22, 1, 0.36, 1] as const
 
 function useMediaQuery(q: string) {
-  const [match, setMatch] = useState(() => typeof window !== 'undefined' && window.matchMedia(q).matches)
+  // false on the first render so it matches the prerendered HTML; real value after mount.
+  const [match, setMatch] = useState(false)
   useEffect(() => {
+    if (isPrerendering()) return
     const m = window.matchMedia(q)
     const on = () => setMatch(m.matches)
     on()
@@ -130,42 +132,40 @@ function Hero() {
 
       <div className="relative max-w-7xl mx-auto px-5 pt-14 md:pt-24 pb-20 md:pb-28 grid lg:grid-cols-12 gap-12 lg:gap-8 items-center min-h-[calc(100svh-76px)]">
         <motion.div style={parallax ? { y: copyY, opacity: copyOpacity } : undefined} className="lg:col-span-7 relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, ease: EASE }}
+          {/* Above the fold: static on purpose (no entrance animation), so the
+              prerendered hero is the final hero and paints immediately. */}
+          <div
             className="inline-flex items-center gap-2.5 rounded-full border border-[var(--color-border-strong)] bg-[color-mix(in_srgb,var(--color-card)_70%,transparent)] backdrop-blur pl-1.5 pr-4 py-1.5 text-xs text-[var(--color-fg-dim)]"
           >
             <span className="rounded-full bg-[var(--color-primary)] text-[var(--color-primary-ink)] px-2 py-0.5 text-[10px] font-semibold tracking-wide">AI</span>
             <h1 className="font-normal">AI resume screener: score 100 CVs in 38 seconds</h1>
-          </motion.div>
+          </div>
 
-          <SplitHeading
+          <StaticLines
             as="p"
             text={'Read 100 CVs\n*before* your\ncoffee cools.'}
             className="display-hero mt-7 text-[var(--color-fg)]"
-            delay={0.1}
           />
 
-          <Reveal delay={0.55} className="mt-8 max-w-[46ch] text-[var(--color-fg-dim)] text-base md:text-lg leading-relaxed">
+          <div className="mt-8 max-w-[46ch] text-[var(--color-fg-dim)] text-base md:text-lg leading-relaxed">
             HireBest scores every CV against your job description in <b className="text-[var(--color-fg)] font-semibold">38 seconds</b>,
             flags the missing skills, and drafts the interview questions — with reasoning you can check.
-          </Reveal>
+          </div>
 
-          <Reveal delay={0.7} className="mt-9 flex flex-wrap items-center gap-3">
+          <div className="mt-9 flex flex-wrap items-center gap-3">
             <Magnetic>
               <Link to="/signup" className="btn-primary btn-lg">Start screening free <ArrowRight size={16}/></Link>
             </Magnetic>
             <a href="#how-it-works" className="btn-ghost btn-lg">See how it works</a>
-          </Reveal>
+          </div>
 
-          <Reveal delay={0.85} className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs text-[var(--color-muted)] font-mono uppercase tracking-[0.12em]">
+          <div className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs text-[var(--color-muted)] font-mono uppercase tracking-[0.12em]">
             {['No credit card', 'PDF · DOCX · PNG · JPG', 'Up to 200 CVs per batch'].map(t => (
               <span key={t} className="inline-flex items-center gap-2"><Check size={12} className="text-[var(--color-primary-2)]"/>{t}</span>
             ))}
-          </Reveal>
+          </div>
 
-          <Reveal delay={1} className="mt-10 flex flex-wrap items-center gap-4">
+          <div className="mt-10 flex flex-wrap items-center gap-4">
             <span className="text-[10px] font-mono uppercase tracking-[0.2em] text-[var(--color-muted-2)]">Featured on</span>
             <a href="https://www.producthunt.com/products/hirebest-online?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-hirebest-online" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition">
               <img alt="Hirebest.online — Score 100 CVs in 38 Seconds | Product Hunt" width={180} height={39} src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1175830&theme=light&t=1781854290026"/>
@@ -173,7 +173,7 @@ function Hero() {
             <a href="https://www.shipit.buzz/products/hirebest?ref=badge" target="_blank" rel="noopener noreferrer" className="opacity-80 hover:opacity-100 transition">
               <span className="inline-flex items-center h-[39px] px-3 rounded-lg border border-[var(--color-border-strong)] text-xs font-medium text-[var(--color-fg-dim)]">Featured on Shipit</span>
             </a>
-          </Reveal>
+          </div>
         </motion.div>
 
         <motion.div
@@ -210,13 +210,15 @@ function Hero() {
  */
 const ScannerDevice = memo(function ScannerDevice() {
   const reduce = useReducedMotion()
-  const t = useMotionValue(reduce ? 1 : 0)
+  // Starts at 0 everywhere so the first render matches the prerendered HTML.
+  const t = useMotionValue(0)
+  useEffect(() => { if (reduce) t.set(1) }, [reduce, t])
   const H = 360 // scan travel in px
   const boxRef = useRef<HTMLDivElement>(null)
   // Pause the per-frame clock once the device scrolls out of view.
   const onScreen = useInView(boxRef)
   useAnimationFrame(time => {
-    if (reduce || !onScreen) return
+    if (reduce || !onScreen || isPrerendering()) return
     t.set((time % 4200) / 4200)
   })
   const beamY = useTransform(t, [0, 0.9], [0, H])
@@ -457,7 +459,7 @@ function useLoop(ms: number) {
   const reduce = useReducedMotion()
   const [tick, setTick] = useState(0)
   useEffect(() => {
-    if (reduce) return
+    if (reduce || isPrerendering()) return // prerendered HTML keeps the first frame
     const id = setInterval(() => setTick(t => t + 1), ms)
     return () => clearInterval(id)
   }, [ms, reduce])

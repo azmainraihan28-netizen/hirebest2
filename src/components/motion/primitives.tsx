@@ -18,12 +18,20 @@ const LITE_QUERY = '(max-width: 1023px), (pointer: coarse)'
  * per-word and blur animations are the main source of jank there, so the
  * primitives below fall back to a plain render or a cheap fade.
  */
+/** True while scripts/snapshot.mjs renders the page into static HTML. */
+export const isPrerendering = () =>
+  typeof window !== 'undefined' && !!(window as unknown as { __PRERENDER__?: boolean }).__PRERENDER__
+
 export function useLiteMotion() {
   const reduce = useReducedMotion()
-  const [lite, setLite] = useState(() => typeof window !== 'undefined' && window.matchMedia(LITE_QUERY).matches)
+  // Start lite on every device so the first render matches the prerendered
+  // HTML (main.tsx hydrates it); desktops switch to full motion after mount.
+  const [lite, setLite] = useState(true)
   useEffect(() => {
+    if (isPrerendering()) return
     const m = window.matchMedia(LITE_QUERY)
     const on = () => setLite(m.matches)
+    on()
     m.addEventListener('change', on)
     return () => m.removeEventListener('change', on)
   }, [])
@@ -58,6 +66,27 @@ export function Reveal({
   )
 }
 
+/** SplitHeading's text with the same line breaks and *accent* words, without any animation. */
+export function StaticLines({ text, className = '', as = 'h2' }: { text: string; className?: string; as?: 'h1' | 'h2' | 'h3' | 'p' }) {
+  const Tag = as
+  const lines = text.split('\n').map(tokenize)
+  return (
+    <Tag className={className}>
+      {lines.map((line, li) => (
+        <span key={li} className="md:block">
+          {li > 0 && <span className="md:hidden"> </span>}
+          {line.map(({ word, accent }, wi) => (
+            <span key={wi}>
+              <span className={accent ? 'accent-serif' : ''}>{word}</span>
+              {wi < line.length - 1 && ' '}
+            </span>
+          ))}
+        </span>
+      ))}
+    </Tag>
+  )
+}
+
 /**
  * Headline that rises word-by-word from behind a mask. Pass plain text; wrap
  * words to accent in `*asterisks*` to render them in the serif italic accent.
@@ -72,23 +101,7 @@ export function SplitHeading({
   const Tag = as
   const lines = text.split('\n').map(tokenize)
   let idx = 0
-  if (lite) {
-    return (
-      <Tag className={className}>
-        {lines.map((line, li) => (
-          <span key={li} className="md:block">
-            {li > 0 && <span className="md:hidden"> </span>}
-            {line.map(({ word, accent }, wi) => (
-              <span key={wi}>
-                <span className={accent ? 'accent-serif' : ''}>{word}</span>
-                {wi < line.length - 1 && ' '}
-              </span>
-            ))}
-          </span>
-        ))}
-      </Tag>
-    )
-  }
+  if (lite) return <StaticLines text={text} className={className} as={as} />
   return (
     <Tag ref={ref} className={className} aria-label={text.replace(/\*/g, '').replace(/\n/g, ' ')}>
       {lines.map((line, li) => (
