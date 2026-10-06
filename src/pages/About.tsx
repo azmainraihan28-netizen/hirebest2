@@ -10,10 +10,12 @@ import { Reveal, SplitHeading, ScrollWords, Eyebrow, CountUp, Spotlight } from '
 const founderSchema = {
   '@context': 'https://schema.org',
   '@type': 'Person',
+  '@id': 'https://hirebest.online/about#azmain',
   name: 'Azmain Raihan',
   jobTitle: 'Founder & CEO',
   worksFor: {
     '@type': 'Organization',
+    '@id': 'https://hirebest.online/#org',
     name: 'HireBest',
     url: 'https://hirebest.online',
   },
@@ -70,7 +72,7 @@ export default function About() {
       </section>
 
       {/* ── Founder ─────────────────────────────── */}
-      <section className="max-w-7xl mx-auto px-5 py-16 grid lg:grid-cols-12 gap-10">
+      <section id="azmain" className="max-w-7xl mx-auto px-5 py-16 grid lg:grid-cols-12 gap-10">
         <Reveal className="lg:col-span-4">
           <div className="lg:sticky lg:top-28">
             <div className="relative w-full max-w-[18rem] aspect-square rounded-[2rem] overflow-hidden border border-[var(--color-border-strong)] bg-gradient-to-br from-[var(--color-primary)] to-[color-mix(in_srgb,var(--color-primary)_40%,var(--color-bg))] flex items-end p-6">

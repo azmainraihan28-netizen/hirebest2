@@ -28,6 +28,7 @@ export function useSchema(id: string, schema: SchemaBlock | SchemaBlock[] | null
 export const organization = () => ({
   '@context': 'https://schema.org',
   '@type': 'Organization',
+  '@id': 'https://hirebest.online/#org',
   name: 'HireBest',
   alternateName: ['Hire Best', 'HireBest.online'],
   url: 'https://hirebest.online',
@@ -99,10 +100,12 @@ export const article = (p: { title: string; description: string; slug: string; d
     dateModified: isoDate(p.date),
     image: `https://hirebest.online${p.image ?? '/og-card.png'}`,
     author: isNamedPerson
-      ? { '@type': 'Person', name: authorName, url: 'https://hirebest.online/about' }
+      ? { '@type': 'Person', name: authorName, url: 'https://hirebest.online/about',
+          ...(authorName === 'Azmain Raihan' ? { '@id': 'https://hirebest.online/about#azmain' } : {}) }
       : { '@type': 'Organization', name: 'HireBest', url: 'https://hirebest.online' },
     publisher: {
       '@type': 'Organization',
+      '@id': 'https://hirebest.online/#org',
       name: 'HireBest',
       logo: { '@type': 'ImageObject', url: 'https://hirebest.online/favicon-256.png' },
     },

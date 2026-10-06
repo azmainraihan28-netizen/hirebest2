@@ -147,7 +147,7 @@ export default function BlogPost() {
       <div className="mt-5 flex items-center gap-3">
         <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-2)] flex items-center justify-center text-xs font-bold text-white">AR</div>
         <div>
-          <div className="text-sm font-medium text-[var(--color-fg)]">{post.author}</div>
+          <Link to="/about#azmain" className="text-sm font-medium text-[var(--color-fg)] hover:text-[var(--color-primary-2)]">By {post.author}</Link>
           <div className="text-xs text-[var(--color-muted)]">Founder, HireBest</div>
         </div>
       </div>

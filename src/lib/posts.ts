@@ -20,7 +20,7 @@ export const posts: Post[] = [
     category: "Comparison",
     date: "Sep 30, 2026",
     readTime: "9 min read",
-    author: 'HireBest Team',
+    author: 'Azmain Raihan',
     seoTitle: "Greenhouse vs Workable (2026): Pricing, Features & Verdict",
     body: [
       "> **Short answer:** Workable is usually the better choice for small and mid-size companies: it publishes its prices (from $149/month), sets up fast, and posts to hundreds of job boards out of the box. Greenhouse is the better choice for larger or fast-scaling companies that want rigorous structured hiring, deep reporting, and approval workflows — and can pay for it (typically $9,000–$14,000 in year one for an SME, more for bigger teams). If your real problem is reading hundreds of CVs, neither is built for that — an AI screener sits alongside either one.",
@@ -81,7 +81,7 @@ export const posts: Post[] = [
     category: "Hiring Guide",
     date: "Sep 30, 2026",
     readTime: "11 min read",
-    author: 'HireBest Team',
+    author: 'Azmain Raihan',
     seoTitle: "35 Backend Developer Interview Questions + What to Listen For",
     body: [
       "> **Short answer:** Good backend developer interview questions test five things: API design, data modeling and databases, concurrency, reliability in production, and system design. Ask 5–7 per round and follow up hard. A strong backend engineer talks about failure modes, trade-offs, and what they'd measure — not just the happy path.",
@@ -155,7 +155,7 @@ export const posts: Post[] = [
     category: "Hiring Guide",
     date: "Sep 30, 2026",
     readTime: "10 min read",
-    author: 'HireBest Team',
+    author: 'Azmain Raihan',
     seoTitle: "35 Frontend Developer Interview Questions + What to Listen For",
     body: [
       "> **Short answer:** Strong frontend developer interview questions cover six areas: JavaScript fundamentals, a framework like React, CSS and layout, performance, accessibility, and testing. Ask 5–7 per round and include one practical task. The best frontend engineers talk about users — load time, keyboard access, error states — not just components.",
@@ -229,7 +229,7 @@ export const posts: Post[] = [
     category: "Hiring Guide",
     date: "Sep 30, 2026",
     readTime: "10 min read",
-    author: 'HireBest Team',
+    author: 'Azmain Raihan',
     seoTitle: "30 Behavioral Interview Questions for Software Engineers",
     body: [
       "> **Short answer:** The best behavioral interview questions for software engineers ask about specific past situations: a production mistake, a technical disagreement, a missed deadline, a hard piece of feedback. Ask 3–4 per round, use STAR (Situation, Task, Action, Result) to structure what you hear, and keep asking \"what did you do?\" until you get a concrete answer.",
@@ -306,7 +306,7 @@ export const posts: Post[] = [
     category: "Playbook",
     date: "Sep 30, 2026",
     readTime: "9 min read",
-    author: 'HireBest Team',
+    author: 'Azmain Raihan',
     seoTitle: "How to Screen Software Engineer Resumes (7-Step Process)",
     body: [
       "> **Short answer:** To screen software engineer resumes well, write 3–5 must-have criteria from the job description before opening a single CV, then read each resume for evidence of those criteria — shipped work, scope, and results — rather than keywords, logos, or years of experience. Score every CV against the same rubric, shortlist the top 10–15%, and write one line explaining each decision.",
@@ -366,7 +366,7 @@ export const posts: Post[] = [
     category: 'Hiring Guide',
     date: 'Jun 17, 2026',
     readTime: '10 min read',
-    author: 'HireBest Team',
+    author: 'Azmain Raihan',
     seoTitle: '40 Marketing Manager Interview Questions + What to Listen For',
     body: [
       "> **Short answer:** The best marketing manager interview questions cover six areas — strategy, campaign execution, analytics, leadership, behavioral, and motivation. Ask 6–8 per loop, not all 40. In every answer, listen for specifics: real numbers, named channels, and what didn't work. Vague claims like \"we drove engagement\" are the biggest red flag.",
@@ -463,7 +463,7 @@ export const posts: Post[] = [
     category: 'Hiring Guide',
     date: 'Jun 16, 2026',
     readTime: '12 min read',
-    author: 'HireBest Team',
+    author: 'Azmain Raihan',
     seoTitle: '50 Software Engineer Interview Questions + What to Listen For',
     coverImage: '/software-engineer-interview-questions-cover.webp',
     body: [
@@ -562,7 +562,7 @@ export const posts: Post[] = [
     category: 'Industry',
     date: 'Jun 15, 2026',
     readTime: '8 min read',
-    author: 'HireBest Team',
+    author: 'Azmain Raihan',
     seoTitle: 'Workable Pricing 2026: What Workable Really Costs (Plans + Add-Ons)',
     coverImage: '/workable-pricing-cover.webp',
     body: [
@@ -621,7 +621,7 @@ export const posts: Post[] = [
     category: 'Opinion',
     date: 'Feb 15, 2026',
     readTime: '5 min read',
-    author: 'HireBest Team',
+    author: 'Azmain Raihan',
     body: [
       "Everyone is calling their product an \"AI ATS\" now. The category label has become a sales pitch, and like most sales pitches, it obscures more than it explains.",
       "Here's what's actually going on — and why the framing matters more than you'd expect.",
@@ -644,7 +644,7 @@ export const posts: Post[] = [
     category: 'Industry',
     date: 'Feb 8, 2026',
     readTime: '9 min read',
-    author: 'HireBest Team',
+    author: 'Azmain Raihan',
     body: [
       "> **Short answer:** Greenhouse doesn't publish prices — every contract is custom-quoted. For small and mid-size companies, the Core plan typically starts around $5,000–$6,500 per year, and year-one spend usually lands at $9,000–$14,000 once hiring managers and interviewers are added as seats. Plus runs roughly $9,000–$15,000 per year, and Pro starts around $20,000+.",
       "## The short version",
@@ -691,7 +691,7 @@ export const posts: Post[] = [
     category: 'Tutorials',
     date: 'Feb 1, 2026',
     readTime: '6 min read',
-    author: 'HireBest Team',
+    author: 'Azmain Raihan',
     body: [
       "## Where the 38 seconds comes from",
       "38 seconds is the median time for a 100-CV batch on HireBest's scoring engine, measured across batches submitted in January and February 2026. The range is 28–54 seconds depending on file size and OCR complexity. 100 CVs in under a minute is not a marketing number — it is what the system logs show.",
