@@ -95,7 +95,7 @@ const routes = [
   {
     path: '/blog/greenhouse-pricing-2026',
     title: "Greenhouse Pricing in 2026: What's Really Going On · HireBest",
-    description: 'Public benchmarks, leaked quotes, and procurement reports — what an annual Greenhouse contract actually costs SMEs in 2026.',
+    description: 'Public benchmarks, buyer-reported quotes, and procurement reports — what an annual Greenhouse contract actually costs SMEs in 2026.',
     imageAlt: "Greenhouse pricing 2026 — what an annual contract really costs SMEs",
     type: 'article',
   },

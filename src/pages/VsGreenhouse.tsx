@@ -9,7 +9,7 @@ const DESC =
   'A direct comparison of HireBest and Greenhouse on pricing, AI features, setup time, and which type of team belongs on each platform.'
 
 const comparisonRows = [
-  { feature: 'Starting price',             hirebest: '$49 / month',                     greenhouse: '~$7,000 / year (Essential tier)' },
+  { feature: 'Starting price',             hirebest: '$49 / month',                     greenhouse: '~$7,000 / year (Core tier)' },
   { feature: 'Pricing model',              hirebest: 'Monthly or annual SaaS',          greenhouse: 'Per-seat, annual contract' },
   { feature: 'Free trial',                 hirebest: '14 days, no credit card',         greenhouse: 'Sales-led demo only' },
   { feature: 'AI resume scoring',          hirebest: '0–100 with JD-cited reasoning',   greenhouse: 'Basic ranking / keyword match' },
@@ -180,9 +180,9 @@ export default function VsGreenhouse() {
             <p className="chip mb-4">Greenhouse — estimated real-world spend</p>
             <div className="space-y-4">
               {[
-                { name: 'Essential', price: '$5,500–$7,000 / year', desc: 'Core ATS for a 50-person company with 3–5 active roles and ~17 seats (recruiters + hiring managers + interviewers).' },
-                { name: 'Advanced', price: '$9,000–$15,000 / year', desc: 'Adds sourcing automations, deeper reporting, and DEI dashboards. Typical for 100+ person teams above 10 seats.' },
-                { name: 'Expert', price: '$20,000+ / year', desc: 'Custom-quoted for 500+ employee organizations running structured hiring programs at scale.' },
+                { name: 'Core', price: '$5,500–$7,000 / year', desc: 'The base ATS for a 50-person company with 3–5 active roles and ~17 seats (recruiters + hiring managers + interviewers).' },
+                { name: 'Plus', price: '$9,000–$15,000 / year', desc: 'Adds sourcing automations, deeper reporting, and DEI dashboards. Typical for 100+ person teams above 10 seats.' },
+                { name: 'Pro', price: '$20,000+ / year', desc: 'Custom-quoted for 500+ employee organizations running structured hiring programs at scale.' },
               ].map(t => (
                 <div key={t.name} className="border-b border-[var(--color-border)] last:border-0 pb-4 last:pb-0">
                   <div className="flex items-baseline justify-between gap-2">
@@ -207,7 +207,7 @@ export default function VsGreenhouse() {
         <div className="mt-6 card p-5 border-[var(--color-primary)]/40">
           <p className="text-sm text-[var(--color-muted)] leading-relaxed text-center">
             <strong className="text-[var(--color-fg)]">The math:</strong> HireBest Growth at $840/year (billed annually) vs
-            Greenhouse Essential at ~$7,000/year = <strong className="text-[var(--color-primary-2)]">$6,160 saved annually</strong> — before
+            Greenhouse Core at ~$7,000/year = <strong className="text-[var(--color-primary-2)]">$6,160 saved annually</strong> — before
             Greenhouse's renewal hikes compound. Over three years that gap typically widens to $22,000+.
           </p>
         </div>

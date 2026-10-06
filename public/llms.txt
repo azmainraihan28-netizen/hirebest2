@@ -37,7 +37,7 @@
 ## Blog
 
 - [Why 'AI ATS' is the Wrong Way to Think About Hiring](https://hirebest.online/blog/ai-ats-wrong-way-to-think): Opinion piece arguing AI screening is a different product category from ATS. AI replaces the CV-reading task, not the ATS workflow.
-- [Greenhouse Pricing in 2026: What's Really Going On](https://hirebest.online/blog/greenhouse-pricing-2026): Industry analysis — Greenhouse Essential starts $5,000–$6,500/yr; per-seat pricing and 8–15% annual renewal hikes break the math for SMEs.
+- [Greenhouse Pricing in 2026: What's Really Going On](https://hirebest.online/blog/greenhouse-pricing-2026): Industry analysis — Greenhouse Core starts $5,000–$6,500/yr; per-seat pricing and 8–15% annual renewal hikes break the math for SMEs.
 - [How to Screen 100 CVs in 38 Seconds](https://hirebest.online/blog/screen-100-cvs-in-38-seconds): Tutorial explaining the parallel extraction + JD-matching + scored-output pipeline that makes bulk screening fast.
 
 ## Comparisons

@@ -8,7 +8,7 @@ import Breadcrumbs from '../components/Breadcrumbs'
 // Per-slug related links: contextual internal links shown after article
 const relatedLinks: Record<string, { label: string; href: string; desc: string }[]> = {
   'greenhouse-vs-workable': [
-    { label: 'Greenhouse Pricing 2026', href: '/blog/greenhouse-pricing-2026', desc: 'Essential, Advanced, and Expert — and the per-seat trap.' },
+    { label: 'Greenhouse Pricing 2026', href: '/blog/greenhouse-pricing-2026', desc: 'Core, Plus, and Pro — and the per-seat trap.' },
     { label: 'Workable Pricing 2026', href: '/blog/workable-pricing-2026', desc: 'What Workable really costs once add-ons and headcount bands kick in.' },
     { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'A lower-cost Workable alternative for AI resume screening.' },
     { label: 'HireBest vs Greenhouse', href: '/vs-greenhouse', desc: 'AI-first screening vs a full enterprise ATS.' },
