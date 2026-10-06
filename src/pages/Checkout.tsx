@@ -6,7 +6,7 @@ import { startCheckout, type PlanKey, type PaidPlanKey, type BillingInterval } f
 
 const PLANS: Record<PlanKey, { name: string; monthly: number | null; annual: number | null; features: string[] }> = {
   basic:     { name: 'Starter',    monthly: 49,   annual: 420,  features: ['3 active job slots', '150 CVs / month', '1 user', 'AI scoring with JD-cited reasoning', 'Interview question generation', 'CSV export'] },
-  advanced:  { name: 'Growth',     monthly: 99,   annual: 840,  features: ['10 active job slots', '500 CVs / month', '3 users', 'Bulk upload (100+ PDFs)', 'Custom branding', 'Side-by-side compare', 'Priority email support'] },
+  advanced:  { name: 'Growth',     monthly: 99,   annual: 840,  features: ['10 active job slots', '500 CVs / month', '3 users', 'Bulk upload, 200 CVs per batch', 'Custom branding', 'Side-by-side compare', 'Priority email support'] },
   lifetime:  { name: 'Team',       monthly: 199,  annual: 1680, features: ['Unlimited job slots', '2,000 CVs / month', '10 users', 'Analytics dashboard', 'API access', 'Role-based permissions', 'Priority Slack support'] },
   retainer:  { name: 'Enterprise', monthly: null, annual: null, features: ['Unlimited CVs / users', 'Custom ATS integration', 'SSO', 'SLA guarantee', 'Dedicated CSM', 'On-premise option'] },
 }

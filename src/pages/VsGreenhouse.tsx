@@ -252,7 +252,7 @@ export default function VsGreenhouse() {
           an obstacle.
         </p>
         <p className="text-[var(--color-muted)] leading-relaxed mb-6">
-          HireBest solves the triage bottleneck specifically. Upload a job description, upload up to 50+ PDFs
+          HireBest solves the triage bottleneck specifically. Upload a job description, upload up to 200 CVs per batch
           at once, and get back a ranked list with 0–100 scores and JD-cited reasoning — explaining exactly
           why each candidate ranked where they did — in 38 seconds. No implementation project. No seat count
           negotiation. No sales call.

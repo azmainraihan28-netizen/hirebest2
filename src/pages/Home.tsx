@@ -35,7 +35,7 @@ const faqs = [
 ]
 
 const pricingFaqs = [
-  { q: 'Is there a free trial?',         a: 'Yes — 14 days free on the Growth plan. No credit card required to start.' },
+  { q: 'Is there a free trial?',         a: 'Yes — 14 days free on every paid plan (Starter, Growth and Team). No credit card required to start. There is also a free plan with 50 CVs a month.' },
   { q: 'Can I switch monthly ↔ annual?', a: 'Yes. Upgrade to annual anytime and save ~29% compared to monthly billing.' },
   { q: 'What if I exceed my CV limit?',  a: 'We notify you before you hit the cap. Upgrade mid-cycle (prorated) — no surprise overage fees.' },
   { q: 'Can I cancel anytime?',          a: 'Yes — one-click cancel from your dashboard. Monthly plans end at cycle close; annual gets prorated refunds within 30 days.' },
@@ -43,7 +43,7 @@ const pricingFaqs = [
 
 const tiers = [
   { plan: 'basic',    name: 'Starter',    subtitle: 'Solo recruiters & consultants',  price: '$49',    per: '/mo', billing: '14-day free trial. Annual $420/yr — save 29%.',   cta: 'Start free trial',   features: ['3 active job slots', `${formatPlanLimit('basic')} CVs / month`, '1 user', 'AI scoring with cited reasoning', 'Interview question generation', 'CSV export'] },
-  { plan: 'advanced', name: 'Growth',     subtitle: 'Small HR teams & startups',      price: '$99',    per: '/mo', billing: '14-day free trial. Annual $840/yr — save 29%.',   cta: 'Start 14-day trial', features: ['10 active job slots', `${formatPlanLimit('advanced')} CVs / month`, '3 users', 'Everything in Starter', 'Bulk upload (100+ PDFs)', 'Custom branding', 'Side-by-side compare', 'Priority email support'], popular: true },
+  { plan: 'advanced', name: 'Growth',     subtitle: 'Small HR teams & startups',      price: '$99',    per: '/mo', billing: '14-day free trial. Annual $840/yr — save 29%.',   cta: 'Start 14-day trial', features: ['10 active job slots', `${formatPlanLimit('advanced')} CVs / month`, '3 users', 'Everything in Starter', 'Bulk upload, 200 CVs per batch', 'Custom branding', 'Side-by-side compare', 'Priority email support'], popular: true },
   { plan: 'lifetime', name: 'Team',       subtitle: 'HR departments & agencies',      price: '$199',   per: '/mo', billing: '14-day free trial. Annual $1,680/yr — save 30%.', cta: 'Start free trial',   features: ['Unlimited job slots', `${formatPlanLimit('lifetime')} CVs / month`, '10 users', 'Everything in Growth', 'Analytics dashboard', 'API access', 'Role-based permissions', 'Priority Slack support'] },
   { plan: 'retainer', name: 'Enterprise', subtitle: '500+ companies & enterprise HR', price: 'Custom', per: '',    billing: 'Volume-based custom quote',                       cta: 'Talk to sales',      features: [`${formatPlanLimit('retainer')} CVs / users`, 'Everything in Team', 'Custom ATS integration', 'SSO', 'SLA guarantee', 'Dedicated CSM', 'On-premise option', 'Quarterly reviews'] },
 ] as const
@@ -160,7 +160,7 @@ function Hero() {
           </Reveal>
 
           <Reveal delay={0.85} className="mt-8 flex flex-wrap gap-x-6 gap-y-2 text-xs text-[var(--color-muted)] font-mono uppercase tracking-[0.12em]">
-            {['No credit card', 'PDF · DOCX · PNG · JPG', 'Bulk 200+ CVs'].map(t => (
+            {['No credit card', 'PDF · DOCX · PNG · JPG', 'Up to 200 CVs per batch'].map(t => (
               <span key={t} className="inline-flex items-center gap-2"><Check size={12} className="text-[var(--color-primary-2)]"/>{t}</span>
             ))}
           </Reveal>
@@ -412,7 +412,7 @@ function Features() {
           desc="Each candidate gets a 0–100 match score with written reasoning that cites the JD — agree, override, or push back.">
           <ScoringDemo />
         </Tile>
-        <Tile className="md:col-span-2" delay={0.06} icon={FileStack} title="Bulk by design" desc="Drop 200 CVs at once. PDF, DOCX, PNG, JPG — scanned ones too.">
+        <Tile className="md:col-span-2" delay={0.06} icon={FileStack} title="Bulk by design" desc="Drop up to 200 CVs in one batch (500 on Enterprise). PDF, DOCX, PNG, JPG — scanned ones too.">
           <BulkDemo />
         </Tile>
         <Tile className="md:col-span-2" delay={0.12} icon={Lock} title="Private & yours" desc="Auth, row-level security and per-user isolation by default.">

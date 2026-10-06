@@ -60,7 +60,7 @@ export const softwareApplication = () => ({
     offerCount: 4,
   },
   featureList: [
-    'Bulk CV screening (up to 50+ at once)',
+    'Bulk CV screening (up to 200 CVs per batch; 500 on Enterprise)',
     'JD-cited match reasoning',
     'Missing-skill detection',
     'Auto-generated interview questions',

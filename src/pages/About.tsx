@@ -38,7 +38,7 @@ const timeline = [
 export default function About() {
   useSeo({
     title: 'About HireBest — Founder Story, Mission, and Team',
-    description: 'HireBest was built by a founder who spent 4 hours screening 200 CVs for one role. Now 100 CVs take 38 seconds. Meet the team behind the AI resume screener.',
+    description: 'HireBest was built by a founder who spent 4 hours screening 200 CVs for one role. Now 100 CVs take 38 seconds. Meet the founder behind the AI resume screener.',
     canonical: 'https://hirebest.online/about',
   })
   useSchema('about-org', organization())

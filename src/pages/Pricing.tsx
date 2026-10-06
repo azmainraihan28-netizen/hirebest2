@@ -9,7 +9,8 @@ import { formatPlanLimit } from '../lib/plans'
 import { Reveal, SplitHeading, Eyebrow, Spotlight, Magnetic } from '../components/motion/primitives'
 
 const pricingFaqs = [
-  { q: 'Is there a free trial?',                                    a: 'Yes — 14 days free on the Growth plan. No credit card required to start. Cancel anytime during the trial without being charged.' },
+  { q: 'Is there a free trial?',                                    a: 'Yes — 14 days free on every paid plan (Starter, Growth and Team). No credit card required to start. Cancel anytime during the trial without being charged.' },
+  { q: 'Is there a free plan?',                                     a: 'Yes. The free plan screens 50 CVs a month on 1 active job, with no credit card. Upgrade when you need more CVs, jobs or users.' },
   { q: 'Can I switch between monthly and annual?',                  a: 'Yes. You can upgrade from monthly to annual at any time and lock in two months free. Annual plans save ~29% compared to paying monthly.' },
   { q: 'What counts as an "active job slot"?',                      a: 'Any open role you are actively screening candidates for. Closed or paused jobs free up a slot. You can archive old jobs to stay within your limit.' },
   { q: 'What happens if I exceed my monthly CV limit?',             a: 'We will notify you before you hit the cap. You can upgrade mid-cycle (prorated) or wait until next month — no overage fees, no surprise charges.' },
@@ -31,7 +32,7 @@ type Tier = {
 
 const tiers: Tier[] = [
   { plan: 'basic',    name: 'Starter',    subtitle: 'Solo recruiters & consultants',       best: 'Freelance recruiters, solo HR, hiring consultants',                monthly: 49,   annual: 420,  cta: 'Start free trial',   features: ['3 active job slots', `${formatPlanLimit('basic')} CVs / month`, '1 user', 'AI scoring with cited reasoning', 'Interview question generation', 'CSV export'] },
-  { plan: 'advanced', name: 'Growth',     subtitle: 'Small HR teams & startups',           best: 'Small HR teams, startups, growing SMBs (5–50 employees)',           monthly: 99,   annual: 840,  popular: true, cta: 'Start 14-day trial', features: ['10 active job slots', `${formatPlanLimit('advanced')} CVs / month`, '3 users', 'Everything in Starter', 'Bulk upload (100+ PDFs)', 'Custom branding (logo, colors)', 'Screening history per JD', 'Side-by-side candidate compare', 'Outreach email drafts', 'Priority email support'] },
+  { plan: 'advanced', name: 'Growth',     subtitle: 'Small HR teams & startups',           best: 'Small HR teams, startups, growing SMBs (5–50 employees)',           monthly: 99,   annual: 840,  popular: true, cta: 'Start 14-day trial', features: ['10 active job slots', `${formatPlanLimit('advanced')} CVs / month`, '3 users', 'Everything in Starter', 'Bulk upload, 200 CVs per batch', 'Custom branding (logo, colors)', 'Screening history per JD', 'Side-by-side candidate compare', 'Outreach email drafts', 'Priority email support'] },
   { plan: 'lifetime', name: 'Team',       subtitle: 'HR departments & staffing agencies',  best: 'HR departments, staffing agencies, 50–500 employee companies',      monthly: 199,  annual: 1680, cta: 'Start free trial',   features: ['Unlimited active job slots', `${formatPlanLimit('lifetime')} CVs / month`, '10 users', 'Everything in Growth', 'Analytics dashboard', 'API access', 'Role-based permissions', 'Email notifications', 'Hiring analytics', 'Priority Slack support'] },
   { plan: 'retainer', name: 'Enterprise', subtitle: '500+ companies & enterprise HR',      best: '500+ employee companies, staffing firms, enterprise HR',            monthly: null, annual: null, cta: 'Talk to sales',      features: [`${formatPlanLimit('retainer')} CVs / month`, 'Unlimited users', 'Everything in Team', 'Custom ATS / database integration', 'SSO (Single Sign-On)', 'SLA guarantee', 'Dedicated CSM', 'Custom workflow per team', 'On-premise deployment', 'Quarterly business reviews'] },
 ]
@@ -43,7 +44,7 @@ const matrix = [
   { f: 'AI scoring with cited reasoning',     v: [true, true, true, true] },
   { f: 'Interview question generation',        v: [true, true, true, true] },
   { f: 'CSV export',                           v: [true, true, true, true] },
-  { f: 'Bulk upload (100+ PDFs)',             v: [false, true, true, true] },
+  { f: 'CVs per upload batch',                v: ['50', '200', '200', '500'] },
   { f: 'Custom branding',                      v: [false, true, true, true] },
   { f: 'Screening history per JD',            v: [false, true, true, true] },
   { f: 'Side-by-side compare',                v: [false, true, true, true] },
