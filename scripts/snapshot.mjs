@@ -39,7 +39,6 @@ const ROUTES = [
   { path: '/blog/ai-ats-wrong-way-to-think',      noindex: false },
   { path: '/blog/greenhouse-pricing-2026',        noindex: false },
   { path: '/blog/screen-100-cvs-in-38-seconds',  noindex: false },
-  { path: '/blog/hirebest-vs-greenhouse-2026',   noindex: false },
   { path: '/blog/marketing-manager-interview-questions', noindex: false },
   { path: '/blog/software-engineer-interview-questions', noindex: false },
   { path: '/blog/workable-pricing-2026',          noindex: false },

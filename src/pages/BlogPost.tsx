@@ -84,12 +84,6 @@ const relatedLinks: Record<string, { label: string; href: string; desc: string }
     { label: 'HireBest vs Greenhouse', href: '/vs-greenhouse', desc: 'See how HireBest speed compares to Greenhouse\'s individual pipeline review.' },
     { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'Workable vs HireBest on AI screening speed and pricing.' },
   ],
-  'hirebest-vs-greenhouse-2026': [
-    { label: 'HireBest vs Greenhouse — deep dive', href: '/vs-greenhouse', desc: 'Full pricing breakdown, AI scoring, and contract terms.' },
-    { label: 'HireBest vs Workable', href: '/vs-workable', desc: 'Another popular ATS compared on price and AI features.' },
-    { label: 'HireBest vs Lever', href: '/vs-lever', desc: 'Lever\'s CRM-first approach vs HireBest\'s screening focus.' },
-    { label: 'Greenhouse Pricing in 2026', href: '/blog/greenhouse-pricing-2026', desc: 'What an annual Greenhouse contract actually costs SMEs.' },
-  ],
 }
 
 const plain = (text: string) => text.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
