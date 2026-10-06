@@ -136,12 +136,12 @@ function Hero() {
             transition={{ duration: 0.8, ease: EASE }}
             className="inline-flex items-center gap-2.5 rounded-full border border-[var(--color-border-strong)] bg-[color-mix(in_srgb,var(--color-card)_70%,transparent)] backdrop-blur pl-1.5 pr-4 py-1.5 text-xs text-[var(--color-fg-dim)]"
           >
-            <span className="rounded-full bg-[var(--color-primary)] text-[var(--color-primary-ink)] px-2 py-0.5 text-[10px] font-semibold tracking-wide">NEW</span>
-            AI resume screener with cited reasoning
+            <span className="rounded-full bg-[var(--color-primary)] text-[var(--color-primary-ink)] px-2 py-0.5 text-[10px] font-semibold tracking-wide">AI</span>
+            <h1 className="font-normal">AI resume screener: score 100 CVs in 38 seconds</h1>
           </motion.div>
 
           <SplitHeading
-            as="h1"
+            as="p"
             text={'Read 100 CVs\n*before* your\ncoffee cools.'}
             className="display-hero mt-7 text-[var(--color-fg)]"
             delay={0.1}
@@ -399,7 +399,7 @@ function Features() {
       <div className="grid lg:grid-cols-12 gap-8 items-end mb-14">
         <div className="lg:col-span-8">
           <Eyebrow n="02">Product</Eyebrow>
-          <SplitHeading text={'Everything a recruiter\n*wishes* an ATS did.'} className="display-lg mt-6 text-[var(--color-fg)]" />
+          <SplitHeading text={'AI resume screening\n*recruiters* actually use.'} className="display-lg mt-6 text-[var(--color-fg)]" />
         </div>
         <Reveal className="lg:col-span-4 text-[var(--color-fg-dim)] leading-relaxed">
           Built for the moment between “send me CVs” and “schedule the interview.”
@@ -627,7 +627,7 @@ function HowItWorks() {
       <section id="how-it-works" className="relative scroll-mt-24">
         <div className="max-w-7xl mx-auto px-5 pt-16">
           <Eyebrow n="03">How it works</Eyebrow>
-          <SplitHeading text={'From inbox chaos to\nshortlist in *three* steps.'} className="display-lg mt-6 text-[var(--color-fg)]" />
+          <SplitHeading text={'How AI CV screening works:\n*three* steps.'} className="display-lg mt-6 text-[var(--color-fg)]" />
         </div>
         <div className="max-w-7xl mx-auto px-5 pt-8 pb-6 space-y-4">
           {steps.map((s, i) => (
@@ -646,7 +646,7 @@ function HowItWorks() {
     <section id="how-it-works" className="relative scroll-mt-24">
       <div className="max-w-7xl mx-auto px-5 pt-16 md:pt-32">
         <Eyebrow n="03">How it works</Eyebrow>
-        <SplitHeading text={'From inbox chaos to\nshortlist in *three* steps.'} className="display-lg mt-6 text-[var(--color-fg)]" />
+        <SplitHeading text={'How AI CV screening works:\n*three* steps.'} className="display-lg mt-6 text-[var(--color-fg)]" />
       </div>
       <div ref={ref} className="relative max-w-7xl mx-auto px-5 pb-10" style={{ height: `${(steps.length - 1) * 85 + 90}vh` }}>
         {steps.map((s, i) => (
@@ -761,7 +761,7 @@ function SavingsCalculator() {
       <div className="grid lg:grid-cols-12 gap-8 items-end mb-12">
         <div className="lg:col-span-7">
           <Eyebrow n="04">ROI</Eyebrow>
-          <SplitHeading text={'Simple pricing.\n*No* per-seat tax.'} className="display-lg mt-6 text-[var(--color-fg)]" />
+          <SplitHeading text={'Plans from $49/month.\n*No* per-seat tax.'} className="display-lg mt-6 text-[var(--color-fg)]" />
         </div>
         <Reveal className="lg:col-span-5 text-[var(--color-fg-dim)] leading-relaxed">
           14-day free trial — no credit card required. Save ~29% with annual billing. Move the sliders to see what you'd get back.
@@ -887,7 +887,7 @@ function FAQBlock() {
       <div className="lg:col-span-5">
         <div className="lg:sticky lg:top-28">
           <Eyebrow n="05">FAQ</Eyebrow>
-          <SplitHeading text={'Questions,\n*answered.*'} className="display-lg mt-6 text-[var(--color-fg)]" />
+          <SplitHeading text={'AI resume screening,\n*answered.*'} className="display-lg mt-6 text-[var(--color-fg)]" />
           <p className="mt-6 text-[var(--color-fg-dim)] max-w-sm">Something else? <Link to="/contact" className="text-[var(--color-primary-2)] u-link">Talk to us</Link> — we usually reply within a few hours.</p>
         </div>
       </div>

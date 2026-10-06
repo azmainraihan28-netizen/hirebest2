@@ -87,7 +87,7 @@ export default function Pricing() {
         <Breadcrumbs trail={[{ name: 'Pricing' }]} schemaId="pricing-breadcrumb"/>
         <div className="relative max-w-7xl mx-auto px-5 pt-14 pb-14 text-center">
           <Eyebrow n="$">Pricing</Eyebrow>
-          <SplitHeading as="h1" text={'Simple pricing.\n*No* per-seat tax.'} className="display-xl mt-7 text-[var(--color-fg)]" />
+          <SplitHeading as="h1" text={'AI resume screener pricing.\n*No* per-seat tax.'} className="display-xl mt-7 text-[var(--color-fg)]" />
           <Reveal delay={0.35} className="mt-7 text-[var(--color-fg-dim)] max-w-2xl mx-auto text-lg">
             Start with a 14-day free trial — no credit card. Switch monthly ↔ annual anytime. Save ~29% with annual billing.
           </Reveal>
@@ -174,7 +174,7 @@ export default function Pricing() {
       <section className="max-w-7xl mx-auto px-5 py-24">
         <div className="mb-10">
           <Eyebrow n="01">Comparison</Eyebrow>
-          <SplitHeading text={'Compare *every* feature.'} className="display-lg mt-6 text-[var(--color-fg)]" />
+          <SplitHeading text={'Compare *every* plan.'} className="display-lg mt-6 text-[var(--color-fg)]" />
         </div>
 
         <p className="md:hidden -mt-4 mb-4 text-xs text-[var(--color-muted)]">Swipe sideways to compare all four plans →</p>

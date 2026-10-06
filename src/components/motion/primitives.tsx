@@ -64,7 +64,7 @@ export function Reveal({
  */
 export function SplitHeading({
   text, className = '', delay = 0, as = 'h2', once = true,
-}: { text: string; className?: string; delay?: number; as?: 'h1' | 'h2' | 'h3'; once?: boolean }) {
+}: { text: string; className?: string; delay?: number; as?: 'h1' | 'h2' | 'h3' | 'p'; once?: boolean }) {
   const reduce = useReducedMotion()
   const lite = useLiteMotion()
   const ref = useRef<HTMLHeadingElement>(null)

@@ -55,7 +55,7 @@ export default function About() {
         <Breadcrumbs trail={[{ name: 'About' }]} schemaId="about-bc" />
         <div className="relative max-w-7xl mx-auto px-5 pt-14 pb-24 grid lg:grid-cols-12 gap-10 items-end">
           <div className="lg:col-span-9">
-            <Eyebrow n="HB">Our story</Eyebrow>
+            <Eyebrow n="HB">About HireBest</Eyebrow>
             <SplitHeading
               as="h1"
               text={'Built by someone who\nspent *4 hours reading*\nthe wrong CVs.'}
