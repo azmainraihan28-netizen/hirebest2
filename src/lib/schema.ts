@@ -98,7 +98,7 @@ export const article = (p: { title: string; description: string; slug: string; d
     description: p.description,
     datePublished: isoDate(p.date),
     dateModified: isoDate(p.date),
-    image: `https://hirebest.online${p.image ?? '/og-card.png'}`,
+    image: `https://hirebest.online${p.image ?? '/og-card.jpg'}`,
     author: isNamedPerson
       ? { '@type': 'Person', name: authorName, url: 'https://hirebest.online/about',
           ...(authorName === 'Azmain Raihan' ? { '@id': 'https://hirebest.online/about#azmain' } : {}) }
