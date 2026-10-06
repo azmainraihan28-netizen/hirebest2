@@ -206,36 +206,13 @@ export function Magnetic({ children, strength = 0.35, className = '' }: { childr
   )
 }
 
-/** Number that counts up when scrolled into view. Keeps any suffix ("s", "%", "+"). */
+/**
+ * A stat such as "38s", "94%" or "10,000+". It used to count up from 0 on
+ * scroll, but the prerendered HTML then said "0s" / "0%" to search engines and
+ * no-JS readers, so it now always renders the real value.
+ */
 export function CountUp({ value, className = '' }: { value: string; className?: string }) {
-  const ref = useRef<HTMLSpanElement>(null)
-  const inView = useInView(ref, { once: true, amount: 0.6 })
-  const reduce = useReducedMotion()
-  const clean = value.replace(/,/g, '')
-  const match = clean.match(/^(\d+(?:\.\d+)?)(.*)$/)
-  const target = match ? parseFloat(match[1]) : 0
-  const suffix = match ? match[2] : ''
-  const decimals = match && match[1].includes('.') ? match[1].split('.')[1].length : 0
-  const [n, setN] = useState(reduce ? target : 0)
-
-  useEffect(() => {
-    if (!inView || reduce || !match) return
-    const dur = 1800
-    const t0 = performance.now()
-    let raf = 0
-    const tick = (now: number) => {
-      const t = Math.min((now - t0) / dur, 1)
-      setN(target * (1 - Math.pow(1 - t, 4)))
-      if (t < 1) raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView])
-
-  if (!match) return <span className={className}>{value}</span>
-  const shown = decimals ? n.toFixed(decimals) : Math.round(n).toLocaleString()
-  return <span ref={ref} className={className}>{shown}{suffix}</span>
+  return <span className={className}>{value}</span>
 }
 
 /**
