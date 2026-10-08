@@ -1,6 +1,7 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState, ReactNode } from 'react'
 import type { Session, User } from '@supabase/supabase-js'
 import type { Profile } from './supabase'
+import { isNativeApp, NATIVE_AUTH_REDIRECT, openExternal } from './native'
 
 // Loaded on demand so the Supabase SDK (the biggest dependency) stays out of the
 // bundle every marketing page downloads before it can render.
@@ -38,6 +39,9 @@ type AuthCtx = {
 }
 
 const Ctx = createContext<AuthCtx | null>(null)
+
+/** Where OAuth / SSO sign-in returns to: the site, or the Android app's deep link. */
+const authRedirect = () => isNativeApp() ? NATIVE_AUTH_REDIRECT : `${window.location.origin}/auth/callback`
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [session, setSession] = useState<Session | null>(null)
@@ -81,24 +85,29 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     profile,
     loading,
     signInWithGoogle: async () => {
-      await (await client()).auth.signInWithOAuth({
+      const native = isNativeApp()
+      const { data } = await (await client()).auth.signInWithOAuth({
         provider: 'google',
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
+        options: { redirectTo: authRedirect(), skipBrowserRedirect: native },
       })
+      if (native && data?.url) await openExternal(data.url)
     },
     signInWithSSO: async (email) => {
       const domain = email.split('@')[1]?.trim().toLowerCase()
       if (!domain) return { error: 'Enter your work email.' }
       const { data, error } = await (await client()).auth.signInWithSSO({
         domain,
-        options: { redirectTo: `${window.location.origin}/auth/callback` },
+        options: { redirectTo: authRedirect() },
       })
       if (error) {
         return { error: /not found|no sso provider/i.test(error.message)
           ? `SSO isn't set up for ${domain} yet. Ask your HireBest account manager, or sign in another way.`
           : error.message }
       }
-      if (data?.url) window.location.href = data.url
+      if (data?.url) {
+        if (isNativeApp()) await openExternal(data.url)
+        else window.location.href = data.url
+      }
       return { error: null }
     },
     signInWithEmail: async (email, password) => {

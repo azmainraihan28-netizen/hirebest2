@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">HireBest</string>
+    <string name="title_activity_main">HireBest</string>
+    <string name="package_name">online.hirebest.app</string>
+    <string name="custom_url_scheme">online.hirebest.app</string>
+</resources>

@@ -3,8 +3,11 @@ import { createRoot, hydrateRoot } from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import App from './App'
 import { AuthProvider } from './lib/auth'
+import { initNativeApp } from './lib/native'
 import { ThemeProvider } from './lib/theme'
 import './styles.css'
+
+initNativeApp()
 
 const app = (
   <StrictMode>

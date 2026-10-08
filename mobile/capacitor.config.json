@@ -1,0 +1,23 @@
+{
+  "appId": "online.hirebest.app",
+  "appName": "HireBest",
+  "webDir": "www",
+  "server": {
+    "url": "https://hirebest.online",
+    "androidScheme": "https",
+    "errorPath": "offline.html",
+    "allowNavigation": ["hirebest.online", "*.hirebest.online", "*.supabase.co"]
+  },
+  "android": {
+    "backgroundColor": "#060a1a",
+    "allowMixedContent": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1200,
+      "launchAutoHide": true,
+      "backgroundColor": "#060a1a",
+      "showSpinner": false
+    }
+  }
+}
