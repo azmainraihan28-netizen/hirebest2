@@ -620,8 +620,6 @@ const steps = [
 ]
 
 function HowItWorks() {
-  const ref = useRef<HTMLDivElement>(null)
-  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
   const lite = useLiteMotion()
   if (lite) {
     // Sticky 82vh cards leave screens of empty space on a phone; stack them instead.
@@ -644,6 +642,14 @@ function HowItWorks() {
       </section>
     )
   }
+  return <HowItWorksStacked />
+}
+
+// Separate component so useScroll binds its target on mount; the page renders
+// lite first and only then switches desktops to this version.
+function HowItWorksStacked() {
+  const ref = useRef<HTMLDivElement>(null)
+  const { scrollYProgress } = useScroll({ target: ref, offset: ['start start', 'end end'] })
   return (
     <section id="how-it-works" className="relative scroll-mt-24">
       <div className="max-w-7xl mx-auto px-5 pt-16 md:pt-32">
