@@ -94,14 +94,23 @@ export function StaticLines({ text, className = '', as = 'h2' }: { text: string;
 export function SplitHeading({
   text, className = '', delay = 0, as = 'h2', once = true,
 }: { text: string; className?: string; delay?: number; as?: 'h1' | 'h2' | 'h3' | 'p'; once?: boolean }) {
+  // The animated version must mount as its own component: useInView only binds
+  // its ref on mount, and every device starts lite (static) before desktops
+  // switch to full motion. Sharing one component left the ref unbound, so the
+  // words stayed masked below the line and the heading looked empty.
+  if (useLiteMotion()) return <StaticLines text={text} className={className} as={as} />
+  return <SplitHeadingAnimated text={text} className={className} delay={delay} as={as} once={once} />
+}
+
+function SplitHeadingAnimated({
+  text, className, delay, as, once,
+}: { text: string; className: string; delay: number; as: 'h1' | 'h2' | 'h3' | 'p'; once: boolean }) {
   const reduce = useReducedMotion()
-  const lite = useLiteMotion()
   const ref = useRef<HTMLHeadingElement>(null)
   const inView = useInView(ref, { once, amount: 0.4 })
   const Tag = as
   const lines = text.split('\n').map(tokenize)
   let idx = 0
-  if (lite) return <StaticLines text={text} className={className} as={as} />
   return (
     <Tag ref={ref} className={className} aria-label={text.replace(/\*/g, '').replace(/\n/g, ' ')}>
       {lines.map((line, li) => (
